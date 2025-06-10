@@ -141,3 +141,17 @@ export const UserPasswordUpdateSchema = yup
 
 // Type inference for client-side forms
 export type UserPasswordUpdateInput = yup.InferType<typeof UserPasswordUpdateSchema>;
+
+/**
+ * Schema for resetting a user's password.
+ */
+export const UserPasswordResetSchema = yup
+  .object({
+    password: passwordValidation.required("Password is required"),
+    confirmPassword: passwordValidation.required("Re-type password is required"),
+    token: yup.string().required("Token is missing"),
+  })
+  .required();
+
+// Type inference for client-side forms
+export type UserPasswordResetInput = yup.InferType<typeof UserPasswordResetSchema>;
