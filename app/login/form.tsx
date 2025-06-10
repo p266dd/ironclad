@@ -10,7 +10,8 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertTriangle, Eye, EyeOff } from "lucide-react";
 
 export function LoginForm({ className, ...props }: React.ComponentProps<"form">) {
   const router = useRouter();
@@ -61,6 +62,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"form">)
           />
           {state.fieldErrors?.email && (
             <Alert variant="destructive">
+              <AlertTriangle size={18} />
               <AlertDescription>
                 <p>{state.fieldErrors.email}</p>
               </AlertDescription>
@@ -70,20 +72,32 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"form">)
         <div className="grid gap-3">
           <div className="flex items-center">
             <Label htmlFor="password">Password</Label>
-            <a href="#" className="ml-auto text-sm underline-offset-4 hover:underline">
+            <Link
+              href="/recover"
+              className="ml-auto text-sm underline-offset-4 hover:underline"
+            >
               Forgot your password?
-            </a>
+            </Link>
           </div>
-          <Input
-            ref={passwordRef}
-            id="password"
-            name="password"
-            type={showPassword ? "text" : "password"}
-            placeholder="•••••••••"
-            required
-          />
+          <div className="relative">
+            <Input
+              ref={passwordRef}
+              id="password"
+              name="password"
+              type={showPassword ? "text" : "password"}
+              placeholder="•••••••••"
+              required
+            />
+            <span
+              className="absolute right-4 top-2 text-slate-400"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? <Eye size={18} /> : <EyeOff size={18} />}
+            </span>
+          </div>
           {state.fieldErrors?.password && (
             <Alert variant="destructive">
+              <AlertTriangle size={18} />
               <AlertDescription>
                 <p>{state.fieldErrors.password}</p>
               </AlertDescription>

@@ -1,7 +1,6 @@
 "use server";
 
 import * as yup from "yup";
-import { redirect } from "next/navigation";
 import { UserAuthSchema, UserAuthInput } from "@/prisma/schemas/user";
 import { findUserByEmailForAuth } from "@/prisma/access/user";
 import { createSession } from "@/lib/session";
