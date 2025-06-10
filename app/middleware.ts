@@ -74,8 +74,9 @@ export const config = {
      * - /_next/static (static files)
      * - /_next/image (image optimization files)
      * - /favicon.ico (favicon file)
+     * - /manifest.webmanifest (PWA manifest file)
      * - Any files with extensions (e.g., .png, .jpg, .css, .js, etc.)
      */
-    "/((?!api|_next/static|_next/image|favicon\\.ico|.*\\.(?:png|jpg|jpeg|gif|webp|svg|css|js|map|json|xml|txt)$).*)",
+    "/((?!api|_next/static|_next/image|favicon\\.ico|manifest\\.webmanifest|.*\\.(?:png|jpg|jpeg|gif|webp|svg|css|js|map|json|xml|txt)$).*)",
   ],
 };
