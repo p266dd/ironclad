@@ -1,0 +1,134 @@
+"use server";
+
+import * as yup from "yup";
+
+import { RecoverAuthSchema, RecoverAuthInput } from "@/prisma/schemas/user";
+import { findUserByEmailForAuth } from "@/prisma/access/user";
+import { sendEmail } from "@/lib/nodemailer";
+import prisma from "@/lib/prisma";
+import { SignJWT } from "jose";
+
+import { RecoverEmailHTML, RecoverEmailText } from "./email";
+
+// Define the return type for the server action.
+interface RecoverActionResult {
+  success: boolean;
+  message?: string;
+  fieldErrors?: { [key: string]: string };
+}
+
+// Initial state for useActionState.
+const initialState: RecoverActionResult = {
+  success: false,
+  message: undefined,
+  fieldErrors: undefined,
+};
+
+export async function recover(
+  prevState: RecoverActionResult,
+  formData: FormData
+): Promise<RecoverActionResult> {
+  const email = formData.get("email");
+
+  const inputData: RecoverAuthInput = {
+    email: typeof email === "string" ? email : "",
+  };
+
+  try {
+    // Validate data.
+    const validatedData = await RecoverAuthSchema.validate(inputData, {
+      abortEarly: false, // Collect all errors
+    });
+
+    // Find user by email.
+    const userResult = await prisma.user.findUnique({
+      where: { email: validatedData.email },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+      },
+    });
+
+    // User not found.
+    if (!userResult) {
+      return { success: false, message: "Invalid credentials. Please try again." };
+    }
+
+    const user = userResult;
+
+    const secretValue = process.env.JWT_SECRET;
+    const baseUrlValue = process.env.NEXT_PUBLIC_BASE_URL;
+
+    if (!secretValue) {
+      console.error("Recover Action Error: JWT_SECRET is not defined.");
+      return {
+        success: false,
+        message: "An internal server error occurred. Please try again later.",
+      };
+    }
+    if (!baseUrlValue) {
+      console.error("Recover Action Error: NEXT_PUBLIC_BASE_URL is not defined.");
+      return {
+        success: false,
+        message: "An internal server error occurred. Please try again later.",
+      };
+    }
+
+    // Generate jwt token.
+    const secret = new TextEncoder().encode(secretValue);
+    const token = await new SignJWT({ id: user.id })
+      .setProtectedHeader({ alg: "HS256" })
+      .setIssuedAt()
+      .setExpirationTime(new Date(Date.now() + 3 * 60 * 60 * 1000))
+      .sign(secret);
+
+    // Insert token into user's database.
+    const updatedUser = await prisma.user.update({
+      where: { id: user.id },
+      data: { token },
+      select: {
+        id: true,
+      },
+    });
+
+    if (!updatedUser) {
+      return { success: false, message: "An error occured. Please try again." };
+    }
+
+    const code = `${baseUrlValue}/reset?token=${token}`; // Use validated baseUrlValue
+
+    await sendEmail({
+      to: validatedData.email,
+      subject: "Password Reset",
+      html: RecoverEmailHTML({ code }),
+      text: RecoverEmailText({ code }),
+    });
+
+    return {
+      success: true,
+      message: "If an account with that email exists, a recovery link has been sent.",
+    };
+  } catch (error) {
+    if (error instanceof yup.ValidationError) {
+      const fieldErrors: { [key: string]: string } = {};
+      error.inner.forEach((err) => {
+        if (err.path) {
+          fieldErrors[err.path] = err.message;
+        }
+      });
+      return {
+        success: false,
+        message: "Validation failed. Please check your inputs.",
+        fieldErrors: fieldErrors,
+      };
+    } else {
+      console.error("Authentication server action failed:", error);
+      return {
+        success: false,
+        message: "An unexpected error occurred. Please try again later.",
+      };
+    }
+  }
+}

@@ -108,6 +108,19 @@ export const UserAuthSchema = yup
 export type UserAuthInput = yup.InferType<typeof UserAuthSchema>;
 
 /**
+ * Schema specifically for user recovery.
+ * Minimal fields required for authentication.
+ */
+export const RecoverAuthSchema = yup
+  .object({
+    email: emailValidation,
+  })
+  .required();
+
+// Type inference for client-side forms
+export type RecoverAuthInput = yup.InferType<typeof RecoverAuthSchema>;
+
+/**
  * Schema for updating only a user's password.
  */
 export const UserPasswordUpdateSchema = yup
