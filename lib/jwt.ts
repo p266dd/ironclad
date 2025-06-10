@@ -10,6 +10,10 @@ export interface SessionPayload extends JWTPayload {
   role: "user" | "admin"; // Possible roles
 }
 
+export interface ResetTokenPayload extends JWTPayload {
+  id: string;
+}
+
 // Validate JWT_SECRET at load time.
 if (!process.env.JWT_SECRET) {
   throw new Error("Missing secret environment variable.");
@@ -60,6 +64,36 @@ export async function decrypt(session: string): Promise<SessionPayload | null> {
     }
 
     console.warn("Decrypted JWT payload did not match expected structure:", payload);
+    return null;
+  } catch (error) {
+    console.error("JWT decryption failed:", error);
+    return null;
+  }
+}
+
+/**
+ * Decrypts a Reset JWT token string and returns its payload.
+ * Throws an error if the token is invalid, expired, or malformed.
+ * @param session The JWT string to decrypt.
+ * @returns A Promise that resolves to the decrypted payload.
+ */
+export async function decryptResetToken(
+  token: string
+): Promise<ResetTokenPayload | null> {
+  try {
+    const { payload } = await jwtVerify(token, jwtSecret, {
+      algorithms: ["HS256"],
+    });
+
+    if (typeof payload.id === "string") {
+      // Type assert to defined SessionPayload interface.
+      return payload as ResetTokenPayload;
+    }
+
+    console.warn(
+      "Decrypted Reset JWT payload did not match expected structure:",
+      payload
+    );
     return null;
   } catch (error) {
     console.error("JWT decryption failed:", error);
