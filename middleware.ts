@@ -5,7 +5,7 @@ import { getSession, refreshSessionExpiration, deleteSession } from "@/lib/sessi
 import type { NextRequest } from "next/server";
 import { SessionPayload } from "@/lib/jwt";
 
-const publicRoutes = ["/login", "/register", "/forgot-password", "/reset-password"];
+const publicRoutes = ["/login", "/register", "/recover", "/reset"];
 
 // If the session has less than this many days remaining, we'll refresh it.
 const SESSION_REFRESH_THRESHOLD_DAYS = 7;
