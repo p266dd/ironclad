@@ -1,0 +1,171 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String    @id @default(cuid())
+  name         String
+  email        String    @unique
+  password     String
+  businessCode String?
+  businessName String
+  role         String    @default("user")
+  engraving    Json?
+  orders       Order[]
+  cart         Cart?
+  favorites    Favorite?
+  token        String?   @unique
+  code         Int?
+  isActive     Boolean   @default(false)
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime?
+
+  @@index([id, email(sort: Asc)])
+  @@map("user")
+}
+
+model Order {
+  id           String         @id @default(uuid())
+  code         String         @unique
+  client       User           @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  clientId     String
+  completedAt  DateTime?
+  isCompleted  Boolean        @default(false)
+  comment      String?
+  orderProduct OrderProduct[]
+  createdAt    DateTime       @default(now()) @map("created_at")
+  updatedAt    DateTime?
+
+  @@index([code, clientId])
+  @@map("order")
+}
+
+model OrderProduct {
+  id        Int      @id @default(autoincrement())
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId   String
+  product   Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId String?
+  details   Json
+  brand     String
+  handle    String
+  request   String?
+}
+
+model Product {
+  id              String            @id @default(cuid())
+  type            String
+  name            String            @unique
+  description     String?
+  brand           String
+  handle          String
+  canChangeHandle Boolean           @default(false)
+  style           String?
+  material        String
+  media           Media[]           @relation("ProductMedia")
+  thumbnail       Media?            @relation("ProductThumbnail", fields: [thumbnailId], references: [id])
+  thumbnailId     Int?
+  sizes           Size[]
+  filters         Filter[]
+  orders          OrderProduct[]
+  carts           CartProduct[]
+  favorites       FavoriteProduct[]
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime?
+
+  @@index([id, name(sort: Asc)])
+  @@map("product")
+}
+
+model Brand {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+}
+
+model Material {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+}
+
+model Media {
+  id           Int       @id @default(autoincrement())
+  name         String
+  url          String
+  product      Product?  @relation("ProductMedia", fields: [productId], references: [id], onDelete: Cascade)
+  productId    String?
+  thumbnailFor Product[] @relation("ProductThumbnail")
+}
+
+model Size {
+  id        Int      @id @default(autoincrement())
+  name      String
+  size      String
+  price     Int
+  stock     Int
+  product   Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId String?
+}
+
+model Handle {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+}
+
+model Filter {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
+  products Product[]
+}
+
+model Cart {
+  id       String        @id @default(uuid())
+  client   User          @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  clientId String        @unique
+  products CartProduct[]
+}
+
+model CartProduct {
+  id        Int     @id @default(autoincrement())
+  cart      Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  cartId    String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId String
+  details   Json
+  brand     String
+  handle    String
+  request   String?
+}
+
+model Favorite {
+  id       Int               @id @default(autoincrement())
+  client   User              @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  clientId String            @unique
+  products FavoriteProduct[]
+}
+
+model FavoriteProduct {
+  favorite   Favorite @relation(fields: [favoriteId], references: [id], onDelete: Cascade)
+  favoriteId Int
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId  String
+
+  @@id([favoriteId, productId])
+}
+
+model Message {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String
+  link      String
+  isActive  Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
