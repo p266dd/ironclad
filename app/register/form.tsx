@@ -1,8 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState, useEffect, useActionState, useRef } from "react";
+import { useState, useActionState, useRef } from "react";
 import { signupUser } from "./register";
 import { cn } from "@/lib/utils";
 
@@ -10,10 +9,10 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertTriangle, Eye, EyeOff, Info } from "lucide-react";
 
 export function SignupForm({ className, ...props }: React.ComponentProps<"form">) {
-  const router = useRouter();
   const passwordRef = useRef(null);
   const [showPassword, setShowPassword] = useState(false);
 
@@ -31,30 +30,31 @@ export function SignupForm({ className, ...props }: React.ComponentProps<"form">
 
   const [state, formAction, pending] = useActionState(signupUser, initialState);
 
-  useEffect(() => {
-    if (state.success) {
-      console.log("Login form action succeeded:", state.message);
-      router.push("/");
-    }
-  }, [state]);
-
   return (
     <form action={formAction} className={cn("flex flex-col gap-6", className)} {...props}>
-      {state.message && !state.success && (
-        <p className="text-red-500 text-sm text-center">{state.message}</p>
-      )}
       <div className="flex flex-col items-center gap-2 text-center">
         <h1 className="text-2xl font-bold">Create Account</h1>
         <p className="text-muted-foreground text-sm text-balance">
           Enter your credentials to create a new account.
         </p>
       </div>
+      {state.message && !state.success && (
+        <Alert>
+          <Info />
+          <AlertDescription>{state.message}</AlertDescription>
+        </Alert>
+      )}
       <div className="grid gap-6">
         <div className="space-y-2">
           <Label htmlFor="name">Name</Label>
           <Input id="name" name="name" type="text" placeholder="John Doe" />
           {state.fieldErrors?.name && (
-            <p className="text-red-500 text-xs mt-1">{state.fieldErrors.name}</p>
+            <Alert variant="destructive">
+              <AlertTriangle size={18} />
+              <AlertDescription>
+                <p>{state.fieldErrors.name}</p>
+              </AlertDescription>
+            </Alert>
           )}
         </div>
 
@@ -62,15 +62,39 @@ export function SignupForm({ className, ...props }: React.ComponentProps<"form">
           <Label htmlFor="email">Email</Label>
           <Input id="email" name="email" type="email" placeholder="name@example.com" />
           {state.fieldErrors?.email && (
-            <p className="text-red-500 text-xs mt-1">{state.fieldErrors.email}</p>
+            <Alert variant="destructive">
+              <AlertTriangle size={18} />
+              <AlertDescription>
+                <p>{state.fieldErrors.email}</p>
+              </AlertDescription>
+            </Alert>
           )}
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="password">Password</Label>
-          <Input id="password" name="password" type="password" placeholder="•••••••••" />
+          <div className="relative">
+            <Input
+              ref={passwordRef}
+              id="password"
+              name="password"
+              type={showPassword ? "text" : "password"}
+              placeholder="•••••••••"
+            />
+            <span
+              className="absolute right-4 top-2 text-slate-400"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? <Eye size={18} /> : <EyeOff size={18} />}
+            </span>
+          </div>
           {state.fieldErrors?.password && (
-            <p className="text-red-500 text-xs mt-1">{state.fieldErrors.password}</p>
+            <Alert variant="destructive">
+              <AlertTriangle size={18} />
+              <AlertDescription>
+                <p>{state.fieldErrors.password}</p>
+              </AlertDescription>
+            </Alert>
           )}
         </div>
 
@@ -83,7 +107,12 @@ export function SignupForm({ className, ...props }: React.ComponentProps<"form">
             placeholder="Acme Inc."
           />
           {state.fieldErrors?.businessName && (
-            <p className="text-red-500 text-xs mt-1">{state.fieldErrors.businessName}</p>
+            <Alert variant="destructive">
+              <AlertTriangle size={18} />
+              <AlertDescription>
+                <p>{state.fieldErrors.businessName}</p>
+              </AlertDescription>
+            </Alert>
           )}
         </div>
 

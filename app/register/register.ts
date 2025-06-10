@@ -1,16 +1,10 @@
 "use server";
 
 import * as yup from "yup";
-import {
-  UserAuthSchema,
-  UserAuthInput,
-  UserCreateSchema,
-  UserCreateInput,
-} from "@/prisma/schemas/user";
-import { createSession } from "@/lib/session";
-import { redirect } from "next/navigation";
-import { findUserByEmailForAuth, createUser } from "@/prisma/access/user";
-import bcrypt from "bcryptjs";
+import { UserCreateSchema, UserCreateInput } from "@/prisma/schemas/user";
+import { sendEmail } from "@/lib/nodemailer";
+import { RegistrationEmailHTML, RegistrationEmailText } from "./email";
+import { createUser } from "@/prisma/access/user";
 
 // Type Definitions
 interface FormActionResult {
@@ -62,6 +56,14 @@ export async function signupUser(
       }
       return { success: false, message: result.error || "Failed to create account." };
     }
+
+    // Send confirmation email.
+    await sendEmail({
+      to: validatedData.email,
+      subject: "Account Registration",
+      html: RegistrationEmailHTML,
+      text: RegistrationEmailText,
+    });
 
     return { success: true, message: "Account created successfully." };
   } catch (error) {
