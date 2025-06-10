@@ -22,11 +22,11 @@ export default async function middleware(req: NextRequest) {
     // No valid session
     if (!isPublicRoute) {
       // If no session and route is private, redirect to login.
-      console.log(`Middleware: No session, redirecting to /login from ${path}`);
+      // console.log(`Middleware: No session, redirecting to /login from ${path}`);
       return NextResponse.redirect(new URL("/login", req.nextUrl));
     } else {
       // If no session and route is public, allow access.
-      console.log(`Middleware: No session, allowing access to public route ${path}`);
+      // console.log(`Middleware: No session, allowing access to public route ${path}`);
       return NextResponse.next();
     }
   }
@@ -60,9 +60,9 @@ export default async function middleware(req: NextRequest) {
   }
 
   // If a valid session exists and it's not a public route allow the request to proceed.
-  console.log(
-    `Middleware: Valid session for user ${session.id}, allowing access to ${path}`
-  );
+  // console.log(
+  //   `Middleware: Valid session for user ${session.id}, allowing access to ${path}`
+  // );
   return NextResponse.next();
 }
 
