@@ -11,8 +11,11 @@ import {
   CircleUserRound,
   LayoutDashboard,
 } from "lucide-react";
-import { SessionPayload } from "@/lib/jwt";
 
+// Types
+import { SessionPayload } from "@/lib/session";
+
+// Assets
 import Logo from "@/assets/logo-icon.png";
 
 export default function Navigation({
