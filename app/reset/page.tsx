@@ -4,7 +4,7 @@ import { ResetForm } from "./form";
 import Logo from "@/assets/logo.png";
 import Background from "@/assets/login-background.png";
 
-export default function LoginPage() {
+export default async function LoginPage() {
   return (
     <div className="grid min-h-svh lg:grid-cols-2">
       <div className="flex flex-col gap-4 p-6 md:p-10">

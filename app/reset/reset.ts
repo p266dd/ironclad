@@ -2,36 +2,25 @@
 
 import * as yup from "yup";
 import { UserPasswordResetSchema, UserPasswordResetInput } from "@/prisma/schemas/user";
-import prisma from "@/lib/prisma";
-import { createSession } from "@/lib/session";
-import { SessionPayload, ResetTokenPayload, decryptResetToken } from "@/lib/jwt";
+import { update } from "@/lib/dal";
+import { createSession, SessionPayload } from "@/lib/session";
+import { ResetTokenPayload, decryptResetToken } from "@/lib/jwt";
 import bcrypt from "bcryptjs";
 
-// Define the return type for the server action.
-interface ResetActionResult {
-  success: boolean;
-  message?: string;
-  fieldErrors?: { [key: string]: string };
-}
-
-// Initial state for useActionState.
-const initialState: ResetActionResult = {
-  success: false,
-  message: undefined,
-  fieldErrors: undefined,
-};
+// Types
+import { ActionFormInitialState } from "@/lib/types";
 
 export async function resetPassword(
-  prevState: ResetActionResult,
+  prevState: ActionFormInitialState,
   formData: FormData
-): Promise<ResetActionResult> {
+): Promise<ActionFormInitialState> {
   const password = formData.get("password");
   const confirmPassword = formData.get("confirmPasssword");
   const token = formData.get("token");
 
   const inputData: UserPasswordResetInput = {
     password: typeof password === "string" ? password : "",
-    confirmPassword: typeof password === "string" ? password : "",
+    confirmPassword: typeof confirmPassword === "string" ? confirmPassword : "",
     token: typeof token === "string" ? token : "",
   };
 
@@ -56,7 +45,9 @@ export async function resetPassword(
     }
 
     // Decrypt token to access user's id.
-    const tokenPayload = await decryptResetToken(validatedData.token);
+    const tokenPayload: ResetTokenPayload | null = await decryptResetToken(
+      validatedData.token
+    );
     const userId = tokenPayload?.id;
 
     if (!userId) {
@@ -70,7 +61,7 @@ export async function resetPassword(
     const hashedPassword = await bcrypt.hash(validatedData.password, 10);
 
     // Update user's password.
-    const updatedUser = await prisma.user.update({
+    const updatedUser = await update("user", {
       where: { id: userId },
       data: {
         password: hashedPassword,
@@ -85,12 +76,26 @@ export async function resetPassword(
       },
     });
 
+    if (updatedUser.error) {
+      return {
+        success: false,
+        message: "User not found.",
+      };
+    }
+
+    const user = updatedUser.data as {
+      id: string;
+      name: string;
+      email: string;
+      role: string;
+    };
+
     // Create a session payload that matches your SessionPayload interface.
     const sessionPayload: SessionPayload = {
-      id: updatedUser.id,
-      name: updatedUser.name,
-      email: updatedUser.email,
-      role: updatedUser.role as "user" | "admin",
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role as "user" | "admin",
     };
 
     // Create the session.
