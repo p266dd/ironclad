@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { getSession, refreshSessionExpiration, deleteSession } from "@/lib/session";
 
 import type { NextRequest } from "next/server";
-import { SessionPayload } from "@/lib/jwt";
+import { SessionPayload } from "@/lib/session";
 
 const publicRoutes = ["/login", "/register", "/recover", "/reset"];
 
@@ -14,12 +14,12 @@ export default async function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname;
   const isPublicRoute = publicRoutes.includes(path);
 
-  // Get the current session
-  const session = await getSession();
+  // Get the current session.
+  const session: SessionPayload | null = await getSession();
 
-  // Session Management Logic
+  // Session Management Logic.
   if (!session) {
-    // No valid session
+    // No valid session.
     if (!isPublicRoute) {
       // If no session and route is private, redirect to login.
       // console.log(`Middleware: No session, redirecting to /login from ${path}`);
@@ -48,20 +48,21 @@ export default async function middleware(req: NextRequest) {
     // console.log(`Middleware: Refresh threshold: ${refreshThresholdMs / (1000 * 60 * 60 * 24)} days`);
 
     if (timeRemainingMs < refreshThresholdMs) {
+      // Log for debugging.
       // If time remaining is less than our threshold, refresh the session.
       console.log(
         `Middleware: Session approaching expiration (${
           timeRemainingMs / (1000 * 60 * 60 * 24)
         } days left), refreshing.`
       );
-      // IMPORTANT: refreshSessionExpiration needs the *current* session payload
+      // IMPORTANT: refreshSessionExpiration needs the *current* session payload.
       await refreshSessionExpiration(session);
     }
   }
 
   // If a valid session exists and it's not a public route allow the request to proceed.
   // console.log(
-  //   `Middleware: Valid session for user ${session.id}, allowing access to ${path}`
+  //   `Middleware: Valid session for user ${session.id}, allowing access to ${path}`.
   // );
   return NextResponse.next();
 }
