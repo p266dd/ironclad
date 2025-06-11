@@ -12,17 +12,14 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertTriangle, Eye, EyeOff, Info } from "lucide-react";
 
+// Types
+import { ActionFormInitialState } from "@/lib/types";
+
 export function SignupForm({ className, ...props }: React.ComponentProps<"form">) {
   const passwordRef = useRef(null);
   const [showPassword, setShowPassword] = useState(false);
 
-  interface FormInitialState {
-    success: boolean;
-    message: string | undefined;
-    fieldErrors: Record<string, string> | undefined;
-  }
-
-  const initialState: FormInitialState = {
+  const initialState: ActionFormInitialState = {
     success: false,
     message: undefined,
     fieldErrors: undefined,

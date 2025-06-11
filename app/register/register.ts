@@ -2,27 +2,17 @@
 
 import * as yup from "yup";
 import { UserCreateSchema, UserCreateInput } from "@/prisma/schemas/user";
+import { create } from "@/lib/dal";
 import { sendEmail } from "@/lib/nodemailer";
 import { RegistrationEmailHTML, RegistrationEmailText } from "./email";
-import { createUser } from "@/prisma/access/user";
 
-// Type Definitions
-interface FormActionResult {
-  success: boolean;
-  message?: string;
-  fieldErrors?: { [key: string]: string };
-}
-
-const initialState: FormActionResult = {
-  success: false,
-  message: undefined,
-  fieldErrors: undefined,
-};
+// Types
+import { ActionFormInitialState } from "@/lib/types";
 
 export async function signupUser(
-  prevState: FormActionResult,
+  prevState: ActionFormInitialState,
   formData: FormData
-): Promise<FormActionResult> {
+): Promise<ActionFormInitialState> {
   const name = formData.get("name");
   const email = formData.get("email");
   const password = formData.get("password");
@@ -44,16 +34,13 @@ export async function signupUser(
     });
 
     // Create the user
-    const result = await createUser(validatedData);
+    const result = await create("user", validatedData, {
+      select: {
+        id: true,
+      },
+    });
 
-    if (!result.success) {
-      if (result.statusCode === 409) {
-        return {
-          success: false,
-          message: result.error,
-          fieldErrors: { email: result.error || "Email already in use." },
-        };
-      }
+    if (result.error) {
       return { success: false, message: result.error || "Failed to create account." };
     }
 
