@@ -2,29 +2,18 @@
 
 import * as yup from "yup";
 import { UserAuthSchema, UserAuthInput } from "@/prisma/schemas/user";
-import { findUserByEmailForAuth } from "@/prisma/access/user";
 import { createSession } from "@/lib/session";
-import { SessionPayload } from "@/lib/jwt";
+import { SessionPayload } from "@/lib/session";
+import { findUnique } from "@/lib/dal";
 import bcrypt from "bcryptjs";
 
-// Define the return type for the server action.
-interface LoginActionResult {
-  success: boolean;
-  message?: string;
-  fieldErrors?: { [key: string]: string };
-}
-
-// Initial state for useActionState.
-const initialState: LoginActionResult = {
-  success: false,
-  message: undefined,
-  fieldErrors: undefined,
-};
+// Types
+import { ActionFormInitialState } from "@/lib/types";
 
 export async function authenticateUser(
-  prevState: LoginActionResult,
+  prevState: ActionFormInitialState,
   formData: FormData
-): Promise<LoginActionResult> {
+): Promise<ActionFormInitialState> {
   const email = formData.get("email");
   const password = formData.get("password");
 
@@ -36,18 +25,27 @@ export async function authenticateUser(
   try {
     // Validate data.
     const validatedData = await UserAuthSchema.validate(inputData, {
-      abortEarly: false, // Collect all errors
+      abortEarly: false,
     });
 
     // Find user by email.
-    const userResult = await findUserByEmailForAuth(validatedData.email);
+    const userResult = await findUnique("user", {
+      where: { email: validatedData.email },
+      select: { id: true, name: true, email: true, password: true, role: true },
+    });
 
-    if (!userResult.success || !userResult.data) {
+    if (userResult.error) {
       // User not found.
       return { success: false, message: "Invalid credentials. Please try again." };
     }
 
-    const user = userResult.data;
+    const user = userResult.data as {
+      id: string;
+      name: string;
+      email: string;
+      password: string;
+      role: string;
+    };
 
     // Verify password.
     const isPasswordValid = await bcrypt.compare(validatedData.password, user.password);
