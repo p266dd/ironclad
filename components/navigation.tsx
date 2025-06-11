@@ -4,12 +4,14 @@ import Link from "next/link";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
+import { logout } from "@/actions/logout";
 import {
   Star,
   Search,
   ShoppingBag,
   CircleUserRound,
   LayoutDashboard,
+  LockIcon,
 } from "lucide-react";
 
 // Types
@@ -104,6 +106,18 @@ export default function Navigation({
             </div>
           );
         })}
+
+        <div className="hidden md:flex px-4 py-2">
+          <form action={logout}>
+            <button
+              className={cn(
+                "relative w-full flex flex-row items-center gap-6 cursor-pointer"
+              )}
+            >
+              <LockIcon /> Logout
+            </button>
+          </form>
+        </div>
 
         {session && session.role == "admin" && (
           <div className="hidden md:flex px-4 py-2 rounded-2xl">
