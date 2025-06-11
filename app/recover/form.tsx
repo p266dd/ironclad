@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useActionState, useRef } from "react";
+import { useActionState } from "react";
 import { recover } from "./recover";
 import { cn } from "@/lib/utils";
 
@@ -10,19 +10,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertTriangle, Eye, EyeOff, Info } from "lucide-react";
+import { AlertTriangle, Info } from "lucide-react";
+
+import { ActionFormInitialState } from "@/lib/types";
 
 export function RecoverForm({ className, ...props }: React.ComponentProps<"form">) {
-  const passwordRef = useRef(null);
-  const [showPassword, setShowPassword] = useState(false);
-
-  interface FormInitialState {
-    success: boolean;
-    message: string | undefined;
-    fieldErrors: Record<string, string> | undefined;
-  }
-
-  const initialState: FormInitialState = {
+  const initialState: ActionFormInitialState = {
     success: false,
     message: undefined,
     fieldErrors: undefined,

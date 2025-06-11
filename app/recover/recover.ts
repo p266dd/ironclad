@@ -3,31 +3,20 @@
 import * as yup from "yup";
 
 import { RecoverAuthSchema, RecoverAuthInput } from "@/prisma/schemas/user";
-import { findUserByEmailForAuth } from "@/prisma/access/user";
 import { sendEmail } from "@/lib/nodemailer";
-import prisma from "@/lib/prisma";
+import { findUnique, update } from "@/lib/dal";
 import { SignJWT } from "jose";
 
+// Email
 import { RecoverEmailHTML, RecoverEmailText } from "./email";
 
-// Define the return type for the server action.
-interface RecoverActionResult {
-  success: boolean;
-  message?: string;
-  fieldErrors?: { [key: string]: string };
-}
-
-// Initial state for useActionState.
-const initialState: RecoverActionResult = {
-  success: false,
-  message: undefined,
-  fieldErrors: undefined,
-};
+// Types
+import { ActionFormInitialState } from "@/lib/types";
 
 export async function recover(
-  prevState: RecoverActionResult,
+  prevState: ActionFormInitialState,
   formData: FormData
-): Promise<RecoverActionResult> {
+): Promise<ActionFormInitialState> {
   const email = formData.get("email");
 
   const inputData: RecoverAuthInput = {
@@ -37,11 +26,11 @@ export async function recover(
   try {
     // Validate data.
     const validatedData = await RecoverAuthSchema.validate(inputData, {
-      abortEarly: false, // Collect all errors
+      abortEarly: false,
     });
 
     // Find user by email.
-    const userResult = await prisma.user.findUnique({
+    const userResult = await findUnique("user", {
       where: { email: validatedData.email },
       select: {
         id: true,
@@ -52,11 +41,16 @@ export async function recover(
     });
 
     // User not found.
-    if (!userResult) {
+    if (userResult.error) {
       return { success: false, message: "Invalid credentials. Please try again." };
     }
 
-    const user = userResult;
+    const user = userResult.data as {
+      id: string;
+      name: string;
+      email: string;
+      role: string;
+    };
 
     const secretValue = process.env.JWT_SECRET;
     const baseUrlValue = process.env.NEXT_PUBLIC_BASE_URL;
@@ -85,7 +79,7 @@ export async function recover(
       .sign(secret);
 
     // Insert token into user's database.
-    const updatedUser = await prisma.user.update({
+    const updatedUser = await update("user", {
       where: { id: user.id },
       data: { token },
       select: {
@@ -93,7 +87,7 @@ export async function recover(
       },
     });
 
-    if (!updatedUser) {
+    if (updatedUser.error) {
       return { success: false, message: "An error occured. Please try again." };
     }
 
