@@ -1,15 +1,8 @@
-import { SignJWT, jwtVerify, type JWTPayload } from "jose";
 import "server-only";
+import { SignJWT, jwtVerify, type JWTPayload } from "jose";
+import { type SessionPayload } from "@/lib/session";
 
 // Type Definitions
-
-export interface SessionPayload extends JWTPayload {
-  id: string;
-  name: string;
-  email: string;
-  role: "user" | "admin"; // Possible roles
-}
-
 export interface ResetTokenPayload extends JWTPayload {
   id: string;
 }

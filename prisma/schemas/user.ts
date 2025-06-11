@@ -9,7 +9,7 @@ const emailValidation = yup
 const passwordValidation = yup
   .string()
   .min(8, "Password must be at least 8 characters")
-  .max(100, "Password cannot exceed 100 characters") // Max length for security
+  .max(100, "Password cannot exceed 100 characters")
   .required("Password is required");
 
 const nameValidation = yup

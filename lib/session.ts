@@ -2,7 +2,15 @@
 
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { encrypt, decrypt, SessionPayload } from "./jwt";
+import { encrypt, decrypt } from "./jwt";
+import { type JWTPayload } from "jose";
+
+export interface SessionPayload extends JWTPayload {
+  id: string;
+  name: string;
+  email: string;
+  role: "user" | "admin";
+}
 
 // Constants
 const SESSION_COOKIE_NAME = "ironclad-app-session";
@@ -65,7 +73,7 @@ export async function getSession(): Promise<SessionPayload | null> {
   return session;
 }
 
-// --- Session Verification Functions ---
+// Session Verification Functions
 
 /**
  * Verifies if a user session exists. If not, redirects to the login page.

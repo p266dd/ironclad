@@ -73,7 +73,7 @@ model Product {
   material        String
   media           Media[]           @relation("ProductMedia")
   thumbnail       Media?            @relation("ProductThumbnail", fields: [thumbnailId], references: [id])
-  thumbnailId     Int?
+  thumbnailId     String?
   sizes           Size[]
   filters         Filter[]
   orders          OrderProduct[]
@@ -97,7 +97,7 @@ model Material {
 }
 
 model Media {
-  id           Int       @id @default(autoincrement())
+  id           String    @id @default(uuid())
   name         String
   url          String
   product      Product?  @relation("ProductMedia", fields: [productId], references: [id], onDelete: Cascade)
@@ -113,6 +113,8 @@ model Size {
   stock     Int
   product   Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId String?
+
+  @@unique([name, size])
 }
 
 model Handle {
