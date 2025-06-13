@@ -13,12 +13,6 @@ export default function manifest(): Manifest {
     orientation: "portrait",
     lang: "en-US",
     categories: ["Shopping", "Utilities"],
-    related_applications: [
-      {
-        platform: "webapp",
-        url: `${process.env.NEXT_PUBLIC_BASE_URL}/manifest.webmanifest`,
-      },
-    ],
     icons: [
       {
         src: "/manifest-192x192.png",

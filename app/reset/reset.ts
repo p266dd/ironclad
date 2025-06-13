@@ -2,7 +2,7 @@
 
 import * as yup from "yup";
 import { UserPasswordResetSchema, UserPasswordResetInput } from "@/prisma/schemas/user";
-import { update } from "@/lib/dal";
+import { updateUserPasswordForAuth } from "@/data/user/actions";
 import { createSession, SessionPayload } from "@/lib/session";
 import { ResetTokenPayload, decryptResetToken } from "@/lib/jwt";
 import bcrypt from "bcryptjs";
@@ -61,20 +61,7 @@ export async function resetPassword(
     const hashedPassword = await bcrypt.hash(validatedData.password, 10);
 
     // Update user's password.
-    const updatedUser = await update("user", {
-      where: { id: userId },
-      data: {
-        password: hashedPassword,
-        token: null,
-        updatedAt: new Date(),
-      },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        role: true,
-      },
-    });
+    const updatedUser = await updateUserPasswordForAuth(hashedPassword, userId);
 
     if (updatedUser.error) {
       return {

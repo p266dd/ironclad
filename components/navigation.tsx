@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
-import { logout } from "@/actions/logout";
+import { logout } from "@/lib/logout";
 import {
   Star,
   Search,

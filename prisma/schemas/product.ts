@@ -6,18 +6,14 @@ const stringRequired = yup.string().trim().required("This field is required.");
 // Basic string validation for optional fields.
 const stringOptional = yup.string().trim().optional().nullable();
 
-// Product name validation.
-const nameValidation = stringRequired
-  .min(2, "Name must be at least 2 characters.")
-  .max(255, "Name cannot exceed 255 characters.");
-
 // Product description validation (optional).
 const descriptionValidation = stringOptional.max(
   1000,
   "Description cannot exceed 1000 characters."
 );
 
-// For 'type', 'brand', 'material', 'handle'.
+// For 'type', 'name', 'brand', 'material', 'handle'.
+const nameValidation = stringRequired;
 const typeValidation = stringRequired;
 const brandValidation = stringRequired;
 const materialValidation = stringRequired;
@@ -26,6 +22,7 @@ const handleValidation = stringRequired;
 // For `canChangeHandle` boolean field.
 const canChangeHandleValidation = yup
   .boolean()
+  .default(false)
   .required("Please specify if handle can be changed.");
 
 // For `style` (optional).
@@ -72,6 +69,7 @@ const sizesValidation = yup
         .required("Please type a stock.")
         .integer("Stock must be an integer.")
         .default(0),
+      productId: yup.string().optional().nullable(),
     })
   )
   .min(1, "At least one size per product is required.")
@@ -83,12 +81,16 @@ export type ProductSizeInput = yup.InferType<typeof sizesValidation>[number];
 // For `filters` an array of strings, e.g., ["color:red"])
 const filtersValidation = yup
   .array(
-    yup
-      .string()
-      .trim()
-      .required("Filter cannot be empty.")
-      .min(1, "Filter must be at least 1 character.")
-      .max(50, "Filter cannot exceed 50 characters.")
+    yup.object({
+      name: yup
+        .string()
+        .required("Please specify a name for the size.")
+        .max(50, "Name is too long.")
+        .trim(),
+      products: yup.array(
+        yup.string().required("Please specify a product id.").optional().nullable()
+      ),
+    })
   )
   .optional()
   .nullable();

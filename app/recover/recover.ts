@@ -4,7 +4,7 @@ import * as yup from "yup";
 
 import { RecoverAuthSchema, RecoverAuthInput } from "@/prisma/schemas/user";
 import { sendEmail } from "@/lib/nodemailer";
-import { findUnique, update } from "@/lib/dal";
+import { getUserForAuth, insertUserToken } from "@/data/user/actions";
 import { SignJWT } from "jose";
 
 // Email
@@ -30,15 +30,7 @@ export async function recover(
     });
 
     // Find user by email.
-    const userResult = await findUnique("user", {
-      where: { email: validatedData.email },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        role: true,
-      },
-    });
+    const userResult = await getUserForAuth(validatedData.email);
 
     // User not found.
     if (userResult.error) {
@@ -79,13 +71,7 @@ export async function recover(
       .sign(secret);
 
     // Insert token into user's database.
-    const updatedUser = await update("user", {
-      where: { id: user.id },
-      data: { token },
-      select: {
-        id: true,
-      },
-    });
+    const updatedUser = await insertUserToken(token, user.id);
 
     if (updatedUser.error) {
       return { success: false, message: "An error occured. Please try again." };

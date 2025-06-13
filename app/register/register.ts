@@ -1,8 +1,9 @@
 "use server";
 
 import * as yup from "yup";
+import bcrypt from "bcryptjs";
 import { UserCreateSchema, UserCreateInput } from "@/prisma/schemas/user";
-import { create } from "@/lib/dal";
+import { createUserForAuth } from "@/data/user/actions";
 import { sendEmail } from "@/lib/nodemailer";
 import { RegistrationEmailHTML, RegistrationEmailText } from "./email";
 
@@ -33,12 +34,17 @@ export async function signupUser(
       stripUnknown: true,
     });
 
+    const userData = {
+      name: validatedData.name,
+      email: validatedData.email,
+      password: await bcrypt.hash(validatedData.password, 10),
+      businessName: validatedData.businessName,
+      businessCode: validatedData.businessCode,
+      role: validatedData.role,
+    };
+
     // Create the user
-    const result = await create("user", validatedData, {
-      select: {
-        id: true,
-      },
-    });
+    const result = await createUserForAuth(userData);
 
     if (result.error) {
       return { success: false, message: result.error || "Failed to create account." };

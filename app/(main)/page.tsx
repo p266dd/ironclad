@@ -1,10 +1,12 @@
 import Image from "next/image";
+import { Suspense } from "react";
 import { getSession, SessionPayload } from "@/lib/session";
 import FilterTags from "@/components/filter-tags";
-import { logout } from "@/actions/logout";
+import { logout } from "@/lib/logout";
 import { LockIcon } from "lucide-react";
 
-import { getFilters } from "@/prisma/operations/filter";
+import { getFilters } from "@/data/filter/action";
+import ProductGrid from "@/components/product-grid";
 
 // Assets
 import Logo from "@/assets/logo.png";
@@ -21,7 +23,7 @@ export default async function HomePage({
   const params = await searchParams;
 
   const filters = await getFilters();
-  const currentlyActive = params.filter;
+  const currentlyActiveFilter = params.filter;
 
   return (
     <main className="pb-44 sm:pb-0">
@@ -49,14 +51,14 @@ export default async function HomePage({
         </div>
       </div>
 
-      {filters && filters.length > 0 ? (
+      {filters.data && filters.data.length > 0 ? (
         <div className="my-6 md:px-6">
           <ScrollArea className="w-full p-4 whitespace-nowrap">
-            {filters.map((filter, i) => (
+            {filters.data.map((filter, i) => (
               <FilterTags
                 key={i}
                 filter={filter.name}
-                active={currentlyActive ? currentlyActive : ""}
+                active={currentlyActiveFilter ? currentlyActiveFilter : ""}
               />
             ))}
             <ScrollBar orientation="horizontal" />
@@ -65,6 +67,9 @@ export default async function HomePage({
       ) : null}
 
       {/* TODO; Product grid -> pass currentActive */}
+      <Suspense fallback={"loading..."}>
+        <ProductGrid activeFilter={currentlyActiveFilter} />
+      </Suspense>
     </main>
   );
 }

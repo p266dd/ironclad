@@ -2,16 +2,15 @@
 
 import * as yup from "yup";
 import { UserAuthSchema, UserAuthInput } from "@/prisma/schemas/user";
-import { createSession } from "@/lib/session";
-import { SessionPayload } from "@/lib/session";
-import { findUnique } from "@/lib/dal";
+import { createSession, SessionPayload } from "@/lib/session";
+import { getUserForAuth } from "@/data/user/actions";
 import bcrypt from "bcryptjs";
 
 // Types
 import { ActionFormInitialState } from "@/lib/types";
 
 export async function authenticateUser(
-  prevState: ActionFormInitialState,
+  _prevState: ActionFormInitialState,
   formData: FormData
 ): Promise<ActionFormInitialState> {
   const email = formData.get("email");
@@ -29,10 +28,7 @@ export async function authenticateUser(
     });
 
     // Find user by email.
-    const userResult = await findUnique("user", {
-      where: { email: validatedData.email },
-      select: { id: true, name: true, email: true, password: true, role: true },
-    });
+    const userResult = await getUserForAuth(validatedData.email);
 
     if (userResult.error) {
       // User not found.

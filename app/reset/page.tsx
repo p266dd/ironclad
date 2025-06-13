@@ -1,6 +1,8 @@
 import Image from "next/image";
 
 import { ResetForm } from "./form";
+
+// Assets
 import Logo from "@/assets/logo.png";
 import Background from "@/assets/login-background.png";
 
