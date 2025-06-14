@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 
 // Types
-import { TagIcon } from "lucide-react";
+import { MousePointerClick, MousePointerClickIcon, TagIcon } from "lucide-react";
 
 export default function FilterTags({
   filter,
@@ -28,7 +28,7 @@ export default function FilterTags({
       variant={isActive ? "default" : "outline"}
       size="lg"
     >
-      {isActive && <TagIcon />}
+      {isActive ? <TagIcon /> : <MousePointerClickIcon color="#ccc" size={16} />}
       {filter}
     </Button>
   );

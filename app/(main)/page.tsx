@@ -50,7 +50,7 @@ export default async function HomePage({
       </div>
 
       {filters.data && filters.data.length > 0 ? (
-        <div className="my-6 md:px-6">
+        <div className="pt-2 mb-2 md:px-6 md:pt-6 md:mb-6">
           <ScrollArea className="w-full p-4 whitespace-nowrap">
             {filters.data.map((filter, i) => (
               <FilterTags
