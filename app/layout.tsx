@@ -2,6 +2,8 @@ import { cookies } from "next/headers";
 import { Open_Sans } from "next/font/google";
 import "./globals.css";
 
+import { Toaster } from "@/components/ui/sonner";
+
 // TODO - App Prompt
 
 const openSans = Open_Sans({
@@ -34,7 +36,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <meta name="application-name" content="Ironclad" />
         <meta name="theme-color" content="#1d293d" />
       </head>
-      <body className={`${openSans.variable} antialiased`}>{children}</body>
+      <body className={`${openSans.variable} antialiased`}>
+        {children}
+        <Toaster position="top-center" />
+      </body>
     </html>
   );
 }
