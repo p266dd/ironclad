@@ -7,7 +7,7 @@ export default async function MainLayout({ children }: { children: React.ReactNo
   return (
     <div className="relative flex min-h-screen">
       <Navigation cartCount={5} session={session} />
-      <main>{children}</main>
+      <main className="flex-grow">{children}</main>
     </div>
   );
 }

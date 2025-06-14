@@ -1,12 +1,10 @@
 import Image from "next/image";
-import { Suspense } from "react";
-import { getSession, SessionPayload } from "@/lib/session";
 import FilterTags from "@/components/filter-tags";
+import ProductGrid from "@/components/product-grid/product-grid";
+import { getSession, SessionPayload } from "@/lib/session";
 import { logout } from "@/lib/logout";
 import { LockIcon } from "lucide-react";
-
 import { getFilters } from "@/data/filter/action";
-import ProductGrid from "@/components/product-grid";
 
 // Assets
 import Logo from "@/assets/logo.png";
@@ -26,7 +24,7 @@ export default async function HomePage({
   const currentlyActiveFilter = params.filter;
 
   return (
-    <main className="pb-44 sm:pb-0">
+    <div className="pb-44 sm:pb-0 bg-linear-180 from-slate-100 to-slate-50/10">
       <div className="md:hidden">
         <div className="px-6 pt-8 mb-8 sm:mb-12">
           <Image priority src={Logo} alt="Ironclad Logo" className="w-52 sm:w-64" />
@@ -66,10 +64,7 @@ export default async function HomePage({
         </div>
       ) : null}
 
-      {/* TODO; Product grid -> pass currentActive */}
-      <Suspense fallback={"loading..."}>
-        <ProductGrid activeFilter={currentlyActiveFilter} />
-      </Suspense>
-    </main>
+      <ProductGrid activeFilter={currentlyActiveFilter} />
+    </div>
   );
 }
