@@ -4,31 +4,42 @@ import prisma from "@/lib/prisma";
 import { verifyUserSession, verifyAdminSession } from "@/lib/session";
 
 // Types
+import { Prisma } from "@/lib/generated/prisma";
 import { Product } from "@/lib/generated/prisma";
+export type ProductItemResult = Prisma.ProductGetPayload<{
+  include: { filters: true; media: true; thumbnail: true };
+}>;
 
 // Error Utility
 import { generatePrismaErrorMessage } from "@/prisma/error-handling";
 
-export async function getProductsInfineScroll(pageIndex: number, filter?: string) {
+export async function getProductsInfineScroll(pageIndex: {
+  index: number;
+  activeFilter: string | null;
+}): Promise<ProductItemResult[]> {
   await verifyUserSession();
 
-  const PER_PAGE = 12;
+  const PAGE_INDEX: number = pageIndex.index || 0;
+  const PAGE_FILTER: string | null = pageIndex.activeFilter;
+  const PER_PAGE: number = 12;
+
+  console.log(pageIndex.activeFilter);
 
   try {
     const products = await prisma.product.findMany({
-      skip: pageIndex * PER_PAGE,
       take: PER_PAGE,
-      where: filter
+      skip: PAGE_INDEX * PER_PAGE,
+      where: PAGE_FILTER
         ? {
             filters: {
               some: {
                 name: {
-                  equals: filter,
+                  equals: PAGE_FILTER,
                 },
               },
             },
           }
-        : {},
+        : undefined,
       include: {
         filters: true,
         media: true,
