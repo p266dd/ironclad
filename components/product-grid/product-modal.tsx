@@ -1,9 +1,10 @@
 "use client";
 
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { toast } from "sonner";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
 
 import {
@@ -42,6 +43,9 @@ export default function ProductModal({
   product: Prisma.ProductGetPayload<{ include: { thumbnail: true; media: true } }>;
 }) {
   const [isFavorite, setIsFavorite] = useState(false);
+  const [open, setOpen] = useState(false);
+  const triggerRef = useRef<HTMLDivElement | null>(null);
+  const router = useRouter();
 
   async function handleFavorite(productId: string) {
     // Update favorites.
@@ -80,77 +84,136 @@ export default function ProductModal({
     fetchData();
   }, [product.id]);
 
+  // Long press simulation.
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    let timerStarted: number = 0;
+    let hasMoved: boolean = false;
+
+    // Disabled context menu for the entire component.
+    document.addEventListener("contextmenu", function (e) {
+      e.preventDefault();
+    });
+
+    // Hide the default context menu on mobile browsers [iOS issue].
+    triggerRef.current &&
+      triggerRef.current.addEventListener("contextmenu", (e) => {
+        e.preventDefault();
+        return;
+      });
+
+    triggerRef.current &&
+      triggerRef.current.addEventListener("touchstart", () => {
+        // Simulate long press.
+        timer = setTimeout(() => {
+          setOpen(true);
+        }, 500);
+
+        timerStarted = Date.now();
+        return;
+      });
+
+    triggerRef.current &&
+      triggerRef.current.addEventListener("touchend", () => {
+        clearTimeout(timer);
+        // Clear any selection.
+        const selection = window.getSelection();
+        if (selection && selection.rangeCount > 0) {
+          selection.removeAllRanges();
+        }
+
+        const timerEnded = Date.now();
+        const duration = timerEnded - timerStarted;
+
+        if (duration <= 400 && !hasMoved) {
+          // Treat as a click if very short hold.
+          router.push("/products/" + product.id);
+        }
+        return;
+      });
+
+    triggerRef.current &&
+      triggerRef.current.addEventListener("touchmove", (e) => {
+        // Cancel long hold and cancel tap if finger moves.
+        clearTimeout(timer);
+        hasMoved = true;
+        return;
+      });
+  }, []);
+
   return (
-    <Dialog>
-      <DialogTrigger>
-        <div
-          className={cn(
-            "relative h-[240px] sm:h-[320px] md:h-[320px] lg:h-[420px] xl:h-[500px]"
-          )}
-        >
-          <Image
-            src={product.thumbnail?.url || FallbackImage}
-            alt={product.name}
-            className="object-cover border"
-            fill
-          />
-        </div>
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader className="sr-only">
-          <DialogTitle>{product.name}</DialogTitle>
-          <DialogDescription>{product.description}</DialogDescription>
-        </DialogHeader>
-        <div className="relative">
-          <button
-            onClick={() => handleFavorite(product.id)}
-            className="absolute top-0 left-0 z-20"
-          >
-            <span className="sr-only">Add to Favorites</span>
-            {isFavorite ? (
-              <StarIcon fill="#f0d11e" color="#f0d11e" size={28} />
-            ) : (
-              <StarIcon color="#333" size={28} />
-            )}
-          </button>
+    <>
+      <div
+        ref={triggerRef}
+        onClick={() => setOpen((prev) => !prev)}
+        className={cn(
+          "relative h-[240px] sm:h-[320px] md:h-[320px] lg:h-[420px] xl:h-[500px]"
+        )}
+      >
+        <Image
+          src={product.thumbnail?.url || FallbackImage}
+          alt={product.name}
+          className="object-cover border"
+          fill
+        />
+      </div>
+      <Dialog open={open} onOpenChange={() => setOpen((prev) => !prev)}>
+        <DialogContent>
+          <DialogHeader className="sr-only">
+            <DialogTitle>{product.name}</DialogTitle>
+            <DialogDescription>{product.description}</DialogDescription>
+          </DialogHeader>
+          <div className="relative">
+            <button
+              onClick={() => handleFavorite(product.id)}
+              className="absolute top-0 left-0 z-20"
+            >
+              <span className="sr-only">Add to Favorites</span>
+              {isFavorite ? (
+                <StarIcon fill="#f0d11e" color="#f0d11e" size={28} />
+              ) : (
+                <StarIcon color="#333" size={28} />
+              )}
+            </button>
 
-          <Carousel>
-            <CarouselContent>
-              {product.media &&
-                product.media.length > 0 &&
-                product.media.map((media) => (
-                  <CarouselItem key={media.id}>
-                    <div className="relative h-[60vh]">
-                      <Image
-                        src={media.url}
-                        alt={media.name}
-                        className="object-contain"
-                        fill
-                      />
-                    </div>
-                  </CarouselItem>
-                ))}
-            </CarouselContent>
-            <CarouselPrevious />
-            <CarouselNext />
-          </Carousel>
+            <Carousel>
+              <CarouselContent>
+                {product.media &&
+                  product.media.length > 0 &&
+                  product.media.map((media) => (
+                    <CarouselItem key={media.id}>
+                      <div className="relative h-[60vh]">
+                        <Image
+                          src={media.url}
+                          alt={media.name}
+                          className="object-contain"
+                          fill
+                        />
+                      </div>
+                    </CarouselItem>
+                  ))}
+              </CarouselContent>
+              <CarouselPrevious />
+              <CarouselNext />
+            </Carousel>
 
-          <Separator className="my-4" />
-          <Link href={"/products/" + product.id} className="text-lg">
-            <div className="relative flex flex-col gap-1">
-              <span className="text-xs text-slate-400 uppercase tracking-widest">
-                Product
-              </span>
-              <h4 className="text-xl font-semibold leading-tight">
-                OEM Shiro#1 Stainless clad / Oak Lacquer (KOP)
-              </h4>
-              <span className="absolute -bottom-2 -right-2 md:hidden">
-                <MousePointerClickIcon color="#ccc" />
-              </span>
-            </div>
-          </Link>
-        </div>
-      </DialogContent>
-    </Dialog>
+            <Separator className="my-4" />
+            <Link href={"/products/" + product.id} className="text-lg">
+              <div className="relative flex flex-col gap-1">
+                <span className="text-xs text-slate-400 uppercase tracking-widest">
+                  Product
+                </span>
+                <h4 className="text-xl font-semibold leading-tight">
+                  OEM Shiro#1 Stainless clad / Oak Lacquer (KOP)
+                </h4>
+                <span className="absolute -bottom-2 -right-2 md:hidden">
+                  <MousePointerClickIcon color="#ccc" />
+                </span>
+              </div>
+            </Link>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
