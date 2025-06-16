@@ -14,12 +14,7 @@ import {
 } from "@/data/favorite/action";
 
 // Shadcn
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog";
 import {
   Carousel,
   CarouselContent,
@@ -28,6 +23,7 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
 import { MousePointerClickIcon, StarIcon } from "lucide-react";
 
 // Types & Schemas
@@ -182,13 +178,8 @@ export default function ProductModal({
                   product.media.length > 0 &&
                   product.media.map((media) => (
                     <CarouselItem key={media.id}>
-                      <div className="relative h-[60vh] rounded-lg overflow-hidden">
-                        <Image
-                          src={media.url}
-                          alt={media.name}
-                          className="object-cover"
-                          fill
-                        />
+                      <div className="relative rounded-lg overflow-hidden">
+                        <img src={media.url} alt={media.name} className="w-ful" />
                       </div>
                     </CarouselItem>
                   ))}
@@ -209,6 +200,10 @@ export default function ProductModal({
                 <span className="absolute -bottom-2 -right-2 md:hidden">
                   <MousePointerClickIcon color="#ccc" />
                 </span>
+                <Button type="button" className="mt-2">
+                  <MousePointerClickIcon />
+                  See Product
+                </Button>
               </div>
             </Link>
           </div>

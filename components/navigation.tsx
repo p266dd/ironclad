@@ -57,7 +57,8 @@ export default function Navigation({
     <div
       className={cn(
         "fixed bottom-0 left-0 w-full p-3 z-30",
-        "md:relative md:max-w-[250px] md:p-0"
+        "md:relative md:max-w-[250px] md:p-0",
+        "bg-linear-0 from-50% from-white to-white/20 backdrop-blur-md"
       )}
     >
       <nav
