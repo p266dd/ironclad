@@ -44,6 +44,7 @@ export async function getProductsInfineScroll(pageIndex: {
         filters: true,
         media: true,
         thumbnail: true,
+        sizes: true,
       },
       orderBy: {
         createdAt: "desc",
@@ -55,5 +56,28 @@ export async function getProductsInfineScroll(pageIndex: {
     const errorMessage = await generatePrismaErrorMessage(error, "product", "findMany");
     console.error(errorMessage);
     return [];
+  }
+}
+
+export async function getProduct(productId: string) {
+  await verifyUserSession();
+
+  try {
+    const product = await prisma.product.findUnique({
+      where: {
+        id: productId,
+      },
+      include: {
+        media: true,
+        thumbnail: true,
+        sizes: true,
+      },
+    });
+
+    return product;
+  } catch (error) {
+    const errorMessage = await generatePrismaErrorMessage(error, "product", "findUnique");
+    console.error(errorMessage);
+    return null;
   }
 }
