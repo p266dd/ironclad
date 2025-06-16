@@ -153,12 +153,12 @@ export default function ProductModal({
         <Image
           src={product.thumbnail?.url || FallbackImage}
           alt={product.name}
-          className="object-cover border"
+          className="object-cover rounded-md overflow-hidden"
           fill
         />
       </div>
       <Dialog open={open} onOpenChange={() => setOpen((prev) => !prev)}>
-        <DialogContent>
+        <DialogContent onOpenAutoFocus={(e) => e.preventDefault()}>
           <DialogHeader className="sr-only">
             <DialogTitle>{product.name}</DialogTitle>
             <DialogDescription>{product.description}</DialogDescription>
@@ -166,7 +166,7 @@ export default function ProductModal({
           <div className="relative">
             <button
               onClick={() => handleFavorite(product.id)}
-              className="absolute top-0 left-0 z-20"
+              className="absolute top-2 left-2 z-20"
             >
               <span className="sr-only">Add to Favorites</span>
               {isFavorite ? (
@@ -182,11 +182,11 @@ export default function ProductModal({
                   product.media.length > 0 &&
                   product.media.map((media) => (
                     <CarouselItem key={media.id}>
-                      <div className="relative h-[60vh]">
+                      <div className="relative h-[60vh] rounded-lg overflow-hidden">
                         <Image
                           src={media.url}
                           alt={media.name}
-                          className="object-contain"
+                          className="object-cover"
                           fill
                         />
                       </div>
