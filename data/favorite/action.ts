@@ -52,7 +52,19 @@ export async function getFavorites() {
       where: {
         clientId: userId,
       },
-      include: { client: true, products: true },
+      include: {
+        client: true,
+        products: {
+          include: {
+            product: {
+              include: {
+                thumbnail: true,
+                media: true,
+              },
+            },
+          },
+        },
+      },
     });
 
     if (!favorites) {
