@@ -15,7 +15,7 @@ export async function resetPassword(
   formData: FormData
 ): Promise<ActionFormInitialState> {
   const password = formData.get("password");
-  const confirmPassword = formData.get("confirmPasssword");
+  const confirmPassword = formData.get("confirmPassword");
   const token = formData.get("token");
 
   const inputData: UserPasswordResetInput = {
