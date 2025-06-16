@@ -97,3 +97,24 @@ export async function updateUserPasswordForAuth(password: string, userId: string
     return { data: null, error: errorMessage };
   }
 }
+
+export async function getUserPreferences() {
+  const session = await verifyUserSession();
+  const userId = session.id;
+
+  try {
+    const preferences = (await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+      select: {
+        id: true,
+        engraving: true,
+      },
+    })) as { id: string; engraving: string | null };
+    return { data: preferences, error: null };
+  } catch (error) {
+    const errorMessage = await generatePrismaErrorMessage(error, "user", "findUnique");
+    return { data: null, error: errorMessage };
+  }
+}
