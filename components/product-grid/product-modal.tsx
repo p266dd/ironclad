@@ -135,6 +135,12 @@ export default function ProductModal({
         hasMoved = true;
         return;
       });
+
+    triggerRef.current &&
+      triggerRef.current.addEventListener("click", (e) => {
+        router.push("/products/" + product.id);
+        return;
+      });
   }, []);
 
   return (
@@ -166,9 +172,9 @@ export default function ProductModal({
             >
               <span className="sr-only">Add to Favorites</span>
               {isFavorite ? (
-                <StarIcon fill="#f0d11e" color="#f0d11e" size={28} />
+                <StarIcon fill="#f0d11e" color="#523407" strokeWidth={1.2} size={28} />
               ) : (
-                <StarIcon color="#333" size={28} />
+                <StarIcon fill="#333" color="#523407" strokeWidth={1.2} size={24} />
               )}
             </button>
 
@@ -201,7 +207,6 @@ export default function ProductModal({
                   <MousePointerClickIcon color="#ccc" />
                 </span>
                 <Button type="button" className="mt-2">
-                  <MousePointerClickIcon />
                   See Product
                 </Button>
               </div>
