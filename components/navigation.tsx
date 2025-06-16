@@ -12,6 +12,7 @@ import {
   CircleUserRound,
   LayoutDashboard,
   LockIcon,
+  HouseIcon,
 } from "lucide-react";
 
 // Types
@@ -73,6 +74,19 @@ export default function Navigation({
           </h2>
         </div>
 
+        <div className="hidden md:flex px-4 py-2">
+          <Link
+            className={cn(
+              "relative flex flex-col items-center gap-2 py-1",
+              "md:flex-row md:gap-6"
+            )}
+            href="/"
+          >
+            <HouseIcon strokeWidth={1.3} size={28} />
+            Home
+          </Link>
+        </div>
+
         {navigationLinks.map((link, i) => {
           return (
             <div
@@ -114,13 +128,13 @@ export default function Navigation({
                 "relative w-full flex flex-row items-center gap-6 cursor-pointer"
               )}
             >
-              <LockIcon /> Logout
+              <LockIcon strokeWidth={1.3} size={28} /> Logout
             </button>
           </form>
         </div>
 
         {session && session.role == "admin" && (
-          <div className="hidden md:flex px-4 py-2 rounded-2xl">
+          <div className="hidden md:flex py-2 rounded-2xl">
             <Link
               className={cn(
                 "relative w-full flex flex-row items-center gap-6 py-2 px-3 rounded-xl bg-slate-600"
