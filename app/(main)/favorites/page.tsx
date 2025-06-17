@@ -13,6 +13,7 @@ export default async function FavoritesPage() {
     <div className={cn("pt-16 pb-40 px-6 sm:pt-4 lg:px-12")}>
       <PageTitle
         title="Favorites"
+        showCount={true}
         count={products && products?.length}
         countFor="favorites"
       />
