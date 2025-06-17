@@ -15,10 +15,10 @@ import {
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Loader2, Search } from "lucide-react";
 
 // Types
 import { Brand, Material } from "@/lib/generated/prisma";
-import { Search, SearchIcon } from "lucide-react";
 
 type TSearchState = {
   searchTerm: string;
@@ -48,7 +48,7 @@ export default function SearchForm({
 
   const getRange = (_for: string) => {
     const range = searchParams.get(String(_for));
-    if (Array.isArray(range)) {
+    if (range) {
       return {
         min: Number(range.split("-")[0]),
         max: Number(range.split("-")[1]),
@@ -120,7 +120,7 @@ export default function SearchForm({
       }
     }
 
-    redirect(`/results?${searchParams.toString()}`, RedirectType.push);
+    redirect(`/search/results?${searchParams.toString()}`, RedirectType.push);
   };
 
   return (
@@ -290,7 +290,7 @@ export default function SearchForm({
                   Search by Brands
                 </AccordionTrigger>
                 <AccordionContent className="px-4 py-5">
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center flex-wrap gap-4">
                     <Label
                       htmlFor="brandAll"
                       className="flex-1 flex items-center justify-start px-4 py-3 bg-slate-50 rounded-lg"
@@ -401,12 +401,21 @@ export default function SearchForm({
       <div className="mb-6 max-w-6xl">
         <Button
           type="submit"
-          variant="default"
+          variant={loading ? "outline" : "default"}
           size="lg"
-          className=" w-full text-lg h-14"
+          className="w-full text-lg h-14"
         >
-          <Search size={24} />
-          Search
+          {loading ? (
+            <span className="flex items-center gap-2">
+              <Loader2 size={24} className="animate-spin" />
+              Loading...
+            </span>
+          ) : (
+            <span className="flex items-center gap-2">
+              <Search size={24} />
+              Search
+            </span>
+          )}
         </Button>
       </div>
     </form>
