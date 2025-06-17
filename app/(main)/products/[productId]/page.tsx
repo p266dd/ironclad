@@ -1,9 +1,13 @@
 import { getProduct } from "@/data/product/action";
+import { getUserPreferences } from "@/data/user/actions";
+import { getProductFromCart } from "@/data/cart/actions";
+
 import PageTitle from "@/components/page-title";
 import ProductCarousel from "@/components/product-carousel";
 import ProductPageForm from "@/components/product-page-form";
 
 // Types
+import { EngravingPreference } from "@/data/user/types";
 
 export default async function SingleProductPage({
   params,
@@ -12,6 +16,11 @@ export default async function SingleProductPage({
 }) {
   const getParams = await params;
   const product = await getProduct(getParams.productId);
+
+  const getUser = (await getUserPreferences()).data;
+  const getPreferences = getUser?.engraving as EngravingPreference[] | null | undefined;
+
+  const getCurrentProductFromcart = product && (await getProductFromCart(product.id));
 
   const media = product ? [...product.media] : null;
 
@@ -39,7 +48,11 @@ export default async function SingleProductPage({
             subtitle={`From ${product?.brand}`}
             className="hidden lg:block"
           />
-          <ProductPageForm product={product} />
+          <ProductPageForm
+            product={product}
+            preferences={getPreferences}
+            cart={getCurrentProductFromcart}
+          />
         </div>
       </div>
     </div>

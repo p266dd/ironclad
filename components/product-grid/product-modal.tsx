@@ -136,11 +136,11 @@ export default function ProductModal({
         return;
       });
 
-    triggerRef.current &&
-      triggerRef.current.addEventListener("click", (e) => {
-        router.push("/products/" + product.id);
-        return;
-      });
+    // triggerRef.current &&
+    //   triggerRef.current.addEventListener("click", (e) => {
+    //     router.push("/products/" + product.id);
+    //     return;
+    //   });
   }, []);
 
   return (

@@ -111,7 +111,7 @@ export async function getUserPreferences() {
         id: true,
         engraving: true,
       },
-    })) as { id: string; engraving: string | null };
+    })) as { id: string; engraving: Prisma.JsonArray | null };
     return { data: preferences, error: null };
   } catch (error) {
     const errorMessage = await generatePrismaErrorMessage(error, "user", "findUnique");
