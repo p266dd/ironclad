@@ -11,7 +11,11 @@ export default async function FavoritesPage() {
 
   return (
     <div className={cn("pt-16 pb-40 px-6 sm:pt-4 lg:px-12")}>
-      <PageTitle title="Favorites" count={products?.length || 0} countFor="favorites" />
+      <PageTitle
+        title="Favorites"
+        count={products && products?.length}
+        countFor="favorites"
+      />
       {products && products.length > 0 ? (
         <div className="grid grid-cols-3 lg:grid-cols-5 gap-1 mx-1 md:gap-2 md:mx-2 xl:gap-3 xl:mx-3">
           {products.map((product) => (

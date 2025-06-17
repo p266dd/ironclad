@@ -16,22 +16,19 @@ export default function PageTitle({
       <h1 className="text-4xl font-semibold mb-2 capitalize">{title}</h1>
       {subtitle && <h4 className=" text-slate-600">{subtitle}</h4>}
 
-      {count &&
-        (count > 0 ? (
-          <div className="my-4">
-            <p className="text-lg text-slate-500">
-              You have {count}
-              {count > 1 ? " items " : " item "}
-              in your {countFor}.
-            </p>
-          </div>
-        ) : (
-          <div className="my-4">
-            <p className="text-lg text-slate-500">
-              You have no items in your {countFor}.
-            </p>
-          </div>
-        ))}
+      {count ? (
+        <div className="my-4">
+          <p className="text-lg text-slate-500">
+            You have {count}
+            {count > 1 ? " items " : " item "}
+            in your {countFor}.
+          </p>
+        </div>
+      ) : (
+        <div className="my-4">
+          <p className="text-lg text-slate-500">You have no items in your {countFor}.</p>
+        </div>
+      )}
     </div>
   );
 }
