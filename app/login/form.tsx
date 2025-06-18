@@ -34,7 +34,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"form">)
       console.log("Login form action succeeded:", state.message);
       router.push("/");
     }
-  }, [state]);
+  }, [state, router]);
 
   return (
     <form action={formAction} className={cn("flex flex-col gap-6", className)} {...props}>

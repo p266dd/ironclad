@@ -7,5 +7,7 @@ export default function SearchPreview({
   currentTerm: string;
   setData: (term: string) => void;
 }) {
+  const var1 = currentTerm;
+  const var2 = setData;
   return "";
 }

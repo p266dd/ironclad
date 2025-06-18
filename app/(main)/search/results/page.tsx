@@ -1,30 +1,37 @@
 import PageTitle from "@/components/page-title";
 import SearchDialog from "@/components/search/search-dialog";
-import ResultsGrid from "@/components/search/results-grid";
-import EmptyResults from "@/components/empty-results";
+import ProductGrid from "@/components/product-grid/product-grid";
 
 import { getBrands } from "@/data/brand/action";
 import { getMaterials } from "@/data/material/action";
 
-export default async function ResultsPage() {
+// Types
+import { SearchParams } from "next/dist/server/request/search-params";
+import { TSearchFields } from "@/lib/types";
+
+export default async function ResultsPage(props: {
+  searchParams: Promise<SearchParams>;
+}) {
   const availableBrands = await getBrands();
   const availableMaterials = await getMaterials();
 
-  const results: string[] = [];
-  const numberOfResults: number = results && results?.length;
+  // Create the object with type TSearchFields
+  const params: Partial<TSearchFields> = await props.searchParams;
+  const searchFilters: TSearchFields = {
+    name: params.name ?? "",
+    style: params.style ?? "",
+    stock: params.stock ?? "",
+    price: params.price ?? "",
+    size: params.size ?? "",
+    brand: params.brand ?? "",
+    material: params.material ?? "",
+  };
 
   return (
     <div className="h-full pt-16 pb-40 px-6 sm:pt-4 lg:px-12">
       <div className="h-full flex items-start justify-start">
         <div className="w-full max-w-[800px] flex flex-col justify-center gap-4">
-          <PageTitle
-            title="Search Results"
-            showCount={true}
-            count={numberOfResults}
-            countFor="results"
-          />
-
-          {numberOfResults === 0 && <EmptyResults />}
+          <PageTitle title="Search Results" />
 
           <div className="mb-8">
             <SearchDialog
@@ -33,11 +40,9 @@ export default async function ResultsPage() {
             />
           </div>
 
-          {numberOfResults > 0 && (
-            <div>
-              <ResultsGrid />
-            </div>
-          )}
+          <div>
+            <ProductGrid activeFilters={{ tag: null, search: searchFilters }} />
+          </div>
         </div>
       </div>
     </div>

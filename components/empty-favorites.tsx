@@ -16,10 +16,10 @@ export default function EmptyFavorites() {
       </motion.div>
 
       <h5 className="text-xs text-center sm:text-base">
-        You don't have any favorites, yet.
+        You don&#39;t have any favorites, yet.
       </h5>
       <h4 className="text-base text-center sm:text-xl">
-        Let's get started by adding some!
+        Let&#39;s get started by adding some!
       </h4>
     </div>
   );

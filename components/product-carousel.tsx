@@ -1,7 +1,5 @@
 "use client";
 
-import Image from "next/image";
-
 // Shadcn
 import {
   Carousel,
@@ -10,9 +8,6 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-
-// Types
-import { Media } from "@/lib/generated/prisma";
 
 export default function ProductCarousel({
   media,

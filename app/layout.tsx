@@ -1,4 +1,4 @@
-import { cookies } from "next/headers";
+// import { cookies } from "next/headers";
 import { Open_Sans } from "next/font/google";
 import "./globals.css";
 
@@ -26,8 +26,8 @@ export const viewport = {
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const cookieStore = await cookies();
-  const doNotDisplayPrompt = cookieStore.get("doNotDisplayPrompt");
+  // const cookieStore = await cookies();
+  // const doNotDisplayPrompt = cookieStore.get("doNotDisplayPrompt");
 
   return (
     <html lang="en" className="h-full">

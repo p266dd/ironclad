@@ -151,9 +151,10 @@ export default function SearchForm({
               searchParams.get("style") === "japanese" || searchState.style === "japanese"
             }
             onChange={(e) => {
-              e.target.checked
-                ? setSearchState((prev) => ({ ...prev, style: "japanese" }))
-                : setSearchState((prev) => ({ ...prev, style: "" }));
+              setSearchState((prev) => ({
+                ...prev,
+                style: e.target.checked ? "japanese" : "",
+              }));
             }}
           />
           Japanese
@@ -172,9 +173,10 @@ export default function SearchForm({
               searchParams.get("style") === "western" || searchState.style === "western"
             }
             onChange={(e) => {
-              e.target.checked
-                ? setSearchState((prev) => ({ ...prev, style: "western" }))
-                : setSearchState((prev) => ({ ...prev, style: "" }));
+              setSearchState((prev) => ({
+                ...prev,
+                style: e.target.checked ? "western" : "",
+              }));
             }}
           />
           Western
@@ -191,9 +193,10 @@ export default function SearchForm({
             className="w-4 h-4"
             defaultChecked={!searchParams.get("style") || searchState.style === "all"}
             onChange={(e) => {
-              e.target.checked
-                ? setSearchState((prev) => ({ ...prev, style: "all" }))
-                : setSearchState((prev) => ({ ...prev, style: "" }));
+              setSearchState((prev) => ({
+                ...prev,
+                style: e.target.checked ? "all" : "",
+              }));
             }}
           />
           All
@@ -218,9 +221,10 @@ export default function SearchForm({
               searchState.style === "largeStock"
             }
             onChange={(e) => {
-              e.target.checked
-                ? setSearchState((prev) => ({ ...prev, stock: "largeStock" }))
-                : setSearchState((prev) => ({ ...prev, stock: "" }));
+              setSearchState((prev) => ({
+                ...prev,
+                stock: e.target.checked ? "largeStock" : "",
+              }));
             }}
           />
           50 or more in stock.
@@ -239,9 +243,10 @@ export default function SearchForm({
               searchParams.get("stock") === "aall" || searchState.style === "all"
             }
             onChange={(e) => {
-              e.target.checked
-                ? setSearchState((prev) => ({ ...prev, stock: "all" }))
-                : setSearchState((prev) => ({ ...prev, stock: "" }));
+              setSearchState((prev) => ({
+                ...prev,
+                stock: e.target.checked ? "all" : "",
+              }));
             }}
           />
           Any quantity.
@@ -301,7 +306,7 @@ export default function SearchForm({
                         type="checkbox"
                         className="w-4 h-4"
                         defaultChecked={false}
-                        onChange={(e) =>
+                        onChange={() =>
                           setSearchState((prev) => ({
                             ...prev,
                             brand: [...prev.brand, "all"],
@@ -329,15 +334,17 @@ export default function SearchForm({
                                   : searchState.brand === brand.name
                               }
                               onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                                e.target.checked
-                                  ? setSearchState((prev) => ({
-                                      ...prev,
-                                      brand: [...prev.brand, brand.name],
-                                    }))
-                                  : setSearchState((prev) => ({
-                                      ...prev,
-                                      brand: prev.brand.filter((f) => f === brand.name),
-                                    }));
+                                if (e.target.checked === true) {
+                                  setSearchState((prev) => ({
+                                    ...prev,
+                                    brand: [...prev.brand, brand.name],
+                                  }));
+                                } else {
+                                  setSearchState((prev) => ({
+                                    ...prev,
+                                    brand: prev.brand.filter((f) => f === brand.name),
+                                  }));
+                                }
                               }}
                             />
                             {brand.name}
@@ -366,7 +373,12 @@ export default function SearchForm({
                         type="checkbox"
                         className="w-4 h-4"
                         defaultChecked={false}
-                        onChange={(e) => null}
+                        onChange={() =>
+                          setSearchState((prev) => ({
+                            ...prev,
+                            material: [...prev.material, "all"],
+                          }))
+                        }
                       />
                       All
                     </Label>
@@ -383,8 +395,29 @@ export default function SearchForm({
                               name="material"
                               type="checkbox"
                               className="w-4 h-4"
-                              defaultChecked={false}
-                              onChange={(e) => null}
+                              defaultChecked={
+                                searchState.material &&
+                                typeof searchState.material === "object"
+                                  ? searchState.material.some(
+                                      (name) => name === material.name
+                                    )
+                                  : searchState.material === material.name
+                              }
+                              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                if (e.target.checked === true) {
+                                  setSearchState((prev) => ({
+                                    ...prev,
+                                    material: [...prev.material, material.name],
+                                  }));
+                                } else {
+                                  setSearchState((prev) => ({
+                                    ...prev,
+                                    material: prev.material.filter(
+                                      (f) => f === material.name
+                                    ),
+                                  }));
+                                }
+                              }}
                             />
                             {material.name}
                           </Label>

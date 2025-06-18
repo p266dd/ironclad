@@ -9,16 +9,18 @@ import { LoaderIcon } from "lucide-react";
 
 // Types
 import { ProductItemResult } from "@/data/product/action";
+import { TActiveFilters } from "@/lib/types";
 
-export default function ProductGrid({ activeFilter }: { activeFilter: string | null }) {
+export default function ProductGrid(props: { activeFilters: TActiveFilters }) {
   const observerRef = useRef(null);
 
   // Get the pageIndex and filter.
   const getKey: SWRInfiniteKeyLoader = (pageIndex, previousPageData) => {
     if (previousPageData && !previousPageData.length) return null;
+    const { activeFilters } = props;
     return {
       pageIndex,
-      activeFilter,
+      activeFilters,
     };
   };
 
@@ -30,10 +32,10 @@ export default function ProductGrid({ activeFilter }: { activeFilter: string | n
   // Is there more data?
   const hasMoreData = data && data[data.length - 1]?.length > 0;
 
-  // Concatenate data from all database fetches.
-  const allProductsResponse: ProductItemResult[] = data ? data.flat() : [];
-
   const allProducts = useMemo(() => {
+    // Concatenate data from all database fetches.
+    const allProductsResponse: ProductItemResult[] = data ? data.flat() : [];
+
     if (!allProductsResponse.length) {
       return [];
     }
@@ -45,11 +47,11 @@ export default function ProductGrid({ activeFilter }: { activeFilter: string | n
       }
     });
     return Array.from(uniqueProductsMap.values());
-  }, [allProductsResponse]);
+  }, []);
 
   // Callback for IntersectionObserver
   const handleObserver = useCallback(
-    (entries: any[]) => {
+    (entries: ReadonlyArray<IntersectionObserverEntry>) => {
       const target = entries[0];
       if (target.isIntersecting && hasMoreData && !isLoading) {
         setSize((prevSize) => prevSize + 1); // Load the next page of results.

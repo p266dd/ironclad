@@ -92,13 +92,14 @@ export default function ProductModal({
     });
 
     // Hide the default context menu on mobile browsers [iOS issue].
-    triggerRef.current &&
+    if (triggerRef.current) {
       triggerRef.current.addEventListener("contextmenu", (e) => {
         e.preventDefault();
         return;
       });
+    }
 
-    triggerRef.current &&
+    if (triggerRef.current) {
       triggerRef.current.addEventListener("touchstart", () => {
         // Simulate long press.
         timer = setTimeout(() => {
@@ -108,8 +109,9 @@ export default function ProductModal({
         timerStarted = Date.now();
         return;
       });
+    }
 
-    triggerRef.current &&
+    if (triggerRef.current) {
       triggerRef.current.addEventListener("touchend", () => {
         clearTimeout(timer);
         // Clear any selection.
@@ -127,21 +129,23 @@ export default function ProductModal({
         }
         return;
       });
+    }
 
-    triggerRef.current &&
-      triggerRef.current.addEventListener("touchmove", (e) => {
+    if (triggerRef.current) {
+      triggerRef.current.addEventListener("touchmove", () => {
         // Cancel long hold and cancel tap if finger moves.
         clearTimeout(timer);
         hasMoved = true;
         return;
       });
+    }
 
     // triggerRef.current &&
     //   triggerRef.current.addEventListener("click", (e) => {
     //     router.push("/products/" + product.id);
     //     return;
     //   });
-  }, []);
+  }, [product.id, router]);
 
   return (
     <>

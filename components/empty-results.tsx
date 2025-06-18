@@ -9,7 +9,7 @@ export default function EmptyResults() {
         <BadgeAlertIcon size={70} strokeWidth={1.5} />
       </div>
       <div>
-        <h5 className="text-xs sm:text-base">We couldn't find results!</h5>
+        <h5 className="text-xs sm:text-base">We couldn&#39;t find results!</h5>
         <h4 className="text-base sm:text-xl">Try modifying your search terms.</h4>
       </div>
     </div>

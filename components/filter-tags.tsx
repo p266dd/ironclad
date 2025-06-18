@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 
 // Types
-import { MousePointerClick, MousePointerClickIcon, TagIcon } from "lucide-react";
+import { MousePointerClickIcon, TagIcon } from "lucide-react";
 
 export default function FilterTags({
   filter,
@@ -21,7 +21,7 @@ export default function FilterTags({
   return (
     <Button
       onClick={() => {
-        isActive
+        return isActive
           ? router.push("/")
           : router.push("/?filter=" + filter.toLowerCase().trim());
       }}

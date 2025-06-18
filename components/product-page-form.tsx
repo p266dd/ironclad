@@ -68,15 +68,15 @@ export default function ProductPageForm({
     }
   );
 
-  if (!product) {
-    return <h4 className="text-lg text-slate-500">Product not found!</h4>;
-  }
-
   useEffect(() => {
     if (state.success) {
       router.push("/cart");
     }
-  }, [state]);
+  }, [state, router]);
+
+  if (!product) {
+    return <h4 className="text-lg text-slate-500">Product not found!</h4>;
+  }
 
   return (
     <form

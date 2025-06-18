@@ -28,7 +28,7 @@ export function RecoverForm({ className, ...props }: React.ComponentProps<"form"
       <div className="flex flex-col items-center gap-2 text-center">
         <h1 className="text-2xl font-bold">Recover Account</h1>
         <p className="text-muted-foreground text-sm text-balance">
-          Enter your email below and we'll send you a recover code.
+          Enter your email below and we&#39;ll send you a recover code.
         </p>
       </div>
       {state.message && state.success && (
