@@ -1,26 +1,29 @@
 "use client";
 
-import { motion } from "motion/react";
-import { Star } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { StarIcon } from "lucide-react";
 
 export default function EmptyFavorites() {
   return (
-    <div className="max-w-[400px] flex flex-col items-center justify-center gap-3 mx-4 py-20 px-12 text-slate-500 border rounded-xl">
-      <motion.div
-        animate={{
-          rotate: 360,
-          transition: { type: "spring", duration: 2 },
-        }}
-      >
-        <Star size={100} strokeWidth={0.5} />
-      </motion.div>
-
-      <h5 className="text-xs text-center sm:text-base">
-        You don&#39;t have any favorites, yet.
-      </h5>
-      <h4 className="text-base text-center sm:text-xl">
-        Let&#39;s get started by adding some!
-      </h4>
+    <div className="max-w-[400px] mx-6">
+      <Card className="w-full max-w-sm">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-3">
+            <StarIcon />
+            No product found!
+          </CardTitle>
+          <CardDescription>There are no products to display.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p className="text-slate-500">Let's add some products to your favorites.</p>
+        </CardContent>
+      </Card>
     </div>
   );
 }
