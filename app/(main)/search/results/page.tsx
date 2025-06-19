@@ -18,7 +18,7 @@ export default async function ResultsPage(props: {
   // Create the object with type TSearchFields
   const params: Partial<TSearchFields> = await props.searchParams;
   const searchFilters: TSearchFields = {
-    name: params.name ?? "",
+    searchTerm: params.searchTerm ?? "",
     style: params.style ?? "",
     stock: params.stock ?? "",
     price: params.price ?? "",

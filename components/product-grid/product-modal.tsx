@@ -143,7 +143,7 @@ export default function ProductModal({
       });
     }
 
-    triggerRef.current &&
+    if (triggerRef.current) {
       triggerRef.current.addEventListener("click", (e) => {
         if (navigator.userAgent.match(/Mobi|Android|Tablet|iPad/i)) {
           e.preventDefault();
@@ -154,13 +154,15 @@ export default function ProductModal({
         }, 200);
         return;
       });
+    }
 
-    triggerRef.current &&
+    if (triggerRef.current) {
       triggerRef.current.addEventListener("dblclick", () => {
         clearTimeout(clickTimer);
         setOpen(true);
         return;
       });
+    }
   }, [product.id, router]);
 
   return (

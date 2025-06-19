@@ -1,17 +1,29 @@
 "use client";
 
-import { BadgeAlertIcon } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { RefreshCcwIcon } from "lucide-react";
 
 export default function EmptyResults() {
   return (
-    <div className="flex items-center justify-start gap-12 text-slate-500">
-      <div>
-        <BadgeAlertIcon size={70} strokeWidth={1.5} />
-      </div>
-      <div>
-        <h5 className="text-xs sm:text-base">We couldn&#39;t find results!</h5>
-        <h4 className="text-base sm:text-xl">Try modifying your search terms.</h4>
-      </div>
+    <div className="max-w-[400px] mx-6">
+      <Card className="w-full max-w-sm">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-3">
+            <RefreshCcwIcon />
+            No product found!
+          </CardTitle>
+          <CardDescription>There are no products to display.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p className="text-slate-500">Try modifying your search filters.</p>
+        </CardContent>
+      </Card>
     </div>
   );
 }

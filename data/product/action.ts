@@ -147,7 +147,7 @@ export async function getProductsInfineScroll(keys: {
         : searchFilters
         ? {
             name: {
-              contains: searchFilters?.name,
+              contains: searchFilters?.searchTerm,
             },
             style: searchFilters?.style === "all" ? undefined : styleFilter,
             material: searchFilters?.material === "all" ? undefined : materialFilter,
@@ -191,6 +191,35 @@ export async function getProduct(productId: string) {
     return product;
   } catch (error) {
     const errorMessage = await generatePrismaErrorMessage(error, "product", "findUnique");
+    console.error(errorMessage);
+    return null;
+  }
+}
+
+export async function getProductsPreview(searchTerm: string) {
+  await verifyUserSession();
+
+  try {
+    const products = await prisma.product.findMany({
+      where: {
+        name: {
+          contains: searchTerm,
+        },
+      },
+      select: {
+        id: true,
+        name: true,
+        handle: true,
+        material: true,
+      },
+      orderBy: {
+        name: "asc",
+      },
+    });
+
+    return products;
+  } catch (error) {
+    const errorMessage = await generatePrismaErrorMessage(error, "product", "findMany");
     console.error(errorMessage);
     return null;
   }

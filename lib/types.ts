@@ -10,7 +10,7 @@ export type TActiveFilters = {
 };
 
 export type TSearchFields = {
-  name?: string;
+  searchTerm?: string;
   style?: string;
   stock?: string;
   price: string;

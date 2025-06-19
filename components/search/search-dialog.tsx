@@ -37,7 +37,10 @@ export default function SearchDialog({
         </div>
       </DialogTrigger>
 
-      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent
+        onOpenAutoFocus={(e) => e.preventDefault()}
+        className="sm:max-w-2xl max-h-[90vh] overflow-y-auto"
+      >
         <DialogHeader className="sr-only">
           <DialogTitle>Modify search parameters.</DialogTitle>
           <DialogDescription>
