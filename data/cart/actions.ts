@@ -14,6 +14,30 @@ import { Prisma } from "@/lib/generated/prisma";
 import { ActionFormInitialState } from "@/lib/types";
 import { ICreateCartProduct } from "./types";
 
+export async function getCartCount() {
+  const session = await verifyUserSession();
+  const userId = session.id;
+
+  try {
+    const cart = await prisma.cart.findUnique({
+      where: {
+        clientId: userId,
+      },
+      select: {
+        id: true,
+        products: true,
+      },
+    });
+
+    const productCount = cart?.products.length || 0;
+    return productCount;
+  } catch (error) {
+    const errorMessage = await generatePrismaErrorMessage(error, "cart", "findUnique");
+    console.error(errorMessage);
+    return null;
+  }
+}
+
 export async function initializeCart() {
   const session = await verifyUserSession();
   const userId = session.id;
@@ -61,7 +85,12 @@ export async function getCart() {
       include: {
         products: {
           include: {
-            product: true,
+            product: {
+              include: {
+                thumbnail: true,
+                sizes: true,
+              },
+            },
           },
         },
       },
@@ -138,6 +167,8 @@ export async function updateProductFromCart(
         ? handleOther
         : "",
   };
+
+  console.log(inputData.details);
 
   try {
     // Validate data.
@@ -259,6 +290,164 @@ export async function addToCart(
     revalidatePath("/products/" + validatedData.productId);
 
     return { success: true, message: "Product added to cart.", fieldErrors: {} };
+  } catch (error) {
+    const errorMessage = await generatePrismaErrorMessage(error, "user", "create");
+    return { success: false, message: errorMessage, fieldErrors: {} };
+  }
+}
+
+async function getCurrentCartProductDetails(cartProductId: number) {
+  try {
+    const cartProduct = await prisma.cartProduct.findUnique({
+      where: {
+        id: cartProductId,
+      },
+    });
+
+    if (!cartProduct || cartProduct.details === null) {
+      return null;
+    }
+
+    return cartProduct.details as {
+      sizeId: number;
+      quantity: number;
+    }[];
+  } catch (error) {
+    const errorMessage = await generatePrismaErrorMessage(error, "user", "create");
+    console.error(errorMessage);
+    return null;
+  }
+}
+
+export async function updateOrderProductQuantity({
+  cartProductId,
+  sizeId,
+  newQuantity,
+}: {
+  cartProductId: number | null;
+  sizeId: number | null;
+  newQuantity: number;
+}) {
+  await verifyUserSession();
+
+  if (cartProductId === null || sizeId === null) return null;
+
+  try {
+    // Get current cartProduct details
+    const cartProduct = await getCurrentCartProductDetails(cartProductId);
+
+    const oldDetails = cartProduct;
+
+    // Create a new Json
+    const newDetails = Array.isArray(oldDetails)
+      ? oldDetails.map((detail) => {
+          if (detail === null) return;
+
+          if ("sizeId" in detail && detail.sizeId === sizeId) {
+            return { ...detail, quantity: newQuantity };
+          } else {
+            return detail;
+          }
+        })
+      : [];
+
+    const cart = await prisma.cartProduct.update({
+      where: {
+        id: cartProductId,
+      },
+      data: {
+        details: newDetails as Prisma.JsonArray,
+      },
+      select: {
+        id: true,
+        product: {
+          select: {
+            id: true,
+          },
+        },
+      },
+    });
+
+    revalidatePath("/cart");
+    revalidatePath("/products/" + cart.product.id);
+
+    return cart;
+  } catch (error) {
+    const errorMessage = await generatePrismaErrorMessage(error, "user", "create");
+    return { success: false, message: errorMessage, fieldErrors: {} };
+  }
+}
+
+export async function deleteOrderProductSize({
+  cartProductId,
+  sizeId,
+}: {
+  cartProductId: number | null;
+  sizeId: number | null;
+}) {
+  await verifyUserSession();
+
+  if (cartProductId === null || sizeId === null) return null;
+
+  try {
+    // Get current cartProduct details
+    const cartProduct = await getCurrentCartProductDetails(cartProductId);
+
+    const oldDetails = cartProduct;
+
+    // Create a new Json
+    const newDetails = Array.isArray(oldDetails)
+      ? oldDetails.filter((detail) => detail.sizeId !== sizeId)
+      : [];
+
+    const cart = await prisma.cartProduct.update({
+      where: {
+        id: cartProductId,
+      },
+      data: {
+        details: newDetails as Prisma.JsonArray,
+      },
+      select: {
+        id: true,
+        product: {
+          select: {
+            id: true,
+          },
+        },
+      },
+    });
+
+    revalidatePath("/cart");
+    revalidatePath("/products/" + cart.product.id);
+
+    return cart;
+  } catch (error) {
+    const errorMessage = await generatePrismaErrorMessage(error, "user", "create");
+    return { success: false, message: errorMessage, fieldErrors: {} };
+  }
+}
+
+export async function clearCart(cartId: string) {
+  await verifyUserSession();
+
+  try {
+    const cart = await prisma.cart.update({
+      where: {
+        id: cartId,
+      },
+      data: {
+        products: {
+          deleteMany: {},
+        },
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    revalidatePath("/cart");
+
+    return cart;
   } catch (error) {
     const errorMessage = await generatePrismaErrorMessage(error, "user", "create");
     return { success: false, message: errorMessage, fieldErrors: {} };

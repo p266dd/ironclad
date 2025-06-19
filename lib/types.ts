@@ -1,3 +1,5 @@
+import { Prisma } from "./generated/prisma";
+
 export interface ActionFormInitialState {
   success: boolean;
   message?: string | undefined;
@@ -18,3 +20,14 @@ export type TSearchFields = {
   brand: string | string[];
   material: string | string[];
 };
+
+export type CartProductWithRelations = Prisma.CartProductGetPayload<{
+  include: {
+    product: {
+      include: {
+        thumbnail: true;
+        sizes: true;
+      };
+    };
+  };
+}>;
