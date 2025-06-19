@@ -9,7 +9,7 @@ export default async function MainLayout({ children }: { children: React.ReactNo
     <div className="relative flex min-h-screen">
       <MobileTopNav />
       <Navigation cartCount={5} session={session} />
-      <main className="flex-grow">{children}</main>
+      <main className="flex-grow md:pl-[210px]">{children}</main>
     </div>
   );
 }

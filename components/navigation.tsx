@@ -57,14 +57,14 @@ export default function Navigation({
     <div
       className={cn(
         "fixed bottom-0 left-0 w-full p-3 z-30",
-        "md:relative md:max-w-[250px] md:p-0",
+        "md:top-0 md:left-0 md:max-w-[200px] md:p-0",
         "bg-linear-0 from-50% from-white to-white/20 backdrop-blur-md"
       )}
     >
       <nav
         className={cn(
           "grid grid-cols-4 gap-2 p-2 justify-between bg-slate-800 text-white rounded-2xl",
-          "md:flex md:flex-col md:gap-6 md:h-full md:justify-center md:rounded-none"
+          "md:flex md:flex-col md:gap-6 md:h-screen md:w-[210px] md:fixed md:top-0 md:left-0 md:justify-center md:rounded-none"
         )}
       >
         <div className="hidden md:flex flex-col justify-center gap-5 px-4 mb-12">
