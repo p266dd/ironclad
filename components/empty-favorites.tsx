@@ -21,7 +21,9 @@ export default function EmptyFavorites() {
           <CardDescription>There are no products to display.</CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="text-slate-500">Let's add some products to your favorites.</p>
+          <p className="text-slate-500">
+            Let&apos;s add some products to your favorites.
+          </p>
         </CardContent>
       </Card>
     </div>
