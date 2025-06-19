@@ -19,10 +19,13 @@ export default function RangeSlider({
   };
   setData: (data: { min: number; max: number }) => void;
 }) {
-  const handleOnChange = (value: number[]) => {
+  const handleOnChange = (value: number | number[]) => {
     // Add to the search params.
-    if (label === "Price") return setData({ min: value[0], max: value[1] });
-    if (label === "Size") return setData({ min: value[0], max: value[1] });
+    if (Array.isArray(value)) {
+      return setData({ min: value[0], max: value[1] });
+    } else {
+      return;
+    }
   };
 
   const formatPrice = (price: number) => {

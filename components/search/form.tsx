@@ -28,10 +28,6 @@ type TSearchState = {
     min: number;
     max: number;
   };
-  size: {
-    min: number;
-    max: number;
-  };
   brand: string[];
   material: string[];
 };
@@ -39,9 +35,11 @@ type TSearchState = {
 export default function SearchForm({
   availableBrands,
   availableMaterials,
+  remoteClose,
 }: {
   availableBrands: Brand[] | null;
   availableMaterials: Material[] | null;
+  remoteClose?: () => void;
 }) {
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
@@ -55,8 +53,8 @@ export default function SearchForm({
       };
     } else {
       return {
-        min: 0,
-        max: 0,
+        min: undefined,
+        max: undefined,
       };
     }
   };
@@ -66,12 +64,8 @@ export default function SearchForm({
     style: searchParams.get("style") || "all",
     stock: searchParams.get("stock") || "all",
     price: {
-      min: getRange("price").min || 0,
-      max: getRange("price").max || 0,
-    },
-    size: {
-      min: getRange("size").min || 0,
-      max: getRange("size").max || 0,
+      min: getRange("price")?.min || 0,
+      max: getRange("price")?.max || 90000,
     },
     brand: searchParams.getAll("brand") || [],
     material: searchParams.getAll("material") || [],
@@ -97,17 +91,6 @@ export default function SearchForm({
         ) {
           searchParams.append(key, `${value.min}-${value.max}`);
         }
-      } else if (key === "size") {
-        // Only append if min/max are defined.
-        if (
-          typeof value === "object" &&
-          "min" in value &&
-          "max" in value &&
-          value.min !== undefined &&
-          value.max !== undefined
-        ) {
-          searchParams.append(key, `${value.min}-${value.max}`);
-        }
       } else if (key === "searchTerm") {
         // Only append if searchTerm isn't empty.
         if (value !== "") {
@@ -120,6 +103,8 @@ export default function SearchForm({
       }
     }
 
+    setLoading(false);
+    if (remoteClose !== undefined) remoteClose();
     redirect(`/search/results?${searchParams.toString()}`, RedirectType.push);
   };
 
@@ -269,7 +254,7 @@ export default function SearchForm({
             }}
           />
         </div>
-        <div className="flex-1 w-full">
+        {/* <div className="flex-1 w-full">
           <div>
             <p className="text-lg text-slate-500 mb-2">Product Sizes</p>
           </div>
@@ -283,7 +268,7 @@ export default function SearchForm({
               setSearchState((prev) => ({ ...prev, size: data }));
             }}
           />
-        </div>
+        </div> */}
       </div>
 
       <div className="mb-6 max-w-6xl">

@@ -83,8 +83,10 @@ export default function ProductModal({
   // Long press simulation.
   useEffect(() => {
     let timer: NodeJS.Timeout;
+    let clickTimer: NodeJS.Timeout;
     let timerStarted: number = 0;
     let hasMoved: boolean = false;
+    const navigator = window.navigator;
 
     // Disabled context menu for the entire component.
     document.addEventListener("contextmenu", function (e) {
@@ -101,6 +103,7 @@ export default function ProductModal({
 
     if (triggerRef.current) {
       triggerRef.current.addEventListener("touchstart", () => {
+        setOpen(false);
         // Simulate long press.
         timer = setTimeout(() => {
           setOpen(true);
@@ -140,18 +143,30 @@ export default function ProductModal({
       });
     }
 
-    // triggerRef.current &&
-    //   triggerRef.current.addEventListener("click", (e) => {
-    //     router.push("/products/" + product.id);
-    //     return;
-    //   });
+    triggerRef.current &&
+      triggerRef.current.addEventListener("click", (e) => {
+        if (navigator.userAgent.match(/Mobi|Android|Tablet|iPad/i)) {
+          e.preventDefault();
+        }
+        clearTimeout(clickTimer);
+        clickTimer = setTimeout(() => {
+          router.push("/products/" + product.id);
+        }, 200);
+        return;
+      });
+
+    triggerRef.current &&
+      triggerRef.current.addEventListener("dblclick", () => {
+        clearTimeout(clickTimer);
+        setOpen(true);
+        return;
+      });
   }, [product.id, router]);
 
   return (
     <>
       <div
         ref={triggerRef}
-        onClick={() => setOpen((prev) => !prev)}
         className={cn(
           "relative h-[240px] sm:h-[320px] md:h-[320px] lg:h-[420px] xl:h-[500px]"
         )}
@@ -178,7 +193,7 @@ export default function ProductModal({
               {isFavorite ? (
                 <StarIcon fill="#f0d11e" color="#523407" strokeWidth={1.2} size={28} />
               ) : (
-                <StarIcon fill="#333" color="#523407" strokeWidth={1.2} size={24} />
+                <StarIcon fill="#ccc" color="#ccc" strokeWidth={1.2} size={24} />
               )}
             </button>
 

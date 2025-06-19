@@ -22,9 +22,7 @@ export default async function HomePage({
 
   const filters = await getFilters();
 
-  const tag: {
-    tag: string;
-  } = { tag: params.filter || "" };
+  const tag = params.filter;
 
   return (
     <div className="pb-44 sm:pb-0 bg-linear-180 from-slate-100 to-slate-50/10">
@@ -56,14 +54,14 @@ export default async function HomePage({
         <div className="pt-2 mb-2 md:px-6 md:pt-6 md:mb-6">
           <ScrollArea className="w-full p-4 whitespace-nowrap">
             {filters.data.map((filter, i) => (
-              <FilterTags key={i} filter={filter.name} active={tag.tag} />
+              <FilterTags key={i} filter={filter.name} active={tag || ""} />
             ))}
             <ScrollBar orientation="horizontal" />
           </ScrollArea>
         </div>
       ) : null}
 
-      <ProductGrid activeFilters={{ tag: tag.tag, search: null }} />
+      <ProductGrid activeFilters={{ tag: tag, search: null }} />
     </div>
   );
 }

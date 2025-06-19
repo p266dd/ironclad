@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import SearchForm from "@/components/search/form";
 
 // Shadcn
@@ -23,8 +24,10 @@ export default function SearchDialog({
   availableBrands: Brand[] | null;
   availableMaterials: Material[] | null;
 }) {
+  const [open, setOpen] = useState(false);
+
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger className="w-full cursor-pointer">
         <div className="relative px-6 py-3 bg-primary text-primary-foreground rounded-lg">
           <span className="text-lg">Modify Search</span>
@@ -45,6 +48,7 @@ export default function SearchDialog({
           <SearchForm
             availableBrands={availableBrands}
             availableMaterials={availableMaterials}
+            remoteClose={() => setOpen(false)}
           />
         </div>
       </DialogContent>

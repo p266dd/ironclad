@@ -1,11 +1,10 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { verifyUserSession, verifyAdminSession } from "@/lib/session";
+import { verifyUserSession } from "@/lib/session";
 
 // Types
 import { Prisma } from "@/lib/generated/prisma";
-import { Product } from "@/lib/generated/prisma";
 import { TActiveFilters } from "@/lib/types";
 export type ProductItemResult = Prisma.ProductGetPayload<{
   include: { filters: true; media: true; thumbnail: true };
@@ -23,26 +22,28 @@ export async function getProductsInfineScroll(keys: {
   const PAGE_INDEX: number = keys.index || 0;
   const PER_PAGE: number = 12;
 
-  const filterTag: string | null = keys.activeFilters.tag;
+  const filterTag = keys.activeFilters.tag;
   const searchFilters = keys.activeFilters.search;
 
   // * Dynamically build the filter for the 'sizes' relation.
   let sizesFilter: object | undefined = undefined;
   let brandFilter: object | undefined = undefined;
   let materialFilter: object | undefined = undefined;
+  let styleFilter: object | undefined = undefined;
 
   const sizeConditionsForAND = [];
 
   // * Add size condition.
-  if (searchFilters && searchFilters.size) {
-    const sizes = searchFilters.size.split("-");
-    sizeConditionsForAND.push({
-      size: {
-        gte: Number(sizes[0]), // Greater than or equal to minSize.
-        lte: Number(sizes[1]), // Less than or equal to maxSize.
-      },
-    });
-  }
+  // * Cannot use due to the possible format 120*100*10cm
+  // if (searchFilters && searchFilters.size) {
+  //   const sizes = searchFilters.size.split("-");
+  //   sizeConditionsForAND.push({
+  //     size: {
+  //       gte: Number(sizes[0]), // Greater than or equal to minSize.
+  //       lte: Number(sizes[1]), // Less than or equal to maxSize.
+  //     },
+  //   });
+  // }
 
   // * Add price condition.
   if (searchFilters && searchFilters.price) {
@@ -67,6 +68,12 @@ export async function getProductsInfineScroll(keys: {
       sizeConditionsForAND.push({
         stock: {
           gt: 50, // Greater than 50
+        },
+      });
+    } else {
+      sizeConditionsForAND.push({
+        stock: {
+          gt: undefined,
         },
       });
     }
@@ -109,6 +116,20 @@ export async function getProductsInfineScroll(keys: {
     }
   }
 
+  // * Add styles to search clause.
+  if (searchFilters && searchFilters.style) {
+    if (Array.isArray(searchFilters.style) && searchFilters.style.length > 0) {
+      // If style is an array of strings, use the 'in' operator
+      styleFilter = { in: searchFilters.style };
+    } else if (
+      typeof searchFilters.style === "string" &&
+      searchFilters.style.trim() !== ""
+    ) {
+      // If style is a single, non-empty string, use 'equals'
+      styleFilter = { equals: searchFilters.style };
+    }
+  }
+
   try {
     const products = await prisma.product.findMany({
       take: PER_PAGE,
@@ -123,15 +144,17 @@ export async function getProductsInfineScroll(keys: {
               },
             },
           }
-        : {
+        : searchFilters
+        ? {
             name: {
               contains: searchFilters?.name,
             },
-            style: searchFilters?.style,
-            material: materialFilter,
-            brand: brandFilter,
+            style: searchFilters?.style === "all" ? undefined : styleFilter,
+            material: searchFilters?.material === "all" ? undefined : materialFilter,
+            brand: searchFilters?.brand === "all" ? undefined : brandFilter,
             sizes: sizesFilter,
-          },
+          }
+        : undefined,
       include: {
         filters: true,
         media: true,

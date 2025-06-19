@@ -29,20 +29,23 @@ export default async function ResultsPage(props: {
 
   return (
     <div className="h-full pt-16 pb-40 px-6 sm:pt-4 lg:px-12">
-      <div className="h-full flex items-start justify-start">
-        <div className="w-full max-w-[800px] flex flex-col justify-center gap-4">
-          <PageTitle title="Search Results" />
+      <div className="h-full">
+        <div className="w-full max-w-[800px] flex flex-col justify-center gap-4 mb-4">
+          <PageTitle
+            title="Search Results"
+            subtitle="You can narrow your search by modifying the search filters below."
+          />
 
-          <div className="mb-8">
+          <div className="mb-2">
             <SearchDialog
               availableBrands={availableBrands.data}
               availableMaterials={availableMaterials.data}
             />
           </div>
+        </div>
 
-          <div>
-            <ProductGrid activeFilters={{ tag: null, search: searchFilters }} />
-          </div>
+        <div>
+          <ProductGrid activeFilters={{ tag: null, search: searchFilters }} />
         </div>
       </div>
     </div>

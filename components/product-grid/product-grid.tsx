@@ -5,6 +5,7 @@ import useSWRInfinite, { SWRInfiniteKeyLoader } from "swr/infinite";
 import { getProductsInfineScroll } from "@/data/product/action";
 import ProductModal from "@/components/product-grid/product-modal";
 import ProductGridError from "@/components/product-grid/product-grid-error";
+import EmptyResults from "../empty-results";
 import { LoaderIcon } from "lucide-react";
 
 // Types
@@ -47,7 +48,7 @@ export default function ProductGrid(props: { activeFilters: TActiveFilters }) {
       }
     });
     return Array.from(uniqueProductsMap.values());
-  }, []);
+  }, [props.activeFilters, data]);
 
   // Callback for IntersectionObserver
   const handleObserver = useCallback(
@@ -75,10 +76,11 @@ export default function ProductGrid(props: { activeFilters: TActiveFilters }) {
   }, [handleObserver]);
 
   if (error) return <ProductGridError />;
+  if (allProducts.length === 0) return <EmptyResults />;
 
   return (
     <>
-      <div className="grid grid-cols-3 lg:grid-cols-5 gap-1 mx-1 md:gap-2 md:mx-2 xl:gap-3 xl:mx-3">
+      <div className="grid grid-cols-3 lg:grid-cols-5 2xl:grid-cols-6 gap-1 mx-1 md:gap-2 md:mx-2 xl:gap-3 xl:mx-3">
         {allProducts.map((product) => (
           <ProductModal key={product.id} product={product} />
         ))}
