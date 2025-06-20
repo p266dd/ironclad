@@ -232,7 +232,7 @@ export async function addToCart(
     productId: typeof productId === "string" ? productId : "",
     request: typeof request === "string" ? request : "",
     details:
-      typeof details === "string"
+      typeof details === "string" && details !== "" && details !== "[]"
         ? (JSON.parse(details) as Prisma.JsonValue)
         : ([] as Prisma.JsonValue),
     brand:
@@ -427,6 +427,52 @@ export async function deleteOrderProductSize({
   }
 }
 
+export async function updateOrderProductDetails({
+  cartProductId,
+  details,
+}: {
+  cartProductId: number;
+  details: {
+    brand?: string | undefined;
+    handle?: string | undefined;
+    request?: string | undefined;
+  } | null;
+}) {
+  await verifyUserSession();
+
+  if (cartProductId === null || details === null)
+    return { success: false, message: "Error updating order." };
+
+  try {
+    const cartProduct = await prisma.cartProduct.update({
+      where: {
+        id: cartProductId,
+      },
+      data: {
+        brand: details.brand,
+        handle: details.handle,
+        request: details.request,
+      },
+      select: {
+        id: true,
+        product: {
+          select: {
+            id: true,
+          },
+        },
+      },
+    });
+
+    revalidatePath("/cart");
+    revalidatePath("/products/" + cartProduct.product.id);
+
+    return cartProduct;
+  } catch (error) {
+    const errorMessage = await generatePrismaErrorMessage(error, "user", "create");
+    return { success: false, message: errorMessage };
+  }
+}
+
 export async function clearCart(cartId: string) {
   await verifyUserSession();
 
@@ -450,6 +496,6 @@ export async function clearCart(cartId: string) {
     return cart;
   } catch (error) {
     const errorMessage = await generatePrismaErrorMessage(error, "user", "create");
-    return { success: false, message: errorMessage, fieldErrors: {} };
+    return { success: false, message: errorMessage };
   }
 }

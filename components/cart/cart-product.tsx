@@ -19,12 +19,26 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Select,
+  SelectGroup,
+  SelectLabel,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { CheckCheckIcon, PencilIcon, Trash2Icon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 
-import { updateOrderProductQuantity, deleteOrderProductSize } from "@/data/cart/actions";
+import {
+  updateOrderProductQuantity,
+  deleteOrderProductSize,
+  updateOrderProductDetails,
+} from "@/data/cart/actions";
 
 // Types
 import { CartProductWithRelations } from "@/lib/types";
@@ -35,10 +49,37 @@ export default function SingleCartProduct({
   product: CartProductWithRelations;
 }) {
   const [loading, setLoading] = useState(false);
+  const [save, setSave] = useState(false);
+  const [unsavedChanges, setUnsavedChanges] = useState<{
+    brand?: string | undefined;
+    handle?: string | undefined;
+    request?: string | undefined;
+  } | null>(null);
+  const [otherEngraving, setOtherEngraving] = useState(false);
+  const [otherHandle, setOtherHandle] = useState(false);
   const [popoverOpen, setPopoverOpen] = useState(false);
 
   const productThumbnail = product.product.thumbnail?.url;
   const productDetail = product.details as { sizeId: number; quantity: number }[];
+
+  const handleUpdateDetails = async () => {
+    setLoading(true);
+    const updatedDetails = await updateOrderProductDetails({
+      cartProductId: product.id,
+      details: unsavedChanges,
+    });
+
+    if (!updatedDetails) {
+      toast.error("Failed to update details.");
+      return;
+    }
+
+    toast.success("Details updated!");
+    setPopoverOpen(false);
+    setUnsavedChanges(null);
+    setSave(false);
+    setLoading(false);
+  };
 
   const handleDeleteQuantity = async ({
     cartProductId,
@@ -94,6 +135,8 @@ export default function SingleCartProduct({
     return updatedQuantity;
   };
 
+  console.log(product);
+
   return (
     <Accordion type="single" collapsible>
       <AccordionItem
@@ -119,8 +162,8 @@ export default function SingleCartProduct({
               <p className="lg:text-base">
                 <strong>Handle:</strong> {product.handle}
               </p>
-              <p className="lg:text-base">
-                <strong>Request:</strong> {product.request}
+              <p className="lg:text-base w-full max-w-[200px] md:max-w-[500px] truncate">
+                <strong>Request:</strong> {product.request || "No special request."}
               </p>
             </div>
           </div>
@@ -138,7 +181,7 @@ export default function SingleCartProduct({
               </Link>
             </Button>
           </div>
-          <div className="bg-white p-1">
+          <div className="bg-white p-1 mb-2 rounded-lg">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -222,7 +265,178 @@ export default function SingleCartProduct({
                 })}
               </TableBody>
             </Table>
+
+            <div className="mt-4 md:px-4">
+              <div className="flex flex-col gap-2 mb-4">
+                <p className="text-sm text-slate-500">Engraving</p>
+                <Select
+                  disabled={false}
+                  name="brand"
+                  value={unsavedChanges?.brand || product.brand || product.product.brand}
+                  onValueChange={(value) => {
+                    setSave(true);
+                    if (value === "other") setOtherEngraving(true);
+                    setUnsavedChanges((prev) => ({ ...prev, brand: value }));
+                  }}
+                >
+                  <SelectTrigger className="w-full py-6">
+                    <SelectValue placeholder="Choose engraving brand." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {product.brand !== product.product.brand && (
+                      <SelectGroup>
+                        <SelectLabel>Current In Cart</SelectLabel>
+                        <SelectItem value={product.brand} className="capitalize">
+                          {product.brand}
+                        </SelectItem>
+                      </SelectGroup>
+                    )}
+                    {/* {preferences && preferences.length > 0 && (
+                      <SelectGroup>
+                        <SelectLabel>Saved Preferences</SelectLabel>
+                        {preferences.map((value, i) => (
+                          <SelectItem key={i} value={value.slug}>
+                            {value.name}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    )} */}
+                    <SelectGroup>
+                      <SelectLabel>Default</SelectLabel>
+                      <SelectItem value={product.product.brand} className="capitalize">
+                        {product.product.brand}
+                      </SelectItem>
+                    </SelectGroup>
+
+                    {product.product.brand === "OEM" && (
+                      <SelectGroup>
+                        <SelectLabel>Write Your Own</SelectLabel>
+                        <SelectItem value="other" className="capitalize">
+                          Other
+                        </SelectItem>
+                      </SelectGroup>
+                    )}
+                  </SelectContent>
+                </Select>
+
+                {otherEngraving && (
+                  <Input
+                    type="text"
+                    name="brandOther"
+                    autoComplete="off"
+                    placeholder="What do you want engraved?"
+                    className="py-6"
+                    onChange={(e) => {
+                      setSave(true);
+                      setUnsavedChanges((prev) => ({ ...prev, brand: e.target.value }));
+                    }}
+                  />
+                )}
+              </div>
+
+              <div className="flex flex-col gap-2 mb-4">
+                <p className="text-sm text-slate-500">Handle</p>
+                <Select
+                  disabled={false}
+                  name="handle"
+                  value={
+                    unsavedChanges?.handle || product.handle || product.product.handle
+                  }
+                  onValueChange={(value) => {
+                    setSave(true);
+                    if (value === "custom") setOtherHandle(true);
+                    setUnsavedChanges((prev) => ({ ...prev, handle: value }));
+                  }}
+                >
+                  <SelectTrigger className="w-full py-6">
+                    <SelectValue placeholder="Choose engraving brand." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {product.handle !== product.product.handle && (
+                      <SelectGroup>
+                        <SelectLabel>Current In Cart</SelectLabel>
+                        <SelectItem value={product.handle} className="capitalize">
+                          {product.handle}
+                        </SelectItem>
+                      </SelectGroup>
+                    )}
+
+                    <SelectGroup>
+                      <SelectLabel>Default</SelectLabel>
+                      <SelectItem value={product.product.handle} className="capitalize">
+                        {product.product.handle}
+                      </SelectItem>
+                    </SelectGroup>
+
+                    {product.product.canChangeHandle && (
+                      <SelectGroup>
+                        <SelectLabel>Custom</SelectLabel>
+                        <SelectItem value="custom" className="capitalize">
+                          Other
+                        </SelectItem>
+                      </SelectGroup>
+                    )}
+                  </SelectContent>
+                </Select>
+
+                {otherHandle && (
+                  <Input
+                    type="text"
+                    name="handleOther"
+                    autoComplete="off"
+                    placeholder="What handle would you like?"
+                    className="py-6"
+                    onChange={(e) => {
+                      setSave(true);
+                      setUnsavedChanges((prev) => ({ ...prev, handle: e.target.value }));
+                    }}
+                  />
+                )}
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <p className="text-sm text-slate-500">Specific Request</p>
+                <Textarea
+                  name="request"
+                  placeholder="Type your message here."
+                  value={unsavedChanges?.request ?? product.request ?? ""}
+                  disabled={false}
+                  onChange={(e) => {
+                    console.log(typeof e.target.value);
+                    !save ? setSave(true) : null;
+                    setUnsavedChanges((prev) => ({ ...prev, request: e.target.value }));
+                  }}
+                />
+              </div>
+            </div>
           </div>
+          {save && unsavedChanges && (
+            <div className="flex items-center justify-start gap-4">
+              <Button
+                onClick={handleUpdateDetails}
+                type="button"
+                variant="success"
+                size="lg"
+                disabled={loading}
+                className="flex-1 w-full"
+              >
+                Save Changes
+              </Button>
+              <Button
+                onClick={() => {
+                  setSave(false);
+                  setUnsavedChanges(null);
+                }}
+                type="button"
+                variant="outline"
+                size="lg"
+                disabled={loading}
+                className="flex-1 w-full"
+              >
+                Cancel
+              </Button>
+            </div>
+          )}
         </AccordionContent>
       </AccordionItem>
     </Accordion>
