@@ -38,6 +38,10 @@ export default function CartProduct({
               toast.error("Failed to create order.");
               return;
             }
+            if (typeof order === "object" && order.error) {
+              toast.success(order.error);
+              return;
+            }
             toast.success("Order created.");
             setTimeout(
               () => router.push("/account/orders/" + order + "?success=true"),
