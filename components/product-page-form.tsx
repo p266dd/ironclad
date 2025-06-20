@@ -56,7 +56,7 @@ export default function ProductPageForm({
   const [otherEngraving, setOtherEngraving] = useState(false);
   const [otherHandle, setOtherHandle] = useState(false);
   const [details, setDetails] = useState<Prisma.JsonArray>(
-    cart?.details as Prisma.JsonArray
+    (cart?.details as Prisma.JsonArray) || []
   );
 
   const [state, actionForm, isLoading] = useActionState(
@@ -150,36 +150,30 @@ export default function ProductPageForm({
                         autoComplete="off"
                         className="px-1 text-center"
                         defaultValue={(sizeQuantity && sizeQuantity) || 0}
-                        onChange={(e: React.FocusEvent<HTMLInputElement>) => {
+                        onChange={(e) => {
                           const value = parseInt(e.target.value);
+                          if (isNaN(value)) return;
 
-                          setDetails((prev: SetStateAction<Prisma.JsonArray>) => {
-                            // Update value
-                            const oldDetails = prev as Prisma.JsonArray;
-
-                            // No previous value.
-                            if (!prev) {
+                          setDetails((prev) => {
+                            if (prev.length === 0)
                               return [
-                                {
+                                { sizeId: size.id, quantity: value },
+                              ] as Prisma.JsonArray;
+                            return prev.map((item) => {
+                              const itemDetail = item as {
+                                sizeId: number;
+                                quantity: number;
+                              };
+
+                              if (itemDetail.sizeId === size.id) {
+                                return {
                                   sizeId: size.id,
-                                  quantity: typeof value === "number" ? value : 0,
-                                },
-                              ];
-                            }
-
-                            const newDetails = oldDetails.map((item) => {
-                              if (
-                                typeof item === "object" &&
-                                item !== null &&
-                                "sizeId" in item &&
-                                item.sizeId === size.id
-                              ) {
-                                return { sizeId: size.id, quantity: value };
+                                  quantity: value,
+                                } as Prisma.JsonValue;
                               }
-                              return item;
-                            });
 
-                            return newDetails;
+                              return item;
+                            }) as Prisma.JsonArray;
                           });
                         }}
                       />
