@@ -28,7 +28,7 @@ export default async function ResultsPage(props: {
   };
 
   return (
-    <div className="h-full pt-16 pb-40 px-6 sm:pt-4 lg:px-12">
+    <div className="h-full pt-16 pb-48 px-6 sm:pt-4 md:pb-12 lg:px-12">
       <div className="h-full">
         <div className="w-full max-w-[800px] flex flex-col justify-center gap-4 mb-4">
           <PageTitle

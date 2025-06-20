@@ -25,7 +25,7 @@ export default async function SingleProductPage({
   const media = product ? [...product.media] : null;
 
   return (
-    <div className="lg:h-full pt-16 pb-44 px-3 sm:pt-4 lg:px-12">
+    <div className="lg:h-full pt-16 pb-48 px-3 sm:pt-4 md:pb-12 lg:px-12">
       <PageTitle
         title={product?.name || "Missing Name"}
         subtitle={`From ${product?.brand}`}

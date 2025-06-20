@@ -10,7 +10,7 @@ export default async function FavoritesPage() {
   const products = favorite?.products;
 
   return (
-    <div className={cn("pt-16 pb-40 px-6 sm:pt-4 lg:px-12")}>
+    <div className={cn("pt-16 pb-44 px-6 sm:pt-4 md:pb-12 lg:px-12")}>
       <PageTitle
         title="Favorites"
         showCount={true}

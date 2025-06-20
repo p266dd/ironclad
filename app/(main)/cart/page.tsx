@@ -8,7 +8,7 @@ export default async function CartPage() {
   const cartProducts = cart?.products;
 
   return (
-    <div className="pt-16 pb-40 px-6 sm:pt-4 lg:px-12">
+    <div className="pt-16 pb-48 px-6 sm:pt-4 md:pb-12 lg:px-12">
       <PageTitle
         title="Shopping Cart"
         showCount={true}
