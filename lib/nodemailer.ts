@@ -1,4 +1,5 @@
 import { createTransport } from "nodemailer";
+import { Attachment } from "nodemailer/lib/mailer";
 
 const transporter = createTransport({
   service: "gmail",
@@ -19,11 +20,13 @@ export async function sendEmail({
   subject,
   html,
   text,
+  attachments,
 }: {
   to: string;
   subject: string;
   html: string;
   text: string;
+  attachments?: Attachment[];
 }) {
   // Verify SMTP connection.
   const hasConnection = await transporter.verify();
@@ -36,6 +39,7 @@ export async function sendEmail({
       subject: subject,
       text: text,
       html: html,
+      attachments: attachments,
     });
 
     console.log("Message sent: %s", info.messageId);
