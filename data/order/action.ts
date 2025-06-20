@@ -79,12 +79,13 @@ export async function createOrder() {
       });
 
       // Add to items for this specific OrderProduct, storing price at time of order
-      validItemsForThisOrder.push({
-        id: sizeId, // Size ID
-        quantity: requestedQuantity,
-        priceAtOrder: sizeInfo.price, // Store price at the time of order
-        nameAtOrder: sizeInfo.name || String(sizeInfo.size), // Store size name/identifier
-      });
+      validItemsForThisOrder.length > 0 &&
+        validItemsForThisOrder.push({
+          id: sizeId, // Size ID
+          quantity: requestedQuantity,
+          priceAtOrder: sizeInfo.price, // Store price at the time of order
+          nameAtOrder: sizeInfo.name || String(sizeInfo.size), // Store size name/identifier
+        });
     }
 
     if (validItemsForThisOrder.length > 0) {
@@ -95,6 +96,8 @@ export async function createOrder() {
         request: cartProduct.request,
         details: validItemsForThisOrder as Prisma.JsonArray,
       });
+    } else {
+      return { error: "No valid item quantity for this order." };
     }
   }
 
@@ -169,7 +172,7 @@ export async function createOrder() {
       attachments: [
         {
           filename: "logo.png",
-          path: path.join(process.cwd(), "assets", "logo.png"),
+          path: path.join(process.cwd(), "public", "logo.png"),
           cid: "logo@ironclad",
         },
       ],
