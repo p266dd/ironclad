@@ -1,13 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
 import {
   updateUserPreferences,
   removeUserPreference,
   updateOwnUser,
 } from "@/data/user/actions";
-import { toast } from "sonner";
 
+// Shadcn
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -22,27 +23,22 @@ import {
 } from "lucide-react";
 
 // Types
-import { Prisma } from "@/lib/generated/prisma";
+import { TAccountChange } from "@/lib/types";
 
-export type TChanges = {
-  name?: string;
-  email?: string;
-  password?: string;
-  businessName?: string;
-  businessCode?: string | undefined | null;
-  engraving?: Prisma.JsonArray | null | undefined;
-} | null;
-
-export default function AccountForm({ currentInfo }: { currentInfo: TChanges }) {
+export default function AccountForm({ currentInfo }: { currentInfo: TAccountChange }) {
   const [save, setSave] = useState(false);
   const [savePreference, setSavePreference] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  // Keep unsaved preferences.
   const [unsavedPreference, setUnsavedPreference] = useState<{
     slug: string;
     name: string;
   } | null>(null);
-  const [unsavedChanges, setUnsavedChanges] = useState<TChanges | null>(
+
+  // Keep unsaved user info.
+  const [unsavedChanges, setUnsavedChanges] = useState<TAccountChange | null>(
     currentInfo?.name !== "" ? currentInfo : null
   );
 
@@ -50,7 +46,7 @@ export default function AccountForm({ currentInfo }: { currentInfo: TChanges }) 
     e.preventDefault();
     setLoading(true);
     const data = new FormData(e.currentTarget);
-    const formData = Object.fromEntries(data.entries()) as TChanges;
+    const formData = Object.fromEntries(data.entries()) as TAccountChange;
     const updatedUser = await updateOwnUser(formData);
     if ("error" in updatedUser && typeof updatedUser.error === "string") {
       toast.error(`${updatedUser.error}`);
@@ -66,8 +62,8 @@ export default function AccountForm({ currentInfo }: { currentInfo: TChanges }) 
     e.preventDefault();
     setLoading(true);
     const updatedPreference = await updateUserPreferences(unsavedPreference);
-    if ("error" in updateUserPreferences && updateUserPreferences.error) {
-      toast.error(`${updateUserPreferences.error}`);
+    if ("error" in updatedPreference && typeof updatedPreference.error === "string") {
+      toast.error(`${updatedPreference.error}`);
       setLoading(false);
       return;
     }
@@ -83,7 +79,6 @@ export default function AccountForm({ currentInfo }: { currentInfo: TChanges }) 
         <div className="flex flex-col gap-8 md:flex-row">
           <div className="flex-1 w-full flex flex-col gap-6">
             <h3 className="text-2xl text-primary">Personal Information</h3>
-
             <div className="flex flex-col gap-3">
               <Label htmlFor="name">Full Name</Label>
               <Input

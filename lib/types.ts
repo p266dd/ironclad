@@ -35,3 +35,12 @@ export type CartProductWithRelations = Prisma.CartProductGetPayload<{
 export type TProductItemResult = Prisma.ProductGetPayload<{
   include: { filters: true; media: true; thumbnail: true };
 }>;
+
+export type TAccountChange = {
+  name?: string;
+  email?: string;
+  password?: string;
+  businessName?: string;
+  businessCode?: string | undefined | null;
+  engraving?: Prisma.JsonArray | null | undefined;
+} | null;
