@@ -38,7 +38,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       </head>
       <body className={`${openSans.variable} antialiased`}>
         {children}
-        <Toaster position="top-center" />
+        <Toaster position="top-center" richColors={true} />
       </body>
     </html>
   );
