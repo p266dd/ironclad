@@ -40,7 +40,7 @@ export async function resetPassword(
     if (validatedData.token.length === 0) {
       return {
         success: false,
-        message: "Token is missing.",
+        message: "Token is invalid.",
       };
     }
 
@@ -53,7 +53,7 @@ export async function resetPassword(
     if (!userId) {
       return {
         success: false,
-        message: "Invalid token.",
+        message: "Token is invalid.",
       };
     }
 

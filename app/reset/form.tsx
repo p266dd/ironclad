@@ -31,7 +31,7 @@ export function ResetForm({ className, ...props }: React.ComponentProps<"form">)
 
   useEffect(() => {
     if (state.success) {
-      console.log("Password reset action succeeded:", state.message);
+      console.log("Password successfully reset.");
       router.push("/");
     }
   }, [state, router]);
@@ -44,8 +44,8 @@ export function ResetForm({ className, ...props }: React.ComponentProps<"form">)
           Enter your new password below.
         </p>
       </div>
-      {state.message && !state.success && (
-        <Alert>
+      {state.message && (
+        <Alert variant="info">
           <Info />
           <AlertDescription>{state.message}</AlertDescription>
         </Alert>
