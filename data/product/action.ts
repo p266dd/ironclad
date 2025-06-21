@@ -6,17 +6,15 @@ import { verifyUserSession } from "@/lib/session";
 // Types
 import { Prisma } from "@/lib/generated/prisma";
 import { TActiveFilters } from "@/lib/types";
-export type ProductItemResult = Prisma.ProductGetPayload<{
-  include: { filters: true; media: true; thumbnail: true };
-}>;
+import { TProductItemResult } from "@/lib/types";
 
-// Error Utility
+// Error Utility for logging
 import { generatePrismaErrorMessage } from "@/prisma/error-handling";
 
 export async function getProductsInfineScroll(keys: {
   index: number;
   activeFilters: TActiveFilters;
-}): Promise<ProductItemResult[]> {
+}): Promise<TProductItemResult[]> {
   await verifyUserSession();
 
   const PAGE_INDEX: number = keys.index || 0;
@@ -34,7 +32,7 @@ export async function getProductsInfineScroll(keys: {
   const sizeConditionsForAND = [];
 
   // * Add size condition.
-  // * Cannot use due to the possible format 120*100*10cm
+  // * Cannot use due because of the possible format 120*100*10cm
   // if (searchFilters && searchFilters.size) {
   //   const sizes = searchFilters.size.split("-");
   //   sizeConditionsForAND.push({
@@ -50,8 +48,8 @@ export async function getProductsInfineScroll(keys: {
     const prices = searchFilters.price.split("-");
     sizeConditionsForAND.push({
       price: {
-        gte: Number(prices[0]), // Greater than or equal to minPrice.
-        lte: Number(prices[1]), // Less than or equal to maxPrice.
+        gte: Number(prices[0]),
+        lte: Number(prices[1]),
       },
     });
   }
@@ -61,13 +59,13 @@ export async function getProductsInfineScroll(keys: {
     if (searchFilters.stock === "inStock") {
       sizeConditionsForAND.push({
         stock: {
-          gt: 0, // Greater than 0
+          gt: 0,
         },
       });
     } else if (searchFilters.stock === "largeStock") {
       sizeConditionsForAND.push({
         stock: {
-          gt: 50, // Greater than 50
+          gt: 50,
         },
       });
     } else {
@@ -91,13 +89,13 @@ export async function getProductsInfineScroll(keys: {
   // * Add brand to search clause.
   if (searchFilters && searchFilters.brand) {
     if (Array.isArray(searchFilters.brand) && searchFilters.brand.length > 0) {
-      // If brand is an array of strings, use the 'in' operator
+      // If brand is an array of strings, use the 'in' operator.
       brandFilter = { in: searchFilters.brand };
     } else if (
       typeof searchFilters.brand === "string" &&
       searchFilters.brand.trim() !== ""
     ) {
-      // If brand is a single, non-empty string, use 'equals'
+      // If brand is a empty string, use 'equals'.
       brandFilter = { equals: searchFilters.brand };
     }
   }
@@ -105,13 +103,13 @@ export async function getProductsInfineScroll(keys: {
   // * Add material to search clause.
   if (searchFilters && searchFilters.material) {
     if (Array.isArray(searchFilters.material) && searchFilters.material.length > 0) {
-      // If material is an array of strings, use the 'in' operator
+      // If material is an array of strings, use the 'in' operator.
       materialFilter = { in: searchFilters.material };
     } else if (
       typeof searchFilters.material === "string" &&
       searchFilters.material.trim() !== ""
     ) {
-      // If material is a single, non-empty string, use 'equals'
+      // If material is a string, use 'equals'.
       materialFilter = { equals: searchFilters.material };
     }
   }
@@ -119,13 +117,13 @@ export async function getProductsInfineScroll(keys: {
   // * Add styles to search clause.
   if (searchFilters && searchFilters.style) {
     if (Array.isArray(searchFilters.style) && searchFilters.style.length > 0) {
-      // If style is an array of strings, use the 'in' operator
+      // If style is an array of strings, use the 'in' operator.
       styleFilter = { in: searchFilters.style };
     } else if (
       typeof searchFilters.style === "string" &&
       searchFilters.style.trim() !== ""
     ) {
-      // If style is a single, non-empty string, use 'equals'
+      // If style is a string, use 'equals'
       styleFilter = { equals: searchFilters.style };
     }
   }

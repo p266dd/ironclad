@@ -1,4 +1,5 @@
 "use client";
+
 import { useRouter } from "next/navigation";
 
 import {
@@ -31,7 +32,9 @@ export default function ProductGridError() {
             <Button onClick={() => router.refresh()} variant="default">
               <RefreshCcwIcon /> Retry
             </Button>
-            <Button variant="secondary">Report Error</Button>
+            <Button onClick={() => router.push("/")} variant="secondary">
+              Back to Home
+            </Button>
           </div>
         </CardContent>
       </Card>

@@ -4,8 +4,6 @@ import { useRouter } from "next/navigation";
 
 // Shadcn
 import { Button } from "@/components/ui/button";
-
-// Types
 import { MousePointerClickIcon, TagIcon } from "lucide-react";
 
 export default function FilterTags({

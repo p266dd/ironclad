@@ -5,11 +5,11 @@ import useSWRInfinite, { SWRInfiniteKeyLoader } from "swr/infinite";
 import { getProductsInfineScroll } from "@/data/product/action";
 import ProductModal from "@/components/product-grid/product-modal";
 import ProductGridError from "@/components/product-grid/product-grid-error";
-import EmptyResults from "../empty-results";
-import { LoaderIcon } from "lucide-react";
+import EmptyResults from "@/components/empty-results";
+import { LoaderCircleIcon } from "lucide-react";
 
 // Types
-import { ProductItemResult } from "@/data/product/action";
+import { TProductItemResult } from "@/lib/types";
 import { TActiveFilters } from "@/lib/types";
 
 export default function ProductGrid(props: { activeFilters: TActiveFilters }) {
@@ -27,7 +27,7 @@ export default function ProductGrid(props: { activeFilters: TActiveFilters }) {
 
   // Fetch paginated products.
   const { data, error, setSize, isLoading, isValidating } = useSWRInfinite<
-    ProductItemResult[]
+    TProductItemResult[]
   >(getKey, getProductsInfineScroll);
 
   // Is there more data?
@@ -35,12 +35,12 @@ export default function ProductGrid(props: { activeFilters: TActiveFilters }) {
 
   const allProducts = useMemo(() => {
     // Concatenate data from all database fetches.
-    const allProductsResponse: ProductItemResult[] = data ? data.flat() : [];
+    const allProductsResponse: TProductItemResult[] = data ? data.flat() : [];
 
     if (!allProductsResponse.length) {
       return [];
     }
-    const uniqueProductsMap = new Map<string | number, ProductItemResult>();
+    const uniqueProductsMap = new Map<string | number, TProductItemResult>();
     allProductsResponse.forEach((product) => {
       if (product && typeof product.id !== "undefined") {
         // Ensure product and id exist
@@ -86,14 +86,13 @@ export default function ProductGrid(props: { activeFilters: TActiveFilters }) {
         ))}
       </div>
 
-      {isValidating ||
-        (isLoading ? (
-          <div key="loadingMoreProducts" className="mt-6">
-            <div className="flex items-center gap-4 text-gray-500">
-              Loading <LoaderIcon className="animate-spin" />
-            </div>
+      {isValidating || isLoading ? (
+        <div key="loadingMoreProducts" className="mt-6">
+          <div className="flex items-center gap-4 text-gray-500">
+            Loading <LoaderCircleIcon className="animate-spin" />
           </div>
-        ) : null)}
+        </div>
+      ) : null}
 
       {hasMoreData && !isLoading && (
         <div key="observer" ref={observerRef} style={{ height: "1px" }} />

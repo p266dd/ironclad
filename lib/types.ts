@@ -31,3 +31,7 @@ export type CartProductWithRelations = Prisma.CartProductGetPayload<{
     };
   };
 }>;
+
+export type TProductItemResult = Prisma.ProductGetPayload<{
+  include: { filters: true; media: true; thumbnail: true };
+}>;

@@ -1,20 +1,19 @@
 "use client";
 
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
-import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 import {
   getFavorites,
   addFavotiteProduct,
   removeFavotiteProduct,
 } from "@/data/favorite/action";
+import { cn } from "@/lib/utils";
 
 // Shadcn
-import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog";
 import {
   Carousel,
   CarouselContent,
@@ -24,6 +23,13 @@ import {
 } from "@/components/ui/carousel";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+  DialogHeader,
+} from "@/components/ui/dialog";
 import { MousePointerClickIcon, StarIcon } from "lucide-react";
 
 // Types & Schemas
@@ -31,7 +37,6 @@ import { Prisma } from "@/lib/generated/prisma";
 
 // Import fallback image.
 import FallbackImage from "@/assets/product-fallback.webp";
-import { DialogDescription, DialogTitle } from "@radix-ui/react-dialog";
 
 export default function ProductModal({
   product,
@@ -221,9 +226,7 @@ export default function ProductModal({
                 <span className="text-xs text-slate-400 uppercase tracking-widest">
                   Product
                 </span>
-                <h4 className="text-xl font-semibold leading-tight">
-                  OEM Shiro#1 Stainless clad / Oak Lacquer (KOP)
-                </h4>
+                <h4 className="text-xl font-semibold leading-tight">{product.name}</h4>
                 <span className="absolute -bottom-2 -right-2 md:hidden">
                   <MousePointerClickIcon color="#ccc" />
                 </span>

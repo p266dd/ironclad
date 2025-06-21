@@ -1,16 +1,17 @@
 import Image from "next/image";
 import FilterTags from "@/components/filter-tags";
 import ProductGrid from "@/components/product-grid/product-grid";
-import { getSession, SessionPayload } from "@/lib/session";
-import { logout } from "@/lib/logout";
 import { LockIcon } from "lucide-react";
-import { getFilters } from "@/data/filter/action";
 
-// Assets
-import Logo from "@/assets/logo.png";
+import { getSession, SessionPayload } from "@/lib/session";
+import { getFilters } from "@/data/filter/action";
+import { logout } from "@/lib/logout";
 
 // Shadcn
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+
+// Assets
+import Logo from "@/assets/logo.png";
 
 export default async function HomePage({
   searchParams,
@@ -50,7 +51,7 @@ export default async function HomePage({
         </div>
       </div>
 
-      {filters.data && filters.data.length > 0 ? (
+      {filters.data !== null && filters.data.length > 0 ? (
         <div className="pt-2 mb-2 md:px-6 md:pt-6 md:mb-6">
           <ScrollArea className="w-full p-4 whitespace-nowrap">
             {filters.data.map((filter, i) => (

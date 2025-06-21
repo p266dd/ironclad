@@ -71,7 +71,7 @@ export default function Navigation({
           <Image src={Logo} alt="Ironclad Logo" className="max-w-[40px] invert" />
           <h2 className="text-2xl">
             <span className="block text-base mb-2">Welcome,</span>
-            {session && session.name}
+            {(session && session.name) || "User"}
           </h2>
         </div>
 
