@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { SetStateAction, useActionState, useState, useEffect } from "react";
+import { useActionState, useState, useEffect } from "react";
 import { addToCart, updateProductFromCart } from "@/data/cart/actions";
 
 // Shadcn
@@ -219,11 +219,13 @@ export default function ProductPageForm({
               {preferences && preferences.length > 0 && (
                 <SelectGroup>
                   <SelectLabel>Saved Preferences</SelectLabel>
-                  {preferences.map((value, i) => (
-                    <SelectItem key={i} value={value.slug}>
-                      {value.name}
-                    </SelectItem>
-                  ))}
+                  {preferences.map((value, i) => {
+                    return (
+                      <SelectItem key={`engraving-${i}`} value={value.slug}>
+                        {value.name}
+                      </SelectItem>
+                    );
+                  })}
                 </SelectGroup>
               )}
               <SelectGroup>

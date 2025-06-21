@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import SingleCartProduct from "./cart-product";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -20,6 +21,7 @@ export default function CartProduct({
   shoppingCartId: string;
 }) {
   const router = useRouter();
+  const [loading, setLoading] = useState(false);
 
   return (
     <div className="flex flex-col gap-y-8 gap-x-20 lg:flex-row">
@@ -33,16 +35,20 @@ export default function CartProduct({
           className="flex items-center justify-center gap-4 lg:flex-col lg:items-start lg:justify-start"
           onSubmit={async (e) => {
             e.preventDefault();
+            setLoading(true);
             const order = await createOrder();
             if (!order) {
               toast.error("Failed to create order.");
+              setLoading(false);
               return;
             }
             if (typeof order === "object" && order.error) {
               toast.success(order.error);
+              setLoading(false);
               return;
             }
             toast.success("Order created.");
+            setLoading(false);
             setTimeout(
               () => router.push("/account/orders/" + order + "?success=true"),
               400
@@ -51,9 +57,9 @@ export default function CartProduct({
         >
           <input type="hidden" name="shoppingCartId" value={shoppingCartId} readOnly />
 
-          <Button type="submit" variant="default" size="lg">
+          <Button type="submit" variant="default" disabled={loading} size="lg">
             <ShoppingBagIcon />
-            Order Now!
+            {loading ? "Sending Order" : "Order Now!"}
           </Button>
 
           <Button

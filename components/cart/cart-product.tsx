@@ -29,7 +29,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CheckCheckIcon, PencilIcon, Trash2Icon } from "lucide-react";
+import { CheckCheckIcon, PencilIcon, SaveIcon, Trash2Icon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -134,8 +134,6 @@ export default function SingleCartProduct({
     setPopoverOpen(false);
     return updatedQuantity;
   };
-
-  console.log(product);
 
   return (
     <Accordion type="single" collapsible>
@@ -420,7 +418,8 @@ export default function SingleCartProduct({
                 disabled={loading}
                 className="flex-1 w-full"
               >
-                Save Changes
+                <SaveIcon />
+                {loading ? "Saving..." : "Save Changes"}
               </Button>
               <Button
                 onClick={() => {
