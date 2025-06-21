@@ -1,17 +1,18 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
-import prisma from "@/lib/prisma";
-import { verifyUserSession } from "@/lib/session";
 import path from "path";
+import prisma from "@/lib/prisma";
+import { revalidatePath } from "next/cache";
 
 import { sendEmail } from "@/lib/nodemailer";
-import { NewOrderEmailClient } from "@/lib/emails/new-order";
+import { verifyUserSession } from "@/lib/session";
+import { NewOrderEmailClient, NewOrderEmailStaff } from "@/lib/emails/new-order";
 
 import { getCart } from "@/data/cart/actions";
 
 // Types
 import { Prisma } from "@/lib/generated/prisma";
+import { TCreateOrderProduct, TProductDetails, TProductStockUpdate } from "@/lib/types";
 
 // Error Utility
 // import { generatePrismaErrorMessage } from "@/prisma/error-handling";
@@ -23,32 +24,19 @@ export async function createOrder() {
   const cart = await getCart();
 
   if (!cart) {
-    return null;
+    return { error: "No cart found." };
   }
 
   // Verify quantities are available.
-  const orderProductCreateInputs: {
-    product: { connect: { id: string } };
-    brand: string;
-    handle: string;
-    request: string | null;
-    details: Prisma.JsonArray;
-  }[] = [];
-  const stockUpdateOperations: {
-    sizeId: number;
-    decrementAmount: number;
-    productId: string;
-  }[] = [];
+  const orderProductCreateInputs: TCreateOrderProduct[] = [];
+  const stockUpdateOperations: TProductStockUpdate[] = [];
 
   for (const cartProduct of cart.products) {
     if (!cartProduct.product || !cartProduct.product.sizes) {
-      return null;
+      return { error: "Invalid cart product." };
     }
 
-    const parsedDetails = cartProduct.details as {
-      sizeId: number;
-      quantity: number;
-    }[];
+    const parsedDetails = cartProduct.details as TProductDetails[];
 
     const validItemsForThisOrder = [];
 
@@ -68,7 +56,7 @@ export async function createOrder() {
       }
 
       if (requestedQuantity > sizeInfo.stock) {
-        return null; // No stock available.
+        return { error: "No stock available for this size." }; // No stock available.
       }
 
       // Prepare for stock update.
@@ -78,13 +66,12 @@ export async function createOrder() {
         productId: cartProduct.productId, // For revalidation.
       });
 
-      // Add to items for this specific OrderProduct, storing price at time of order
+      // Add to items for this specific OrderProduct, just in case storing price at time of order.
       validItemsForThisOrder.length > 0 &&
         validItemsForThisOrder.push({
-          id: sizeId, // Size ID
+          id: sizeId,
           quantity: requestedQuantity,
-          priceAtOrder: sizeInfo.price, // Store price at the time of order
-          nameAtOrder: sizeInfo.name || String(sizeInfo.size), // Store size name/identifier
+          priceAtOrder: sizeInfo.price, // Store price at the time of order.
         });
     }
 
@@ -102,10 +89,10 @@ export async function createOrder() {
   }
 
   if (orderProductCreateInputs.length === 0) {
-    return null;
+    return { error: "No valid items for this order." };
   }
 
-  // Generate a simple order code
+  // Generate a simple order code.
   const orderCode = `ORD-${Date.now().toString(36).toUpperCase()}-${session.id
     .substring(0, 6)
     .toUpperCase()}`;
@@ -155,7 +142,7 @@ export async function createOrder() {
         where: { id: cart.id },
         data: {
           products: {
-            deleteMany: {}, // Deletes all CartProduct records linked to this cart
+            deleteMany: {},
           },
         },
       });
@@ -163,10 +150,10 @@ export async function createOrder() {
       return createdOrder;
     });
 
-    // Send emails.
+    // Client emails.
     const clientEmail = await sendEmail({
       to: session.email,
-      subject: "Order Confirmation - Testing",
+      subject: "Order Confirmation",
       html: NewOrderEmailClient({ name: session.name, order: newOrder }).html,
       text: NewOrderEmailClient({ name: session.name, order: newOrder }).text,
       attachments: [
@@ -177,13 +164,29 @@ export async function createOrder() {
         },
       ],
     });
+    console.log("Client Email: ", clientEmail);
 
     // Staff email.
+    const staffEmail = await sendEmail({
+      to: "staff@ironcladknives.com",
+      subject: "New Order From " + session.name,
+      html: NewOrderEmailStaff({ client: session.name, orderId: newOrder.id }).html,
+      text: NewOrderEmailStaff({ client: session.name, orderId: newOrder.id }).text,
+      attachments: [
+        {
+          filename: "logo.png",
+          path: path.join(process.cwd(), "public", "logo.png"),
+          cid: "logo@ironclad",
+        },
+      ],
+    });
+    console.log("Staff Email: ", staffEmail);
 
     // Revalidate paths for updated data.
     revalidatePath("/cart");
     revalidatePath("/account/orders");
-    // Revalidate all product pages from order.
+
+    // Revalidate each product pages from order.
     const uniqueProductIds = [
       ...new Set(stockUpdateOperations.map((op) => op.productId)),
     ];
@@ -194,6 +197,6 @@ export async function createOrder() {
     return newOrder.id;
   } catch (error) {
     console.error(error);
-    return null;
+    return { error: "Failed to create order." };
   }
 }

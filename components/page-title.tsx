@@ -9,7 +9,7 @@ export default function PageTitle({
   title: string;
   subtitle?: string;
   showCount?: boolean;
-  count?: number;
+  count?: number | undefined;
   countFor?: string;
   className?: string;
 }) {

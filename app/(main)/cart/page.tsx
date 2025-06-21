@@ -12,7 +12,7 @@ export default async function CartPage() {
       <PageTitle
         title="Shopping Cart"
         showCount={true}
-        count={cartProducts && cartProducts?.length}
+        count={cartProducts?.length}
         countFor="cart"
       />
       {cartProducts && cartProducts.length > 0 ? (

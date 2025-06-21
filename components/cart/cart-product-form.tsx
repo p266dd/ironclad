@@ -1,14 +1,16 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import SingleCartProduct from "./cart-product";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
-import { ShoppingBagIcon, XCircleIcon } from "lucide-react";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import SingleCartProduct from "@/components/cart/cart-product";
 
 import { createOrder } from "@/data/order/action";
 import { clearCart } from "@/data/cart/actions";
+
+// Shadcn
+import { Button } from "@/components/ui/button";
+import { ShoppingBagIcon, XCircleIcon } from "lucide-react";
 
 // Types
 import { CartProductWithRelations } from "@/lib/types";
@@ -42,8 +44,12 @@ export default function CartProduct({
               setLoading(false);
               return;
             }
-            if (typeof order === "object" && order.error) {
-              toast.success(order.error);
+            if (
+              typeof order === "object" &&
+              "error" in order &&
+              typeof order.error === "string"
+            ) {
+              toast.error(order.error);
               setLoading(false);
               return;
             }

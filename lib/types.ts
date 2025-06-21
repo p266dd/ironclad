@@ -21,16 +21,17 @@ export type TSearchFields = {
   material: string | string[];
 };
 
-export type CartProductWithRelations = Prisma.CartProductGetPayload<{
-  include: {
-    product: {
-      include: {
-        thumbnail: true;
-        sizes: true;
-      };
-    };
-  };
-}>;
+export type TProductStockUpdate = {
+  sizeId: number;
+  decrementAmount: number;
+  productId: string;
+};
+
+export type TProductDetails = {
+  id: number;
+  sizeId: number;
+  quantity: number;
+};
 
 export type TProductItemResult = Prisma.ProductGetPayload<{
   include: { filters: true; media: true; thumbnail: true };
@@ -44,3 +45,43 @@ export type TAccountChange = {
   businessCode?: string | undefined | null;
   engraving?: Prisma.JsonArray | null | undefined;
 } | null;
+
+export type CartProductWithRelations = Prisma.CartProductGetPayload<{
+  include: {
+    product: {
+      include: {
+        thumbnail: true;
+        sizes: true;
+      };
+    };
+  };
+}>;
+
+export type TCreateOrderProduct = {
+  product: { connect: { id: string } };
+  brand: string;
+  handle: string;
+  request: string | null;
+  details: Prisma.JsonArray;
+};
+
+export type TOrderWithConnection = Prisma.OrderGetPayload<{
+  select: {
+    id: true;
+    code: true;
+    createdAt: true;
+    orderProduct: {
+      select: {
+        details: true;
+        brand: true;
+        handle: true;
+        request: true;
+        product: {
+          include: {
+            sizes: true;
+          };
+        };
+      };
+    };
+  };
+}>;

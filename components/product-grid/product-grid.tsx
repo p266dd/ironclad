@@ -48,7 +48,7 @@ export default function ProductGrid(props: { activeFilters: TActiveFilters }) {
       }
     });
     return Array.from(uniqueProductsMap.values());
-  }, [props.activeFilters, data]);
+  }, [data]);
 
   // Callback for IntersectionObserver
   const handleObserver = useCallback(

@@ -401,7 +401,7 @@ export default function SingleCartProduct({
                   disabled={false}
                   onChange={(e) => {
                     console.log(typeof e.target.value);
-                    !save ? setSave(true) : null;
+                    if (!save) setSave(true);
                     setUnsavedChanges((prev) => ({ ...prev, request: e.target.value }));
                   }}
                 />
