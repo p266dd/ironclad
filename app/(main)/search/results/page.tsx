@@ -21,8 +21,7 @@ export default async function ResultsPage(props: {
     searchTerm: params.searchTerm ?? "",
     style: params.style ?? "",
     stock: params.stock ?? "",
-    price: params.price ?? "",
-    size: params.size ?? "",
+    price: params.price ?? { min: 0, max: 99999 },
     brand: params.brand ?? "",
     material: params.material ?? "",
   };

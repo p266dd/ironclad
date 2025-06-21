@@ -19,18 +19,7 @@ import { Loader2, Search } from "lucide-react";
 
 // Types
 import { Brand, Material } from "@/lib/generated/prisma";
-
-type TSearchState = {
-  searchTerm: string;
-  style: string;
-  stock: string;
-  price: {
-    min: number;
-    max: number;
-  };
-  brand: string[];
-  material: string[];
-};
+import { TSearchFields } from "@/lib/types";
 
 export default function SearchForm({
   availableBrands,
@@ -59,7 +48,7 @@ export default function SearchForm({
     }
   };
 
-  const [searchState, setSearchState] = useState<TSearchState>({
+  const [searchState, setSearchState] = useState<TSearchFields>({
     searchTerm: searchParams.get("searchTerms") || "",
     style: searchParams.get("style") || "all",
     stock: searchParams.get("stock") || "all",
@@ -112,7 +101,7 @@ export default function SearchForm({
     <form className="w-full max-w-[800px]" onSubmit={handleSubmit}>
       <div className="my-4">
         <SearchPreview
-          currentTerm={searchState.searchTerm}
+          currentTerm={searchState.searchTerm ?? ""}
           setData={(term: string) =>
             setSearchState((prev) => ({ ...prev, searchTerm: term }))
           }
@@ -327,7 +316,9 @@ export default function SearchForm({
                                 } else {
                                   setSearchState((prev) => ({
                                     ...prev,
-                                    brand: prev.brand.filter((f) => f === brand.name),
+                                    brand: Array.isArray(prev.brand)
+                                      ? prev.brand.filter((f) => f === brand.name)
+                                      : prev.brand,
                                   }));
                                 }
                               }}
@@ -397,9 +388,9 @@ export default function SearchForm({
                                 } else {
                                   setSearchState((prev) => ({
                                     ...prev,
-                                    material: prev.material.filter(
-                                      (f) => f === material.name
-                                    ),
+                                    material: Array.isArray(prev.material)
+                                      ? prev.material.filter((f) => f === material.name)
+                                      : prev.material,
                                   }));
                                 }
                               }}
