@@ -45,7 +45,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"form">)
         </p>
       </div>
       {state.message && !state.success && (
-        <Alert>
+        <Alert variant="info">
           <Info />
           <AlertDescription>{state.message}</AlertDescription>
         </Alert>
