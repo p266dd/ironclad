@@ -26,12 +26,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2Icon, Loader2Icon, SaveIcon, ShoppingCartIcon } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { CheckCircle2Icon, Loader2Icon, SaveIcon, ShoppingCartIcon } from "lucide-react";
 
 // Types
 import { Prisma } from "@/lib/generated/prisma";
-import { EngravingPreference } from "@/data/user/types";
+import { TEngravingPreference } from "@/lib/types";
 
 export default function ProductPageForm({
   product,
@@ -45,7 +45,7 @@ export default function ProductPageForm({
       sizes: true;
     };
   }> | null;
-  preferences: EngravingPreference[] | null | undefined;
+  preferences: TEngravingPreference[] | null | undefined;
   cart: Prisma.CartProductGetPayload<{
     include: {
       product: true;

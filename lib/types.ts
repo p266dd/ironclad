@@ -6,6 +6,8 @@ export interface ActionFormInitialState {
   fieldErrors?: Record<string, string> | undefined;
 }
 
+// Product Types
+
 export type TActiveFilters = {
   tag: string | null;
   search: TSearchFields | null;
@@ -37,6 +39,8 @@ export type TProductItemResult = Prisma.ProductGetPayload<{
   include: { filters: true; media: true; thumbnail: true };
 }>;
 
+// User / Account Types
+
 export type TAccountChange = {
   name?: string;
   email?: string;
@@ -45,6 +49,13 @@ export type TAccountChange = {
   businessCode?: string | undefined | null;
   engraving?: Prisma.JsonArray | null | undefined;
 } | null;
+
+export type TEngravingPreference = {
+  slug: string;
+  name: string;
+};
+
+// Cart Types
 
 export type CartProductWithRelations = Prisma.CartProductGetPayload<{
   include: {
@@ -56,6 +67,8 @@ export type CartProductWithRelations = Prisma.CartProductGetPayload<{
     };
   };
 }>;
+
+// Order Types
 
 export type TCreateOrderProduct = {
   product: { connect: { id: string } };

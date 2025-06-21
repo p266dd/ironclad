@@ -7,18 +7,18 @@ import ProductCarousel from "@/components/product-carousel";
 import ProductPageForm from "@/components/product-page-form";
 
 // Types
-import { EngravingPreference } from "@/data/user/types";
+import { TEngravingPreference } from "@/lib/types";
 
 export default async function SingleProductPage({
   params,
 }: {
-  params: { productId: string };
+  params: Promise<{ productId: string }>;
 }) {
   const getParams = await params;
   const product = await getProduct(getParams.productId);
 
   const getUser = (await getUserPreferences()).data;
-  const getPreferences = getUser?.engraving as EngravingPreference[] | null | undefined;
+  const getPreferences = getUser?.engraving as TEngravingPreference[] | null | undefined;
 
   const getCurrentProductFromcart = product && (await getProductFromCart(product.id));
 
