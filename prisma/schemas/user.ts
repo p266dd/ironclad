@@ -6,7 +6,7 @@ const emailValidation = yup
   .email("Invalid email address")
   .required("Email is required");
 
-const passwordValidation = yup
+export const passwordValidation = yup
   .string()
   .min(8, "Password must be at least 8 characters")
   .max(100, "Password cannot exceed 100 characters")
@@ -37,13 +37,10 @@ const roleValidation = yup
   .oneOf(["user", "admin"], "Invalid role specified")
   .default("user");
 
-const engravingValidation = yup
+export const engravingValidation = yup
   .object({
-    // Define structure of your engraving JSON here if known
-    // Example:
-    text: yup.string().optional().max(255),
-    font: yup.string().optional(),
-    size: yup.number().optional().positive(),
+    slug: yup.string().max(30).required(),
+    name: yup.string().max(30).required(),
   })
   .optional()
   .nullable();
@@ -84,7 +81,6 @@ export const UserUpdateSchema = yup
     businessCode: businessCodeValidation,
     businessName: businessNameValidation.optional(),
     role: roleValidation.optional(), // Admin-only updates.
-    engraving: engravingValidation,
     isActive: isActiveValidation.optional(), // Admin-only updates.
     code: codeValidation,
   })
@@ -92,6 +88,23 @@ export const UserUpdateSchema = yup
 
 // Type inference for client-side forms
 export type UserUpdateInput = yup.InferType<typeof UserUpdateSchema>;
+
+/**
+ * Schema for updating one's own User's profile.
+ * All fields are optional because a user might only update one field.
+ */
+export const OwnUserUpdateSchema = yup
+  .object({
+    name: nameValidation.optional(),
+    email: emailValidation.optional(),
+    businessCode: businessCodeValidation,
+    businessName: businessNameValidation.optional(),
+    code: codeValidation,
+  })
+  .required();
+
+// Type inference for client-side forms
+export type OwnUserUpdateInput = yup.InferType<typeof UserUpdateSchema>;
 
 /**
  * Schema specifically for user login.
