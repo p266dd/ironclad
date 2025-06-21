@@ -30,8 +30,6 @@ export async function authenticateUser(
     // Find user by email.
     const userResult = await getUserForAuth(validatedData.email);
 
-    console.log(userResult);
-
     if (userResult.error || userResult.data === null) {
       // User not found.
       return { success: false, message: "Invalid credentials. Please try again." };

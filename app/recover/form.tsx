@@ -31,8 +31,8 @@ export function RecoverForm({ className, ...props }: React.ComponentProps<"form"
           Enter your email below and we&#39;ll send you a recover code.
         </p>
       </div>
-      {state.message && state.success && (
-        <Alert>
+      {state.message && (
+        <Alert variant="info">
           <Info size={18} />
           <AlertDescription>
             <p>{state.message}</p>

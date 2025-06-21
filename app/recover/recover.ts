@@ -6,6 +6,7 @@ import { RecoverAuthSchema, RecoverAuthInput } from "@/prisma/schemas/user";
 import { sendEmail } from "@/lib/nodemailer";
 import { getUserForAuth, insertUserToken } from "@/data/user/actions";
 import { SignJWT } from "jose";
+import path from "path";
 
 // Email
 import { RecoverEmailHTML, RecoverEmailText } from "./email";
@@ -14,7 +15,7 @@ import { RecoverEmailHTML, RecoverEmailText } from "./email";
 import { ActionFormInitialState } from "@/lib/types";
 
 export async function recover(
-  prevState: ActionFormInitialState,
+  _prevState: ActionFormInitialState,
   formData: FormData
 ): Promise<ActionFormInitialState> {
   const email = formData.get("email");
@@ -33,7 +34,7 @@ export async function recover(
     const userResult = await getUserForAuth(validatedData.email);
 
     // User not found.
-    if (userResult.error) {
+    if (userResult.error || userResult.data === null) {
       return { success: false, message: "Invalid credentials. Please try again." };
     }
 
@@ -84,6 +85,13 @@ export async function recover(
       subject: "Password Reset",
       html: RecoverEmailHTML({ code }),
       text: RecoverEmailText({ code }),
+      attachments: [
+        {
+          filename: "logo.png",
+          path: path.join(process.cwd(), "public", "logo.png"),
+          cid: "logo@ironclad",
+        },
+      ],
     });
 
     return {

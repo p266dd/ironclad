@@ -47,6 +47,7 @@ export function RecoverEmailHTML({ code }: { code: string }) {
       </head>
       <body>
         <div class="container">
+          <p class="logo"><img src="cid:logo@ironclad" alt="Ironclad logo" /></p>
           <h2>Password Recovery Code</h2>
           <p>Someone has requested a password recovery for your account! Please use the code below to reset your password.</p>
           <a target="_blank" href="${code}">
