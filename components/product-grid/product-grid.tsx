@@ -76,7 +76,13 @@ export default function ProductGrid(props: { activeFilters: TActiveFilters }) {
   }, [handleObserver]);
 
   if (error) return <ProductGridError />;
-  if (allProducts.length === 0) return <EmptyResults />;
+  if (isLoading)
+    return (
+      <div className="flex items-center gap-4 px-8 text-slate-500">
+        Loading... <LoaderCircleIcon className="animate-spin" />
+      </div>
+    );
+  if (!isLoading && allProducts.length === 0) return <EmptyResults />;
 
   return (
     <>
@@ -86,7 +92,7 @@ export default function ProductGrid(props: { activeFilters: TActiveFilters }) {
         ))}
       </div>
 
-      {isValidating || isLoading ? (
+      {isValidating ? (
         <div key="loadingMoreProducts" className="mt-6">
           <div className="flex items-center gap-4 text-gray-500">
             Loading <LoaderCircleIcon className="animate-spin" />
