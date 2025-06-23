@@ -19,7 +19,7 @@ export default function EmptyResults() {
           <CardDescription>There are no products to display.</CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="text-slate-500">Try modifying your search filters.</p>
+          <p className="text-sm text-slate-500">Try modifying your search filters.</p>
         </CardContent>
       </Card>
     </div>

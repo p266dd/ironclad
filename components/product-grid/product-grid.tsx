@@ -79,7 +79,7 @@ export default function ProductGrid(props: { activeFilters: TActiveFilters }) {
   if (isLoading)
     return (
       <div className="flex items-center gap-4 px-8 text-slate-500">
-        Loading... <LoaderCircleIcon className="animate-spin" />
+        <LoaderCircleIcon className="animate-spin" /> Loading...
       </div>
     );
   if (!isLoading && allProducts.length === 0) return <EmptyResults />;
@@ -93,9 +93,9 @@ export default function ProductGrid(props: { activeFilters: TActiveFilters }) {
       </div>
 
       {isValidating ? (
-        <div key="loadingMoreProducts" className="mt-6">
+        <div key="loadingMoreProducts" className="mt-6 px-8">
           <div className="flex items-center gap-4 text-gray-500">
-            Loading <LoaderCircleIcon className="animate-spin" />
+            <LoaderCircleIcon className="animate-spin" />
           </div>
         </div>
       ) : null}
