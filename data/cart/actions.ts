@@ -249,6 +249,19 @@ export async function addToCart(
         : "",
   };
 
+  if (
+    inputData &&
+    inputData.details &&
+    Array.isArray(inputData.details) &&
+    inputData.details.every((s) => Number(s?.quantity) === 0 || s?.quantity === "")
+  ) {
+    return {
+      success: false,
+      message: "You have to add quantity to a product.",
+      fieldErrors: {},
+    };
+  }
+
   try {
     // Validate data.
     const validatedData = await CartProductCreateSchema.validate(inputData, {

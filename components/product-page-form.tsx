@@ -319,8 +319,8 @@ export default function ProductPageForm({
           />
         </div>
 
-        {state?.success && (
-          <Alert variant="success" className="my-3">
+        {state?.message && (
+          <Alert variant="info" className="my-3">
             <CheckCircle2Icon />
             <AlertDescription>{state?.message}</AlertDescription>
           </Alert>
