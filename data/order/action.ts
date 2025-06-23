@@ -63,6 +63,48 @@ export const getOwnOrders = cache(async (page: number, itemsPerPage: number) => 
   }
 });
 
+export async function getOwnOrderById(orderId: string) {
+  const session = await verifyUserSession();
+  const userId = session.id;
+
+  try {
+    const order = await prisma.order.findFirst({
+      where: {
+        id: orderId,
+        clientId: userId,
+      },
+      select: {
+        id: true,
+        code: true,
+        client: {
+          select: {
+            name: true,
+          },
+        },
+        createdAt: true,
+        orderProduct: {
+          select: {
+            details: true,
+            brand: true,
+            request: true,
+            handle: true,
+            product: {
+              include: {
+                sizes: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return { data: order, error: null };
+  } catch (error) {
+    console.error(error);
+    return { error: "Failed to fetch order.", data: null };
+  }
+}
+
 export async function createOrder() {
   const session = await verifyUserSession();
 
