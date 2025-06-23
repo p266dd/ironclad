@@ -304,6 +304,7 @@ export default function OrdersTable() {
                   <TableRow
                     key={order.id}
                     onClick={() => router.push("/account/orders/" + order.id)}
+                    className="cursor-pointer"
                   >
                     <TableCell className="font-medium">
                       {order.code.split("-")[1]}
