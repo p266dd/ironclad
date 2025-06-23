@@ -83,6 +83,11 @@ export type TCreateOrderProduct = {
 export type TOrderWithConnection = Prisma.OrderGetPayload<{
   select: {
     id: true;
+    client: {
+      select: {
+        name: true;
+      };
+    };
     code: true;
     createdAt: true;
     orderProduct: {

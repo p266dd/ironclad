@@ -1,6 +1,7 @@
 "use server";
 
 import path from "path";
+import { cache } from "react";
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
@@ -16,6 +17,51 @@ import { TCreateOrderProduct, TProductDetails, TProductStockUpdate } from "@/lib
 
 // Error Utility
 // import { generatePrismaErrorMessage } from "@/prisma/error-handling";
+
+export const getOwnOrders = cache(async (page: number, itemsPerPage: number) => {
+  const session = await verifyUserSession();
+  const userId = session.id;
+
+  try {
+    const orders = await prisma.order.findMany({
+      where: {
+        clientId: userId,
+      },
+      skip: (page - 1) * itemsPerPage,
+      orderBy: {
+        createdAt: "desc",
+      },
+      select: {
+        id: true,
+        code: true,
+        client: {
+          select: {
+            name: true,
+          },
+        },
+        createdAt: true,
+        orderProduct: {
+          select: {
+            details: true,
+            brand: true,
+            handle: true,
+            request: true,
+            product: {
+              include: {
+                sizes: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return { data: orders, error: null };
+  } catch (error) {
+    console.error(error);
+    return { error: "Failed to fetch orders.", data: null };
+  }
+});
 
 export async function createOrder() {
   const session = await verifyUserSession();
@@ -120,6 +166,11 @@ export async function createOrder() {
         select: {
           id: true,
           code: true,
+          client: {
+            select: {
+              name: true,
+            },
+          },
           createdAt: true,
           orderProduct: {
             select: {
