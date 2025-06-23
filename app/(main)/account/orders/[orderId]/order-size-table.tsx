@@ -3,7 +3,6 @@
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -44,7 +43,7 @@ export default function OrderSizeTable({
           if (!matchingProduct) return null;
 
           return (
-            <TableRow>
+            <TableRow key={matchingProduct.id + "_SizeTable"}>
               <TableCell className="font-medium">{matchingProduct?.name}</TableCell>
               <TableCell>{matchingProduct?.size}</TableCell>
               <TableCell>{size?.quantity}</TableCell>

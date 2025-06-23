@@ -44,7 +44,7 @@ export default async function ClientSingleOrder({
           <Separator className="my-3" />
           {order.orderProduct.map((product) => {
             if (!product || !product.product) {
-              return <div>This order has no products.</div>;
+              return null;
             }
             const productDetails = product.details as {
               id: number;
