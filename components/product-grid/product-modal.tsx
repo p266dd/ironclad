@@ -30,7 +30,7 @@ import {
   DialogTitle,
   DialogHeader,
 } from "@/components/ui/dialog";
-import { MousePointerClickIcon, StarIcon } from "lucide-react";
+import { LoaderCircleIcon, MousePointerClickIcon, StarIcon } from "lucide-react";
 
 // Types & Schemas
 import { Prisma } from "@/lib/generated/prisma";
@@ -44,12 +44,14 @@ export default function ProductModal({
   product: Prisma.ProductGetPayload<{ include: { thumbnail: true; media: true } }>;
 }) {
   const [isFavorite, setIsFavorite] = useState(false);
+  const [loadingFavorite, setLoadingFavorite] = useState(false);
   const [open, setOpen] = useState(false);
   const triggerRef = useRef<HTMLDivElement | null>(null);
   const router = useRouter();
 
   async function handleFavorite(productId: string) {
     // Update favorites.
+    setLoadingFavorite(true);
     if (isFavorite) {
       await removeFavotiteProduct(productId);
       setIsFavorite(false);
@@ -59,6 +61,7 @@ export default function ProductModal({
       setIsFavorite(true);
       toast.success(<p className="font-bold">Added to Favorites</p>);
     }
+    setLoadingFavorite(false);
   }
 
   useEffect(() => {
@@ -197,7 +200,9 @@ export default function ProductModal({
               className="absolute top-2 left-2 z-20"
             >
               <span className="sr-only">Add to Favorites</span>
-              {isFavorite ? (
+              {loadingFavorite ? (
+                <LoaderCircleIcon className="animate-spin" />
+              ) : isFavorite ? (
                 <StarIcon fill="#f0d11e" color="#523407" strokeWidth={1.2} size={28} />
               ) : (
                 <StarIcon fill="#ccc" color="#ccc" strokeWidth={1.2} size={24} />
