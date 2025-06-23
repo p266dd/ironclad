@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
 import {
@@ -18,6 +19,7 @@ import {
   Eye,
   EyeOff,
   Loader2Icon,
+  ReceiptJapaneseYenIcon,
   SaveIcon,
   Trash2Icon,
 } from "lucide-react";
@@ -75,6 +77,13 @@ export default function AccountForm({ currentInfo }: { currentInfo: TAccountChan
 
   return (
     <div className="flex flex-col gap-8">
+      <div>
+        <Button asChild variant="default" size="lg">
+          <Link href="/account/orders">
+            <ReceiptJapaneseYenIcon /> See All Orders
+          </Link>
+        </Button>
+      </div>
       <form onSubmit={handleInformationSave}>
         <div className="flex flex-col gap-8 md:flex-row">
           <div className="flex-1 w-full flex flex-col gap-6">
