@@ -67,14 +67,14 @@ export default function InstallPrompt() {
       <DialogContent
         showCloseButton={false}
         onOpenAutoFocus={(e) => e.preventDefault()}
-        className={`${isIOS ? "top-44" : "top-32"} w-10/12 max-w-md`}
+        className={`${isIOS ? "top-48" : "top-32"} w-10/12 max-w-md`}
       >
         <DialogHeader className="flex-row items-center gap-4">
           <div className="w-14">
             <Image src={LogoIcon} alt="Ironclad Logo" className="w-full" />
           </div>
           <div className="flex flex-col items-start">
-            <DialogTitle className="text-left">Install App?</DialogTitle>
+            <DialogTitle className="text-left mb-2">Install App?</DialogTitle>
             <DialogDescription className="text-left">
               Now you can browse our product from your smartphone.
             </DialogDescription>
@@ -97,6 +97,16 @@ export default function InstallPrompt() {
                 2. Tap the
                 <span className="font-semibold ml-2">Add to Home Screen.</span>
               </span>
+            </div>
+            <div className="mt-3 flex">
+              <Button
+                asChild
+                variant="outline"
+                className="flex-1"
+                onClick={() => setShowPrompt(false)}
+              >
+                <span>Close</span>
+              </Button>
             </div>
           </div>
         ) : (
