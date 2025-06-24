@@ -2,15 +2,15 @@
 
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Power } from "lucide-react";
+
+import { logout } from "@/lib/logout";
 
 export default function DashboardLogout() {
   return (
@@ -20,7 +20,12 @@ export default function DashboardLogout() {
         <CardDescription>Logged In</CardDescription>
       </CardHeader>
       <CardContent>
-        <Button type="button" variant="secondary" size="sm" onClick={() => null}>
+        <Button
+          type="button"
+          variant="secondary"
+          size="sm"
+          onClick={async () => await logout()}
+        >
           <Power /> Logout
         </Button>
       </CardContent>
