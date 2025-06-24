@@ -10,7 +10,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Separator } from "@/components/ui/separator";
 import { Button } from "./ui/button";
+import { Share } from "lucide-react";
 
 import LogoIcon from "@/assets/logo-icon.png";
 
@@ -65,7 +67,7 @@ export default function InstallPrompt() {
       <DialogContent
         showCloseButton={false}
         onOpenAutoFocus={(e) => e.preventDefault()}
-        className="top-32 w-10/12 max-w-md"
+        className={`${isIOS ? "top-44" : "top-32"} w-10/12 max-w-md`}
       >
         <DialogHeader className="flex-row items-center gap-4">
           <div className="w-14">
@@ -78,19 +80,40 @@ export default function InstallPrompt() {
             </DialogDescription>
           </div>
         </DialogHeader>
-        <DialogFooter className="flex-row">
-          <Button onClick={handleInstallClick} variant="default" className="flex-1">
-            Install
-          </Button>
-          <Button
-            asChild
-            variant="outline"
-            className="flex-1"
-            onClick={() => setShowPrompt(false)}
-          >
-            <span>Close</span>
-          </Button>
-        </DialogFooter>
+        {isIOS ? (
+          <div>
+            <Separator className="mb-2" />
+            <p className="text-sm text-slate-500">
+              How to install this app on your iOS device.
+            </p>
+            <div className="flex flex-col gap-2">
+              <span>
+                1. Tap the <span className="font-semibold">share button icon</span>
+                <span role="img" aria-label="share icon" className="mx-2">
+                  <Share size={18} className="inline-block" />
+                </span>
+              </span>
+              <span>
+                2. Tap the
+                <span className="font-semibold ml-2">Add to Home Screen.</span>
+              </span>
+            </div>
+          </div>
+        ) : (
+          <DialogFooter className="flex-row">
+            <Button onClick={handleInstallClick} variant="default" className="flex-1">
+              Install
+            </Button>
+            <Button
+              asChild
+              variant="outline"
+              className="flex-1"
+              onClick={() => setShowPrompt(false)}
+            >
+              <span>Close</span>
+            </Button>
+          </DialogFooter>
+        )}
         <div>
           <button
             className="w-full text-xs underline text-center slate-400 cursor-pointer"
