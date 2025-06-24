@@ -5,6 +5,7 @@ import { getProductFromCart } from "@/data/cart/actions";
 import PageTitle from "@/components/page-title";
 import ProductCarousel from "@/components/product-carousel";
 import ProductPageForm from "@/components/product-page-form";
+import FavoriteButton from "@/components/favorite-button";
 
 // Types
 import { TEngravingPreference } from "@/lib/types";
@@ -34,6 +35,7 @@ export default async function SingleProductPage({
 
       <div className="h-full flex flex-col items-center gap-4 lg:justify-center lg:flex-row">
         <div className="relative flex-1 mx-3 max-w-[400px] lg:w-1/2">
+          <FavoriteButton productId={product?.id} />
           <ProductCarousel media={media} />
           {product?.description && (
             <div className="mt-6 px-6">

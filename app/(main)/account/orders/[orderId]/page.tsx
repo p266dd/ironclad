@@ -6,7 +6,7 @@ import OrderSizeTable from "./order-size-table";
 // Shadcn
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { ShoppingBagIcon, ShoppingCartIcon } from "lucide-react";
+import { ShoppingBagIcon } from "lucide-react";
 
 export default async function ClientSingleOrder({
   params,

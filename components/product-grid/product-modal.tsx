@@ -4,13 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
-import { toast } from "sonner";
 
-import {
-  getFavorites,
-  addFavotiteProduct,
-  removeFavotiteProduct,
-} from "@/data/favorite/action";
 import { cn } from "@/lib/utils";
 
 // Shadcn
@@ -30,63 +24,23 @@ import {
   DialogTitle,
   DialogHeader,
 } from "@/components/ui/dialog";
-import { LoaderCircleIcon, MousePointerClickIcon, StarIcon } from "lucide-react";
+import { MousePointerClickIcon } from "lucide-react";
 
 // Types & Schemas
 import { Prisma } from "@/lib/generated/prisma";
 
 // Import fallback image.
 import FallbackImage from "@/assets/product-fallback.webp";
+import FavoriteButton from "../favorite-button";
 
 export default function ProductModal({
   product,
 }: {
   product: Prisma.ProductGetPayload<{ include: { thumbnail: true; media: true } }>;
 }) {
-  const [isFavorite, setIsFavorite] = useState(false);
-  const [loadingFavorite, setLoadingFavorite] = useState(false);
   const [open, setOpen] = useState(false);
   const triggerRef = useRef<HTMLDivElement | null>(null);
   const router = useRouter();
-
-  async function handleFavorite(productId: string) {
-    // Update favorites.
-    setLoadingFavorite(true);
-    if (isFavorite) {
-      await removeFavotiteProduct(productId);
-      setIsFavorite(false);
-      toast.success(<p className="font-bold">Removed from Favorites</p>);
-    } else {
-      await addFavotiteProduct(productId);
-      setIsFavorite(true);
-      toast.success(<p className="font-bold">Added to Favorites</p>);
-    }
-    setLoadingFavorite(false);
-  }
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Fetch the user's favorite list.
-        const userFavorites = await getFavorites();
-
-        if (userFavorites && userFavorites.products) {
-          // Check if the current product is in the fetched favorites
-          const currentProductIsFavorite = userFavorites.products.some(
-            (favProduct) => favProduct.productId === product.id
-          );
-          setIsFavorite(currentProductIsFavorite);
-        } else {
-          // Not found in favorites.
-          setIsFavorite(false);
-        }
-      } catch (error) {
-        console.error("Error fetching favorites:", error);
-        setIsFavorite(false);
-      }
-    };
-    fetchData();
-  }, [product.id]);
 
   // Long press simulation.
   useEffect(() => {
@@ -195,19 +149,7 @@ export default function ProductModal({
             <DialogDescription>{product.description}</DialogDescription>
           </DialogHeader>
           <div className="relative">
-            <button
-              onClick={() => handleFavorite(product.id)}
-              className="absolute top-2 left-2 z-20"
-            >
-              <span className="sr-only">Add to Favorites</span>
-              {loadingFavorite ? (
-                <LoaderCircleIcon className="animate-spin" />
-              ) : isFavorite ? (
-                <StarIcon fill="#f0d11e" color="#523407" strokeWidth={1.2} size={28} />
-              ) : (
-                <StarIcon fill="#ccc" color="#ccc" strokeWidth={1.2} size={24} />
-              )}
-            </button>
+            <FavoriteButton productId={product.id} />
 
             <Carousel>
               <CarouselContent>
