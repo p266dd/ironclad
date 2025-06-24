@@ -1,10 +1,9 @@
-// import { cookies } from "next/headers";
+import { cookies } from "next/headers";
 import { Open_Sans } from "next/font/google";
 import "./globals.css";
 
+import InstallPrompt from "@/components/install-prompt";
 import { Toaster } from "@/components/ui/sonner";
-
-// TODO - App Prompt
 
 const openSans = Open_Sans({
   subsets: ["latin"],
@@ -26,8 +25,8 @@ export const viewport = {
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  // const cookieStore = await cookies();
-  // const doNotDisplayPrompt = cookieStore.get("doNotDisplayPrompt");
+  const cookieStore = await cookies();
+  const doNotDisplayPrompt = cookieStore.get("doNotDisplayPrompt");
 
   return (
     <html lang="en" className="h-full">
@@ -37,6 +36,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <meta name="theme-color" content="#1d293d" />
       </head>
       <body className={`${openSans.variable} antialiased`}>
+        {!doNotDisplayPrompt && <InstallPrompt />}
         {children}
         <Toaster position="top-center" richColors={true} />
       </body>
