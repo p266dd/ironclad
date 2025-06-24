@@ -28,7 +28,7 @@ export default async function SingleProductPage({
     <div className="lg:h-full pt-16 pb-48 px-3 sm:pt-4 md:pb-12 lg:px-12">
       <PageTitle
         title={product?.name || "Missing Name"}
-        subtitle={`From ${product?.brand}`}
+        subtitle={`Brand: ${product?.brand}`}
         className="lg:hidden"
       />
 
@@ -45,7 +45,7 @@ export default async function SingleProductPage({
         <div className="w-full px-6 lg:w-1/2">
           <PageTitle
             title={product?.name || "Missing Name"}
-            subtitle={`From ${product?.brand}`}
+            subtitle={`Brand: ${product?.brand}`}
             className="hidden lg:block"
           />
           <ProductPageForm

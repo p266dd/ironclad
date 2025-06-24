@@ -19,7 +19,9 @@ export default function EmptyCart() {
           <CardDescription>There are no products to display.</CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="text-slate-500">Let&apos;s add some products to your cart.</p>
+          <p className="text-sm text-slate-500">
+            Let&apos;s add some products to your cart.
+          </p>
         </CardContent>
       </Card>
     </div>

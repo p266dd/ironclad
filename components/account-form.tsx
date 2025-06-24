@@ -218,7 +218,7 @@ export default function AccountForm({ currentInfo }: { currentInfo: TAccountChan
               type="text"
               name="preference"
               placeholder="Engraving Brand"
-              className="flex-grow"
+              className="flex-grow py-6"
               value={unsavedPreference !== null ? unsavedPreference.name : ""}
               onChange={(e) => {
                 const value = e.target.value;

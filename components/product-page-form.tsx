@@ -149,7 +149,7 @@ export default function ProductPageForm({
                         placeholder="0"
                         autoComplete="off"
                         className="px-1 text-center"
-                        defaultValue={(sizeQuantity && sizeQuantity) || 0}
+                        defaultValue={(sizeQuantity && sizeQuantity) || undefined}
                         onChange={(e) => {
                           const value = parseInt(e.target.value);
                           if (isNaN(value)) return;

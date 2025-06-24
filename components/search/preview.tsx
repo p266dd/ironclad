@@ -41,7 +41,7 @@ export default function SearchPreview({
 
   return (
     <div className="relative">
-      <div className="mr-12">
+      <div>
         <Input
           type="text"
           name="searchTerm"
