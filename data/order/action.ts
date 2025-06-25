@@ -6,7 +6,7 @@ import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
 import { sendEmail } from "@/lib/nodemailer";
-import { verifyUserSession } from "@/lib/session";
+import { verifyUserSession, verifyAdminSession } from "@/lib/session";
 import { NewOrderEmailClient, NewOrderEmailStaff } from "@/lib/emails/new-order";
 
 import { getCart } from "@/data/cart/actions";
@@ -291,5 +291,119 @@ export async function createOrder() {
   } catch (error) {
     console.error(error);
     return { error: "Failed to create order." };
+  }
+}
+
+export async function fetchOrders({
+  searchQuery,
+  page,
+  itemsPerPage,
+  newOnly,
+}: {
+  searchQuery: {
+    searchTerm: string | undefined;
+    range:
+      | {
+          startDate: Date | undefined;
+          endDate: Date | undefined;
+        }
+      | undefined;
+  } | null;
+  page: number;
+  itemsPerPage: number;
+  newOnly: boolean;
+}) {
+  await verifyAdminSession();
+
+  try {
+    // * return only new orders, and shallow query.
+    const [totalCount, orders] = await prisma.$transaction([
+      prisma.order.count({
+        where: {
+          isCompleted: !newOnly,
+          AND: searchQuery
+            ? {
+                OR: [
+                  { code: { contains: searchQuery.searchTerm || undefined } },
+                  {
+                    client: {
+                      businessName: {
+                        contains: searchQuery.searchTerm || undefined,
+                      },
+                    },
+                  },
+                ],
+                AND: [
+                  {
+                    createdAt: {
+                      gte: searchQuery.range?.startDate || undefined,
+                      lte: searchQuery.range?.endDate || undefined,
+                    },
+                  },
+                ],
+              }
+            : [],
+        },
+      }),
+
+      prisma.order.findMany({
+        take: itemsPerPage,
+        skip: (page - 1) * itemsPerPage,
+        where: {
+          isCompleted: !newOnly,
+          AND: searchQuery
+            ? {
+                OR: [
+                  { code: { contains: searchQuery.searchTerm || undefined } },
+                  {
+                    client: {
+                      businessName: {
+                        contains: searchQuery.searchTerm || undefined,
+                      },
+                    },
+                  },
+                ],
+                AND: [
+                  {
+                    createdAt: {
+                      gte: searchQuery.range?.startDate || undefined,
+                      lte: searchQuery.range?.endDate || undefined,
+                    },
+                  },
+                ],
+              }
+            : [],
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+        include: {
+          client: {
+            select: {
+              businessName: true,
+            },
+          },
+        },
+      }),
+    ]);
+
+    const totalPages = Math.ceil(totalCount / itemsPerPage);
+
+    return {
+      data: orders,
+      error: null,
+      totalCount: totalCount || 0,
+      totalPages: totalPages || 0,
+      currentPage: page,
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      data: null,
+      error: "Failed to fetch orders.",
+      totalCount: 0,
+      totalPages: 0,
+      currentPage: page,
+    };
   }
 }
