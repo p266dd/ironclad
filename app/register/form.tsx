@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertTriangle, Eye, EyeOff, Info } from "lucide-react";
+import { AlertTriangle, ArrowLeftIcon, Eye, EyeOff, Info } from "lucide-react";
 
 // Types
 import { ActionFormInitialState } from "@/lib/types";
@@ -113,9 +113,17 @@ export function SignupForm({ className, ...props }: React.ComponentProps<"form">
           )}
         </div>
 
-        <Button type="submit" disabled={pending} className="w-full">
-          {pending ? "Creating Account..." : "Sign Up"}
-        </Button>
+        <div className="flex flex-col gap-2">
+          <Button type="submit" disabled={pending} className="w-full">
+            {pending ? "Creating Account..." : "Sign Up"}
+          </Button>
+          <Button asChild variant="outline" className="w-full">
+            <Link href="/login" className="flex items-center gap-2">
+              <ArrowLeftIcon />
+              Back to Login
+            </Link>
+          </Button>
+        </div>
       </div>
       <div className="text-center text-sm">
         Already have an account?{" "}

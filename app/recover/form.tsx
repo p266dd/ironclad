@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertTriangle, Info } from "lucide-react";
+import { AlertTriangle, ArrowLeftIcon, Info } from "lucide-react";
 
 import { ActionFormInitialState } from "@/lib/types";
 
@@ -58,10 +58,17 @@ export function RecoverForm({ className, ...props }: React.ComponentProps<"form"
             </Alert>
           )}
         </div>
-
-        <Button type="submit" disabled={pending} className="w-full">
-          {pending ? "Sending..." : "Send Code"}
-        </Button>
+        <div className="flex flex-col gap-2">
+          <Button type="submit" disabled={pending} className="w-full">
+            {pending ? "Sending..." : "Send Code"}
+          </Button>
+          <Button asChild variant="outline" className="w-full">
+            <Link href="/login" className="flex items-center gap-2">
+              <ArrowLeftIcon />
+              Back to Login
+            </Link>
+          </Button>
+        </div>
       </div>
       <div className="text-center text-sm">
         Don&apos;t have an account?{" "}
