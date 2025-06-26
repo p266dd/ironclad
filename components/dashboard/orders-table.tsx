@@ -1,11 +1,12 @@
 "use client";
 
-import useSWR from "swr";
+import useSWR, { mutate } from "swr";
+import { toast } from "sonner";
 import { format } from "date-fns";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-import { fetchOrders } from "@/data/order/action";
+import { fetchOrders, deleteOrder } from "@/data/order/action";
 
 import {
   Table,
@@ -41,7 +42,6 @@ import {
   PrinterIcon,
   Trash2Icon,
   LoaderCircleIcon,
-  XIcon,
 } from "lucide-react";
 
 type SearchDate =
@@ -53,7 +53,7 @@ type SearchDate =
 
 type SearchReference = {
   searchTerm: string | undefined;
-  range: SearchDate;
+  range: SearchDate | undefined;
 } | null;
 
 export default function AdminOrdersTable() {
@@ -61,28 +61,52 @@ export default function AdminOrdersTable() {
   const [searchQuery, setSearchQuery] = useState<SearchReference>(null);
   // * Pagination settings.
   const [page, setPage] = useState<number>(1);
-  const itemsPerPage: number = 10;
-
+  const itemsPerPage: number = 16;
   // * Search references.
   const [searchReference, setSearchReference] = useState<SearchReference>(null);
 
   const router = useRouter();
 
-  const { data, error, isLoading } = useSWR(
-    { searchQuery, page, itemsPerPage, newOnly: false },
-    (config) => fetchOrders(config)
+  const { data, error, isLoading } = useSWR("getOrders", () =>
+    fetchOrders({
+      searchQuery,
+      page,
+      itemsPerPage,
+      newOnly: false,
+    })
   );
 
   // * Set the searchQuery state and set page to 1.
-  const handleSearch = () => {
+  const handleSearch = async () => {
     setSearchQuery(searchReference);
+    await mutate("getOrders");
+    await mutate("getOrders");
     setPage(1);
+  };
+
+  const handleClearSearch = async () => {
+    setSearchQuery(null);
+    setSearchReference({
+      searchTerm: undefined,
+      range: undefined,
+    });
+    await mutate("getOrders");
+    await mutate("getOrders");
   };
 
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= (data?.totalPages || 1)) {
       setPage(page);
     }
+  };
+
+  const handleDelete = async (orderId: string) => {
+    await deleteOrder({
+      orderId,
+    });
+    toast.success("Order was deleted.");
+    mutate("getOrders");
+    mutate("getNewOrders");
   };
 
   // Function to render pagination links.
@@ -203,11 +227,15 @@ export default function AdminOrdersTable() {
           </div>
           <div className="flex-1/3">
             <DateRangePicker
-              range={
-                searchReference?.range || { startDate: undefined, endDate: undefined }
-              }
+              range={searchReference?.range || undefined}
               setRange={(range: SearchDate) =>
-                setSearchReference((prev) => ({ searchTerm: prev?.searchTerm, range }))
+                setSearchReference((prev) => ({
+                  searchTerm: prev?.searchTerm,
+                  range: {
+                    startDate: range?.startDate,
+                    endDate: range?.endDate,
+                  },
+                }))
               }
             />
           </div>
@@ -216,7 +244,7 @@ export default function AdminOrdersTable() {
           <Button
             variant="default"
             type="button"
-            className="flex-grow md:flex-3/4"
+            className="flex-grow md:flex-3/4 cursor-pointer"
             onClick={handleSearch}
           >
             <SearchIcon />
@@ -226,13 +254,14 @@ export default function AdminOrdersTable() {
           <Button
             variant="outline"
             type="button"
-            className="bg-gray-100 shrink md:shrink-0 md:flex-1/4"
-            onClick={() => setSearchQuery(null)}
+            className="bg-gray-100 shrink md:shrink-0 md:flex-1/4 cursor-pointer"
+            onClick={handleClearSearch}
           >
             Clear
           </Button>
         </div>
       </div>
+
       <div>
         <Table className="w-full max-w-3xl">
           <TableHeader>
@@ -267,14 +296,23 @@ export default function AdminOrdersTable() {
               data?.data !== null &&
               data.data.length > 0 &&
               data.data.map((order) => (
-                <TableRow
-                  key={order.id}
-                  className="cursor-pointer"
-                  onClick={() => router.push("/dashboard/orders/" + order.id)}
-                >
-                  <TableCell>{format(order.createdAt, "MM/dd")}</TableCell>
-                  <TableCell>{order.code.split("-")[1]}</TableCell>
-                  <TableCell className="overflow-hidden overflow-ellipsis w-[50px]">
+                <TableRow key={order.id}>
+                  <TableCell
+                    className="cursor-pointer"
+                    onClick={() => router.push("/dashboard/orders/" + order.id)}
+                  >
+                    {format(order.createdAt, "MM/dd")}
+                  </TableCell>
+                  <TableCell
+                    className="cursor-pointer"
+                    onClick={() => router.push("/dashboard/orders/" + order.id)}
+                  >
+                    {order.code.split("-")[1]}
+                  </TableCell>
+                  <TableCell
+                    className="cursor-pointer overflow-hidden overflow-ellipsis w-[50px]"
+                    onClick={() => router.push("/dashboard/orders/" + order.id)}
+                  >
                     {order.client.businessName}
                   </TableCell>
                   <TableCell className="text-right">
@@ -285,10 +323,20 @@ export default function AdminOrdersTable() {
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem className="text-right">
+
+                        <DropdownMenuItem
+                          onClick={(e: React.MouseEvent<HTMLDivElement>) => {
+                            e.preventDefault();
+                            router.push("/dashboard/orders/" + order.id + "/print");
+                          }}
+                          className="text-right cursor-pointer"
+                        >
                           <PrinterIcon /> Print Order
                         </DropdownMenuItem>
-                        <DropdownMenuItem>
+                        <DropdownMenuItem
+                          className="cursor-pointer"
+                          onClick={() => handleDelete(order.id)}
+                        >
                           <Trash2Icon />
                           Delete
                         </DropdownMenuItem>
@@ -300,6 +348,7 @@ export default function AdminOrdersTable() {
           </TableBody>
         </Table>
       </div>
+
       <div>
         <Pagination className="justify-start">
           <PaginationContent>

@@ -1,10 +1,9 @@
 "use client";
 
-import useSWR from "swr";
+import useSWR, { mutate } from "swr";
+import { toast } from "sonner";
 import { format } from "date-fns";
 import { useRouter } from "next/navigation";
-
-import { fetchOrders } from "@/data/order/action";
 
 import {
   Table,
@@ -30,11 +29,44 @@ import {
   Trash2Icon,
 } from "lucide-react";
 
+import { fetchOrders, completeOrder, deleteOrder } from "@/data/order/action";
+
+// Types
+import { Prisma } from "@/lib/generated/prisma";
+type OrderResponse = Prisma.OrderGetPayload<{
+  include: {
+    client: {
+      select: {
+        businessName: true;
+      };
+    };
+  };
+}>;
+
+const handleComplete = async (orderId: string) => {
+  await completeOrder({
+    orderId,
+    status: "completed",
+  });
+  toast.success("Order was marked as completed.");
+  mutate("getOrders");
+  mutate("getNewOrders");
+};
+
+const handleDelete = async (orderId: string) => {
+  await deleteOrder({
+    orderId,
+  });
+  toast.success("Order was deleted.");
+  mutate("getOrders");
+  mutate("getNewOrders");
+};
+
 export default function AdminNewOrdersTable() {
   const router = useRouter();
 
-  const { data, error, isLoading } = useSWR(
-    {
+  const { data, error, isLoading } = useSWR("getNewOrders", () =>
+    fetchOrders({
       searchQuery: {
         searchTerm: undefined,
         range: { startDate: undefined, endDate: undefined },
@@ -42,9 +74,10 @@ export default function AdminNewOrdersTable() {
       page: 1,
       itemsPerPage: 30,
       newOnly: true,
-    },
-    (config) => fetchOrders(config)
+    })
   );
+
+  const orders = data?.data as OrderResponse[];
 
   return (
     <Table className="w-full max-w-3xl">
@@ -67,18 +100,32 @@ export default function AdminNewOrdersTable() {
           </TableRow>
         )}
 
-        {data &&
-          data?.data !== null &&
-          data.data.length > 0 &&
-          data.data.map((order) => (
-            <TableRow
-              key={order.id}
-              className="cursor-pointer"
-              onClick={() => router.push("/dashboard/orders/" + order.id)}
-            >
-              <TableCell>{format(order.createdAt, "MM/dd")}</TableCell>
-              <TableCell>{order.code.split("-")[1]}</TableCell>
-              <TableCell className="overflow-hidden overflow-ellipsis w-[50px]">
+        {error && (
+          <TableRow>
+            <TableCell>{error}</TableCell>
+          </TableRow>
+        )}
+
+        {orders &&
+          orders.length > 0 &&
+          orders.map((order) => (
+            <TableRow key={order.id}>
+              <TableCell
+                className="cursor-pointer"
+                onClick={() => router.push("/dashboard/orders/" + order.id)}
+              >
+                {format(order.createdAt, "MM/dd")}
+              </TableCell>
+              <TableCell
+                className="cursor-pointer"
+                onClick={() => router.push("/dashboard/orders/" + order.id)}
+              >
+                {order.code.split("-")[1]}
+              </TableCell>
+              <TableCell
+                className="cursor-pointer overflow-hidden overflow-ellipsis w-[50px]"
+                onClick={() => router.push("/dashboard/orders/" + order.id)}
+              >
                 {order.client.businessName}
               </TableCell>
               <TableCell className="text-right">
@@ -89,14 +136,27 @@ export default function AdminNewOrdersTable() {
                   <DropdownMenuContent align="end">
                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem className="text-right">
-                      <PrinterIcon /> Print Order
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
+                    <DropdownMenuItem
+                      className="cursor-pointer"
+                      onClick={() => handleComplete(order.id)}
+                    >
                       <CircleCheckIcon />
                       Mark Completed
                     </DropdownMenuItem>
-                    <DropdownMenuItem>
+                    <DropdownMenuItem
+                      className="cursor-pointer"
+                      onClick={() => {
+                        router.push("/dashboard/orders/" + order.id + "/print");
+                      }}
+                    >
+                      <PrinterIcon />
+                      Print Order
+                    </DropdownMenuItem>
+
+                    <DropdownMenuItem
+                      className="cursor-pointer"
+                      onClick={() => handleDelete(order.id)}
+                    >
                       <Trash2Icon />
                       Delete
                     </DropdownMenuItem>

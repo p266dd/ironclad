@@ -1,65 +1,81 @@
 "use client";
 
-import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { addDays, format } from "date-fns";
+import { format } from "date-fns";
 
 import { Button } from "@/components/ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogHeader,
+  DialogTrigger,
+  DialogDescription,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Calendar } from "@/components/ui/calendar";
-import { type DateRange } from "react-day-picker";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, XIcon } from "lucide-react";
 
-type SearchDate = {
-  startDate: Date | undefined;
-  endDate: Date | undefined;
-};
+type SearchDate =
+  | {
+      startDate: Date | undefined;
+      endDate: Date | undefined;
+    }
+  | undefined;
 
 export default function DateRangePicker({
   range,
   setRange,
   className,
 }: {
-  range: SearchDate | undefined;
+  range: SearchDate;
   setRange: (range: SearchDate | undefined) => void;
   className?: string;
 }) {
-  const [date, setDate] = useState<DateRange | undefined>(undefined);
-
   return (
     <div className={cn("grid gap-2", className)}>
-      <Popover>
-        <PopoverTrigger asChild>
+      <Dialog>
+        <DialogTrigger asChild>
           <Button
             id="date"
             variant="outline"
             className={cn(
               "justify-start text-left font-normal",
-              !date && "text-muted-foreground"
+              !range && "text-muted-foreground"
             )}
           >
             <CalendarIcon className="mr-2 h-4 w-4" />
-            {date?.from ? (
-              date.to ? (
+            {range && range.startDate && range.endDate ? (
+              range?.startDate ? (
                 <>
-                  {format(date.from, "MM/dd")} - {format(date.to, "MM/dd")}
+                  {format(range.startDate, "MM/dd")} - {format(range?.endDate, "MM/dd")}
                 </>
               ) : (
-                format(date.from, "MM/dd")
+                format(range.startDate, "MM/dd")
               )
             ) : (
               <span>Pick a date</span>
             )}
           </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-auto" align="end">
+        </DialogTrigger>
+        <DialogContent showCloseButton={false} className="w-auto">
+          <DialogClose className="absolute p-2 -top-4 -right-2 bg-primary text-primary-foreground rounded-full">
+            <XIcon />
+          </DialogClose>
+          <DialogHeader className="sr-only">
+            <DialogTitle>Date Range</DialogTitle>
+            <DialogDescription>Select a date range.</DialogDescription>
+          </DialogHeader>
           <Calendar
+            className="w-full"
             autoFocus
             mode="range"
-            defaultMonth={date?.from}
-            selected={date ? date : { from: range?.startDate, to: range?.endDate }}
+            defaultMonth={range?.startDate || new Date()}
+            selected={{
+              from: range?.startDate,
+              to: range?.endDate,
+            }}
             onSelect={(dates) => {
-              setDate(dates);
               setRange({
                 startDate: dates?.from,
                 endDate: dates?.to,
@@ -67,8 +83,8 @@ export default function DateRangePicker({
             }}
             numberOfMonths={2}
           />
-        </PopoverContent>
-      </Popover>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

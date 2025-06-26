@@ -320,7 +320,7 @@ export async function fetchOrders({
     const [totalCount, orders] = await prisma.$transaction([
       prisma.order.count({
         where: {
-          isCompleted: !newOnly,
+          isCompleted: newOnly,
           AND: searchQuery
             ? {
                 OR: [
@@ -405,5 +405,107 @@ export async function fetchOrders({
       totalPages: 0,
       currentPage: page,
     };
+  }
+}
+
+export async function getOrderById(orderId: string) {
+  await verifyAdminSession();
+
+  try {
+    const order = await prisma.order.findFirst({
+      where: {
+        id: orderId,
+      },
+      select: {
+        id: true,
+        code: true,
+        completedAt: true,
+        isCompleted: true,
+        client: {
+          select: {
+            name: true,
+            businessName: true,
+          },
+        },
+        createdAt: true,
+        orderProduct: {
+          select: {
+            id: true,
+            details: true,
+            brand: true,
+            request: true,
+            handle: true,
+            product: {
+              include: {
+                sizes: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return { data: order, error: null };
+  } catch (error) {
+    console.error(error);
+    return { error: "Failed to fetch order.", data: null };
+  }
+}
+
+export async function completeOrder({
+  orderId,
+  status,
+}: {
+  orderId: string;
+  status: string;
+}) {
+  await verifyAdminSession();
+
+  try {
+    const updatedOrder = await prisma.order.update({
+      where: {
+        id: orderId,
+      },
+      data: {
+        updatedAt: new Date(),
+        completedAt: status === "completed" ? new Date() : undefined,
+        isCompleted: status === "completed",
+      },
+    });
+
+    revalidatePath("/orders");
+    revalidatePath("/orders/" + orderId);
+    revalidatePath("/dashboard");
+    revalidatePath("/dashboard/orders/" + orderId);
+    revalidatePath("/dashboard/orders/" + orderId + "/print");
+    return { data: updatedOrder.id, error: null };
+  } catch (error) {
+    console.error(error);
+    return { error: "Failed to update order.", data: null };
+  }
+}
+
+export async function deleteOrder({ orderId }: { orderId: string }) {
+  await verifyAdminSession();
+
+  try {
+    const deletedOrder = await prisma.order.delete({
+      where: {
+        id: orderId,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    revalidatePath("/orders");
+    revalidatePath("/orders/" + orderId);
+    revalidatePath("/dashboard");
+    revalidatePath("/dashboard/orders/" + orderId);
+    revalidatePath("/dashboard/orders/" + orderId + "/print");
+    return { data: deletedOrder.id, error: null };
+  } catch (error) {
+    console.error(error);
+    return { error: "Failed to delete order.", data: null };
   }
 }
