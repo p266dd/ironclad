@@ -1,0 +1,275 @@
+.invoiceWrapperForPrint {
+  padding: 2vh 2vw 2vh 0;
+}
+
+.a4Page {
+  background: white;
+  border-radius: 12px;
+  width: 210mm;
+  min-height: 297mm; /* Allow content to flow for screen preview */
+  padding: 15mm; /* Standard A4 margins */
+  margin: 0; /* Center on screen */
+  border: 1px solid #ccc;
+  box-shadow: 0 0 0.5cm rgba(0, 0, 0, 0.5);
+  font-family: "Arial", sans-serif;
+  font-size: 10pt;
+  color: #333;
+  line-height: 1.4;
+}
+
+.invoiceHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 2px solid #333;
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+}
+
+.companyDetails h1 {
+  margin: 0;
+  font-size: 18pt;
+  color: #000;
+}
+
+.companyDetails p {
+  margin: 2px 0;
+  font-size: 9pt;
+}
+
+.invoiceInfo h2 {
+  margin: 0 0 5px 0;
+  font-size: 16pt;
+  text-align: right;
+}
+
+.invoiceInfo p {
+  margin: 2px 0;
+  font-size: 9pt;
+  text-align: right;
+}
+
+.customerInfo {
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  gap: 20px; /* Add gap between billing and shipping */
+}
+
+.customerInfo h3 {
+  font-size: 11pt;
+  margin-bottom: 5px;
+  padding-bottom: 3px;
+}
+
+.customerInfo p {
+  margin: 2px 0;
+  font-size: 9pt;
+}
+
+.billingAddress {
+  display: flex;
+  flex-direction: row;
+  gap: 2em;
+}
+
+.billingAddress,
+.shippingAddress {
+  width: 48%; /* Adjust if needed with gap */
+}
+
+.itemsTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+.itemsTable th,
+.itemsTable td {
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.itemsTable th {
+  background-color: #f0f0f0;
+  font-size: 9pt;
+  font-weight: bold;
+}
+
+.itemsTable td {
+  font-size: 9pt;
+}
+
+.itemsTable .textRight {
+  text-align: right;
+}
+
+.itemsTable .description {
+  font-size: 8.5pt;
+  color: #555;
+  white-space: pre-line; /* Respect newlines in description */
+}
+
+.totals {
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.totalsTable {
+  width: 45%; /* Adjust as needed */
+  border-collapse: collapse;
+}
+
+.totalsTable td {
+  padding: 5px 8px;
+  font-size: 10pt;
+}
+
+.totalsTable .label {
+  text-align: right;
+  font-weight: bold;
+  padding-right: 10px;
+}
+
+.totalsTable .amount {
+  text-align: right;
+}
+
+.totalsTable .grandTotal td {
+  font-weight: bold;
+  font-size: 11pt;
+  border-top: 2px solid #333;
+  padding-top: 8px;
+}
+
+.notesAndPayment {
+  margin-top: 30px;
+  border-top: 1px solid #eee;
+  padding-top: 15px;
+}
+
+.notesAndPayment h4 {
+  font-size: 10pt;
+  margin-bottom: 5px;
+}
+
+.notesAndPayment p {
+  font-size: 9pt;
+  margin-bottom: 10px;
+  white-space: pre-line;
+}
+
+.printButtonContainer {
+  text-align: center;
+  margin-bottom: 2em;
+  justify-self: start;
+  display: flex;
+  flex-direction: row;
+  gap: 1em;
+}
+
+.printButton {
+  padding: 8px 16px;
+  font-size: 9pt;
+  cursor: pointer;
+  background-color: #1d293d;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.returnButton {
+  padding: 10px 20px;
+  font-size: 10pt;
+  cursor: pointer;
+  border: none;
+  border-radius: 5px;
+  background-color: #cccccc;
+  color: #272727;
+}
+
+.loadingState,
+.errorState,
+.emptyState {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 80vh; /* Adjusted height */
+  font-size: 1.2em;
+  color: #555;
+  text-align: center;
+}
+
+.errorState {
+  color: red;
+}
+
+/* Print specific styles */
+@media print {
+  body.print {
+    margin: 0;
+    padding: 0;
+    background-color: #fff !important;
+  }
+
+  /* Hide everything on the page by default */
+  body.print * {
+    visibility: hidden !important;
+  }
+
+  /* Make only the invoice wrapper and its contents visible */
+  .invoiceWrapperForPrint,
+  .invoiceWrapperForPrint * {
+    visibility: visible !important;
+  }
+
+  /* Position the invoice wrapper to take up the whole printable area */
+  .invoiceWrapperForPrint {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .a4Page {
+    width: 100% !important;
+    min-height: 0 !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 10mm !important; /* Define print margins */
+    border: none !important;
+    box-shadow: none !important;
+    font-size: 9pt !important; /* Optional: adjust font size for print */
+    position: relative;
+    z-index: 70;
+  }
+
+  .itemsTable thead {
+    display: table-header-group !important; /* Repeat table headers on each page */
+  }
+
+  .itemsTable tr,
+  .itemsTable td {
+    page-break-inside: avoid !important; /* Try to keep rows/cells from breaking */
+  }
+
+  .itemsTable th {
+    background-color: #f0f0f0 !important;
+  }
+
+  /* Hide the print button specifically */
+  .printButtonContainer,
+  .printButtonContainer * {
+    display: none !important;
+    visibility: hidden !important;
+  }
+}
