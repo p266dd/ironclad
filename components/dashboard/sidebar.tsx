@@ -31,7 +31,7 @@ const items = [
   },
   {
     title: "Orders",
-    url: "/dashboard/orders",
+    url: "/dashboard",
     icon: ShoppingBag,
   },
   {

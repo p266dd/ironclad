@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { format } from "date-fns";
 import PageTitle from "@/components/page-title";
 import { getOwnOrderById } from "@/data/order/action";
 import OrderSizeTable from "./order-size-table";
@@ -32,7 +33,10 @@ export default async function ClientSingleOrder({
 
   return (
     <div className="pt-16 pb-44 px-6 sm:pt-4 md:pb-12 lg:px-12">
-      <PageTitle title="Order Details" subtitle="Ordered at Feb 23 2025." />
+      <PageTitle
+        title="Order Details"
+        subtitle={format(order.createdAt, "EEEE, MMMM do yyyy")}
+      />
 
       {success && (
         <div className="max-w-[400px] my-4 mb-8">
