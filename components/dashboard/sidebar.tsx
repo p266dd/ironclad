@@ -1,3 +1,6 @@
+"use client";
+
+import { usePathname } from "next/navigation";
 import Image from "next/image";
 import Logo from "@/assets/logo.png";
 
@@ -52,6 +55,8 @@ const items = [
 ];
 
 export function DashboardSidebar() {
+  const path = usePathname();
+
   return (
     <Sidebar>
       <SidebarHeader className="py-10 px-6">
@@ -66,7 +71,15 @@ export function DashboardSidebar() {
             <SidebarMenu className="gap-4">
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild className="text-base">
+                  <SidebarMenuButton
+                    asChild
+                    isActive={
+                      path.split("/")[2] !== undefined
+                        ? path.split("/")[2] === item.title.toLowerCase()
+                        : item.url === "/dashboard"
+                    }
+                    className="text-base"
+                  >
                     <a href={item.url}>
                       <item.icon />
                       <span>{item.title}</span>
