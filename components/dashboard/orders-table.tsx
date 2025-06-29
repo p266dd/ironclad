@@ -94,9 +94,11 @@ export default function AdminOrdersTable() {
     await mutate("getOrders");
   };
 
-  const handlePageChange = (page: number) => {
+  const handlePageChange = async (page: number) => {
     if (page >= 1 && page <= (data?.totalPages || 1)) {
       setPage(page);
+      await mutate("getOrders");
+      await mutate("getOrders");
     }
   };
 

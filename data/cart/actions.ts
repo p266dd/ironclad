@@ -168,7 +168,7 @@ export async function updateProductFromCart(
         : "",
   };
 
-  console.log(inputData.details);
+  // console.log(inputData.details);
 
   try {
     // Validate data.
@@ -249,11 +249,16 @@ export async function addToCart(
         : "",
   };
 
+  const parsedDetails = inputData.details as {
+    sizeId: number;
+    quantity: number;
+  }[];
+
   if (
     inputData &&
     inputData.details &&
     Array.isArray(inputData.details) &&
-    inputData.details.every((s) => Number(s?.quantity) === 0 || s?.quantity === "")
+    parsedDetails.every((s) => Number(s?.quantity) === 0 || s?.quantity === null)
   ) {
     return {
       success: false,

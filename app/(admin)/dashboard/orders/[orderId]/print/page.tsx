@@ -122,7 +122,7 @@ export default function PrintOrderPage() {
             {companyDetails.website && <p>Website: {companyDetails.website}</p>}
           </div>
           <div className={styles.invoiceInfo}>
-            <h2>PACKING SLIP</h2>
+            <h2>Order Summary</h2>
             <p>
               <strong>Order ID:</strong> {product.code.split("-")[1]}
             </p>

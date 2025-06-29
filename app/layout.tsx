@@ -13,8 +13,8 @@ const openSans = Open_Sans({
 });
 
 export const metadata = {
-  title: "Knife Gallery App",
-  description: "Created using Next.js",
+  title: "Ironclad App",
+  description: "Ironclad wholesaler application.",
 };
 
 export const viewport = {

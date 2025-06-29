@@ -144,7 +144,7 @@ export async function createOrder() {
       }
 
       if (requestedQuantity > sizeInfo.stock) {
-        return { error: "No stock available for this size." }; // No stock available.
+        return { error: `No stock available for size ${sizeInfo.name}.` }; // No stock available.
       }
 
       // Prepare for stock update.
@@ -155,12 +155,11 @@ export async function createOrder() {
       });
 
       // Add to items for this specific OrderProduct, just in case storing price at time of order.
-      validItemsForThisOrder.length > 0 &&
-        validItemsForThisOrder.push({
-          id: sizeId,
-          quantity: requestedQuantity,
-          priceAtOrder: sizeInfo.price, // Store price at the time of order.
-        });
+      validItemsForThisOrder.push({
+        id: sizeId,
+        quantity: requestedQuantity,
+        priceAtOrder: sizeInfo.price, // Store price at the time of order.
+      });
     }
 
     if (validItemsForThisOrder.length > 0) {

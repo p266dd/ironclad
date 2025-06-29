@@ -22,6 +22,9 @@ export function RecoverEmailHTML({ code }: { code: string }) {
             padding: 20px;
             text-align: center;
           }
+          .logo {
+          text-align: center;
+          }
           .code {
               margin: 30px 0;
               text-size: 12px;
@@ -47,7 +50,7 @@ export function RecoverEmailHTML({ code }: { code: string }) {
       </head>
       <body>
         <div class="container">
-          <p class="logo"><img src="cid:logo@ironclad" alt="Ironclad logo" /></p>
+          <div class="logo"><img src="cid:logo@ironclad" alt="Ironclad logo" style="width: 200px;" /></div>
           <h2>Password Recovery Code</h2>
           <p>Someone has requested a password recovery for your account! Please use the code below to reset your password.</p>
           <a target="_blank" href="${code}">

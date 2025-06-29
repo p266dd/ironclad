@@ -13,14 +13,16 @@ import { Button } from "@/components/ui/button";
 import { ShoppingBagIcon, XCircleIcon } from "lucide-react";
 
 // Types
-import { CartProductWithRelations } from "@/lib/types";
+import { CartProductWithRelations, TEngravingPreference } from "@/lib/types";
 
 export default function CartProduct({
   cartProducts,
   shoppingCartId,
+  preferences,
 }: {
   cartProducts: CartProductWithRelations[];
   shoppingCartId: string;
+  preferences: TEngravingPreference[] | null | undefined;
 }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -29,7 +31,11 @@ export default function CartProduct({
     <div className="flex flex-col gap-y-8 gap-x-20 lg:flex-row">
       <div className="flex flex-col gap-3">
         {cartProducts.map((product) => (
-          <SingleCartProduct key={product.id} product={product} />
+          <SingleCartProduct
+            key={product.id}
+            product={product}
+            preferences={preferences}
+          />
         ))}
       </div>
       <div>

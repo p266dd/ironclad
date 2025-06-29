@@ -9,6 +9,8 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 
+import FallbackImage from "@/assets/product-fallback.webp";
+
 export default function ProductCarousel({
   media,
 }: {
@@ -22,7 +24,13 @@ export default function ProductCarousel({
     | null;
 }) {
   // Don't show carousel if there is no product
-  if (!media || media.length === 0) return null;
+  if (!media || media.length === 0) {
+    return (
+      <div className="rounded-lg overflow-hidden">
+        <img src={FallbackImage.src} alt="Product Placeholder" className="w-full" />
+      </div>
+    );
+  }
 
   return (
     <Carousel>

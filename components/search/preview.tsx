@@ -27,6 +27,7 @@ export default function SearchPreview({
   useEffect(() => {
     if (inputText.length <= 3) {
       setProducts(null);
+
       return;
     }
 
@@ -35,6 +36,10 @@ export default function SearchPreview({
       const data = await getProductsPreview(inputText);
       setProducts(data);
     };
+
+    window.addEventListener("click", () => {
+      setProducts(null);
+    });
 
     fetchData();
   }, [inputText]);
@@ -57,7 +62,7 @@ export default function SearchPreview({
       </div>
       {products && products.length > 0 && (
         <div className="absolute top-16 left-0 w-full z-50">
-          <div className="mr-12 p-6 max-h-8/12 overflow-y-auto bg-white border rounded-lg shadow-2xl">
+          <div className="p-6 max-h-8/12 overflow-y-auto bg-white border rounded-lg shadow-2xl">
             <div className="flex flex-col gap-3">
               {products.map((product) => (
                 <div key={product.id}>

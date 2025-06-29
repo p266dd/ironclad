@@ -1,11 +1,15 @@
 "use server";
 
 import * as yup from "yup";
-import bcrypt from "bcryptjs";
 import { UserCreateSchema, UserCreateInput } from "@/prisma/schemas/user";
 import { createUserForAuth } from "@/data/user/actions";
 import { sendEmail } from "@/lib/nodemailer";
-import { RegistrationEmailHTML, RegistrationEmailText } from "./email";
+import {
+  RegistrationEmailHTML,
+  RegistrationEmailStaffHTML,
+  RegistrationEmailText,
+  RegistrationEmailStaffText,
+} from "./email";
 
 // Types
 import { ActionFormInitialState } from "@/lib/types";
@@ -37,7 +41,7 @@ export async function signupUser(
     const userData = {
       name: validatedData.name,
       email: validatedData.email,
-      password: await bcrypt.hash(validatedData.password, 10),
+      password: validatedData.password,
       businessName: validatedData.businessName,
       businessCode: validatedData.businessCode,
       role: validatedData.role,
@@ -58,7 +62,18 @@ export async function signupUser(
       text: RegistrationEmailText,
     });
 
-    return { success: true, message: "Account created successfully." };
+    // Send confirmation email to staff.
+    await sendEmail({
+      to: "staff@ironcladknives.com",
+      subject: "New Account Registration",
+      html: RegistrationEmailStaffHTML,
+      text: RegistrationEmailStaffText,
+    });
+
+    return {
+      success: true,
+      message: "Account created successfully. Our staff will review your application.",
+    };
   } catch (error) {
     if (error instanceof yup.ValidationError) {
       const fieldErrors: { [key: string]: string } = {};

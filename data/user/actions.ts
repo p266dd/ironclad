@@ -30,6 +30,7 @@ export async function getUserForAuth(email: string) {
         email: true,
         password: true,
         role: true,
+        isActive: true,
       },
     });
     return { data: user, error: null };
@@ -295,4 +296,237 @@ export async function removeUserPreference(slug: string) {
   revalidatePath("/products/*");
 
   return updatedPreferences;
+}
+
+export async function fetchUsers({
+  searchQuery,
+  page,
+  itemsPerPage,
+}: {
+  searchQuery: {
+    searchTerm: string | undefined;
+    range:
+      | {
+          startDate: Date | undefined;
+          endDate: Date | undefined;
+        }
+      | undefined;
+  } | null;
+  page: number;
+  itemsPerPage: number;
+}) {
+  await verifyAdminSession();
+
+  try {
+    const [totalCount, users] = await prisma.$transaction([
+      prisma.user.count({
+        where: {
+          AND: searchQuery
+            ? {
+                OR: [
+                  { name: { contains: searchQuery.searchTerm || undefined } },
+                  { businessName: { contains: searchQuery.searchTerm || undefined } },
+                  { businessCode: { contains: searchQuery.searchTerm || undefined } },
+                ],
+              }
+            : [],
+        },
+      }),
+
+      prisma.user.findMany({
+        take: itemsPerPage,
+        skip: (page - 1) * itemsPerPage,
+        where: {
+          AND: searchQuery
+            ? {
+                OR: [
+                  { name: { contains: searchQuery.searchTerm || undefined } },
+                  { businessName: { contains: searchQuery.searchTerm || undefined } },
+                  { businessCode: { contains: searchQuery.searchTerm || undefined } },
+                ],
+              }
+            : [],
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+        select: {
+          id: true,
+          name: true,
+          businessName: true,
+          isActive: true,
+        },
+      }),
+    ]);
+
+    const totalPages = Math.ceil(totalCount / itemsPerPage);
+
+    return {
+      data: users,
+      error: null,
+      totalCount: totalCount || 0,
+      totalPages: totalPages || 0,
+      currentPage: page,
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      data: null,
+      error: "Failed to fetch users.",
+      totalCount: 0,
+      totalPages: 0,
+      currentPage: page,
+    };
+  }
+}
+
+export async function addNewUser({
+  userData,
+}: {
+  userData: {
+    name: string;
+    email: string;
+    password: string;
+    businessName: string;
+    businessCode?: string;
+    role: string;
+    isActive: string;
+  };
+}) {
+  await verifyAdminSession();
+
+  try {
+    const user = await prisma.user.create({
+      data: {
+        ...userData,
+        isActive: userData.isActive === "on" ? true : false,
+        id: undefined,
+      },
+    });
+
+    revalidatePath("/admin/users");
+
+    return { data: user, error: null };
+  } catch (error) {
+    console.error(error);
+    return { error: "Failed to add new user.", data: null };
+  }
+}
+
+export async function updateUser({
+  userData,
+  userId,
+}: {
+  userData: {
+    name: string;
+    email: string;
+    businessName: string;
+    businessCode: string;
+    role: string;
+    isActive: string;
+  };
+  userId: string;
+}) {
+  await verifyAdminSession();
+
+  try {
+    const user = await prisma.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        ...userData,
+        isActive: userData.isActive === "on" ? true : false,
+      },
+    });
+
+    revalidatePath("/admin/users");
+    revalidatePath("/admin/users/" + userId);
+
+    return { data: user, error: null };
+  } catch (error) {
+    console.error(error);
+    return { error: "Failed to update user.", data: null };
+  }
+}
+
+export async function deleteUser({ userId }: { userId: string }) {
+  await verifyAdminSession();
+
+  try {
+    const deletedUser = await prisma.user.delete({
+      where: {
+        id: userId,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    revalidatePath("/account/");
+    revalidatePath("/dashboard/users");
+    return { data: deletedUser.id, error: null };
+  } catch (error) {
+    console.error(error);
+    return { error: "Failed to delete user.", data: null };
+  }
+}
+
+export async function getUserById(userId: string) {
+  await verifyAdminSession();
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+      omit: {
+        password: true,
+        token: true,
+        code: true,
+        engraving: true,
+      },
+    });
+    return { data: user, error: null };
+  } catch (error) {
+    console.error(error);
+    return { error: "Failed to fetch user.", data: null };
+  }
+}
+
+export async function getUserList() {
+  await verifyAdminSession();
+
+  try {
+    const user = await prisma.user.findMany({
+      omit: {
+        password: true,
+        token: true,
+        code: true,
+        engraving: true,
+      },
+    });
+    return user;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+}
+
+export async function verifyBusinessCode(businessCode: string) {
+  await verifyAdminSession();
+
+  try {
+    const user = await prisma.user.count({
+      where: {
+        businessCode: {
+          equals: businessCode,
+        },
+      },
+    });
+    return { data: user, error: null };
+  } catch (error) {
+    console.error(error);
+    return { error: "Failed to count user where business code matches.", data: null };
+  }
 }

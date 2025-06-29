@@ -19,12 +19,13 @@ import {
 import {
   Box,
   Home,
+  MessageSquareText,
   PlusCircleIcon,
-  Settings,
   ShoppingBag,
   UserCheck,
 } from "lucide-react";
 import DashboardLogout from "./logout";
+import Link from "next/link";
 
 const items = [
   {
@@ -48,9 +49,9 @@ const items = [
     icon: UserCheck,
   },
   {
-    title: "Settings",
-    url: "/dashboard/settings",
-    icon: Settings,
+    title: "Message",
+    url: "/dashboard/message",
+    icon: MessageSquareText,
   },
 ];
 
@@ -95,18 +96,28 @@ export function DashboardSidebar() {
           <SidebarMenu className="gap-4">
             <SidebarMenuItem>
               <SidebarMenuButton asChild className="text-base">
-                <a href="/dashboard/products/new">
+                <Link href="/dashboard/products/add">
                   <PlusCircleIcon />
                   <span>New Product</span>
-                </a>
+                </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
+
             <SidebarMenuItem>
               <SidebarMenuButton asChild className="text-base">
-                <a href="/dashboard/users/new">
+                <Link href="/dashboard/users/add">
                   <PlusCircleIcon />
-                  <span>New User</span>
-                </a>
+                  <span>New Client</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild className="text-base">
+                <Link href="/dashboard/orders/add">
+                  <PlusCircleIcon />
+                  <span>New Order</span>
+                </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>

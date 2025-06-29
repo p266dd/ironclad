@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { format } from "date-fns";
 import BackButton from "@/components/back-button";
@@ -6,6 +7,8 @@ import PageTitle from "@/components/page-title";
 import { getOrderById } from "@/data/order/action";
 import { Separator } from "@/components/ui/separator";
 import OrderSizeTable from "@/app/(main)/account/orders/[orderId]/order-size-table";
+import { Button } from "@/components/ui/button";
+import { PenIcon, PrinterIcon } from "lucide-react";
 
 export default async function AdminSingleOrder({
   params,
@@ -34,6 +37,22 @@ export default async function AdminSingleOrder({
         title="Order Details"
         subtitle={"Received: " + format(order.createdAt, "EEEE, MMMM do yyyy")}
       />
+
+      <div className="mt-4 mb-8 flex items-center gap-4">
+        <Button asChild variant="default">
+          <Link href={"/dashboard/orders/" + order.id + "/print"}>
+            <PrinterIcon />
+            Print Order
+          </Link>
+        </Button>
+
+        <Button asChild variant="outline">
+          <Link href={"/dashboard/orders/" + order.id + "/edit"}>
+            <PenIcon />
+            Edit Order
+          </Link>
+        </Button>
+      </div>
 
       <div className="max-w-[800px] mb-8">
         <div className="flex flex-col md:flex-row gap-4 gap-x-12 mb-8">

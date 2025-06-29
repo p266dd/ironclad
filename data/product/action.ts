@@ -1,7 +1,7 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { verifyUserSession } from "@/lib/session";
+import { verifyUserSession, verifyAdminSession } from "@/lib/session";
 
 // Types
 import { Prisma } from "@/lib/generated/prisma";
@@ -10,14 +10,15 @@ import { TProductItemResult } from "@/lib/types";
 
 // Error Utility for logging
 import { generatePrismaErrorMessage } from "@/prisma/error-handling";
+import { revalidatePath } from "next/cache";
 
 export async function getProductsInfineScroll(keys: {
-  index: number;
+  pageIndex: number;
   activeFilters: TActiveFilters;
 }): Promise<TProductItemResult[]> {
   await verifyUserSession();
 
-  const PAGE_INDEX: number = keys.index || 0;
+  const PAGE_INDEX: number = keys.pageIndex || 0;
   const PER_PAGE: number = 12;
 
   const filterTag = keys.activeFilters.tag;
@@ -44,8 +45,10 @@ export async function getProductsInfineScroll(keys: {
   // }
 
   // * Add price condition.
-  if (searchFilters && searchFilters.price) {
-    const prices = searchFilters.price.split("-");
+  const searchByPrice =
+    searchFilters && searchFilters.price ? String(searchFilters.price) : null;
+  if (searchByPrice !== null) {
+    const prices = searchByPrice.split("-");
     sizeConditionsForAND.push({
       price: {
         gte: Number(prices[0]),
@@ -110,7 +113,7 @@ export async function getProductsInfineScroll(keys: {
       searchFilters.material.trim() !== ""
     ) {
       // If material is a string, use 'equals'.
-      materialFilter = { equals: searchFilters.material };
+      materialFilter = { equals: searchFilters.material, mode: "insensitive" };
     }
   }
 
@@ -124,7 +127,7 @@ export async function getProductsInfineScroll(keys: {
       searchFilters.style.trim() !== ""
     ) {
       // If style is a string, use 'equals'
-      styleFilter = { equals: searchFilters.style };
+      styleFilter = { equals: searchFilters.style, mode: "insensitive" };
     }
   }
 
@@ -138,6 +141,7 @@ export async function getProductsInfineScroll(keys: {
               some: {
                 name: {
                   equals: filterTag,
+                  mode: "insensitive",
                 },
               },
             },
@@ -146,6 +150,7 @@ export async function getProductsInfineScroll(keys: {
         ? {
             name: {
               contains: searchFilters?.searchTerm,
+              mode: "insensitive",
             },
             style: searchFilters?.style === "all" ? undefined : styleFilter,
             material: searchFilters?.material === "all" ? undefined : materialFilter,
@@ -202,6 +207,7 @@ export async function getProductsPreview(searchTerm: string) {
       where: {
         name: {
           contains: searchTerm,
+          mode: "insensitive",
         },
       },
       select: {
@@ -219,6 +225,328 @@ export async function getProductsPreview(searchTerm: string) {
   } catch (error) {
     const errorMessage = await generatePrismaErrorMessage(error, "product", "findMany");
     console.error(errorMessage);
+    return null;
+  }
+}
+
+export async function fetchProducts({
+  searchQuery,
+  page,
+  perPage,
+}: {
+  searchQuery:
+    | {
+        input: string | undefined;
+        filter: string | undefined;
+      }
+    | undefined;
+  page: number;
+  perPage: number;
+}) {
+  await verifyAdminSession();
+
+  const whereConditions: Prisma.ProductWhereInput[] = [];
+
+  if (searchQuery) {
+    // Add conditions for searchQuery.input if it exists.
+    if (searchQuery.input) {
+      whereConditions.push({
+        OR: [
+          { name: { contains: searchQuery.input, mode: "insensitive" } },
+          { style: { contains: searchQuery.input, mode: "insensitive" } },
+          { brand: { contains: searchQuery.input, mode: "insensitive" } },
+          { handle: { contains: searchQuery.input, mode: "insensitive" } },
+          { material: { contains: searchQuery.input, mode: "insensitive" } },
+        ],
+      });
+    }
+
+    // Add conditions for searchQuery.filter if it exists.
+    if (searchQuery.filter) {
+      whereConditions.push({
+        OR: [
+          { type: { contains: searchQuery.filter } },
+          {
+            filters: {
+              some: {
+                name: {
+                  contains: searchQuery.filter,
+                  mode: "insensitive",
+                },
+              },
+            },
+          },
+        ],
+      });
+    }
+  }
+
+  try {
+    const [totalCount, products] = await prisma.$transaction([
+      prisma.product.count({
+        where: { AND: whereConditions.length > 0 ? whereConditions : undefined },
+      }),
+
+      prisma.product.findMany({
+        take: perPage,
+        skip: (page - 1) * perPage,
+        where: { AND: whereConditions.length > 0 ? whereConditions : undefined },
+        orderBy: {
+          name: "asc",
+        },
+        include: {
+          thumbnail: true,
+        },
+      }),
+    ]);
+
+    const totalPages = Math.ceil(totalCount / perPage);
+
+    return {
+      data: products,
+      error: null,
+      totalCount: totalCount || 0,
+      totalPages: totalPages || 0,
+      currentPage: page,
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      data: null,
+      error: "Failed to fetch products.",
+      totalCount: 0,
+      totalPages: 0,
+      currentPage: page,
+    };
+  }
+}
+
+export async function getProductById(productId: string) {
+  await verifyAdminSession();
+
+  try {
+    const order = await prisma.product.findFirst({
+      where: {
+        id: productId,
+      },
+      include: {
+        filters: true,
+        media: true,
+        thumbnail: true,
+        sizes: true,
+      },
+    });
+
+    return { data: order, error: null };
+  } catch (error) {
+    console.error(error);
+    return { error: "Failed to fetch Product.", data: null };
+  }
+}
+
+export async function updateProductDetails({
+  productData,
+  productId,
+}: {
+  productData: {
+    type: string;
+    name: string;
+    description: string;
+    brand: string;
+    handle: string;
+    canChangeHandle: boolean;
+    material: string;
+    style: string;
+  };
+  productId: string;
+}) {
+  await verifyAdminSession();
+
+  try {
+    const product = await prisma.product.update({
+      where: {
+        id: productId,
+      },
+      data: {
+        ...productData,
+        canChangeHandle: productData.canChangeHandle,
+        id: undefined,
+      },
+    });
+
+    revalidatePath("/admin/products");
+    revalidatePath("/admin/products/" + productId);
+
+    return { data: product, error: null };
+  } catch (error) {
+    console.error(error);
+    return { error: "Failed to update product.", data: null };
+  }
+}
+
+export async function addNewProduct({
+  productData,
+}: {
+  productData: {
+    type: string;
+    name: string;
+    description: string;
+    brand: string;
+    handle: string;
+    canChangeHandle: boolean;
+    material: string;
+    style: string;
+  };
+}) {
+  await verifyAdminSession();
+
+  try {
+    const product = await prisma.product.create({
+      data: {
+        ...productData,
+        canChangeHandle: productData.canChangeHandle,
+        id: undefined,
+      },
+    });
+
+    revalidatePath("/admin/products");
+
+    return { data: product, error: null };
+  } catch (error) {
+    console.error(error);
+    return { error: "Failed to update product.", data: null };
+  }
+}
+
+export async function saveThumbnail({
+  thumbnailId,
+  productId,
+}: {
+  thumbnailId: string;
+  productId: string;
+}) {
+  await verifyAdminSession();
+
+  try {
+    const product = await prisma.product.update({
+      where: {
+        id: productId,
+      },
+      data: {
+        thumbnailId: thumbnailId,
+      },
+    });
+
+    revalidatePath("/admin/products");
+    revalidatePath("/admin/products/" + productId);
+
+    return { data: product, error: null };
+  } catch (error) {
+    console.error(error);
+    return { error: "Failed to save thumbnail.", data: null };
+  }
+}
+
+export async function saveSize({
+  sizeData,
+  productId,
+}: {
+  sizeData: {
+    id?: string;
+    name: string;
+    size?: string;
+    dimension?: string;
+    price: string;
+    stock: string;
+  };
+  productId: string | undefined;
+}) {
+  await verifyAdminSession();
+
+  if (!productId) {
+    return null;
+  }
+
+  console.log(sizeData);
+
+  const updateQuery = {
+    update: {
+      where: {
+        id: Number(sizeData.id),
+      },
+      data: {
+        name: sizeData.name,
+        size:
+          sizeData?.size && typeof Number(sizeData?.size) === "number"
+            ? Number(sizeData?.size)
+            : 0,
+        dimension: sizeData?.dimension,
+        price: Number(sizeData.price.replace(",", "")),
+        stock: Number(sizeData.stock),
+      },
+    },
+  };
+
+  const createQuery = {
+    create: {
+      name: sizeData.name,
+      size:
+        sizeData?.size && typeof Number(sizeData?.size) === "number"
+          ? Number(sizeData?.size)
+          : 0,
+      dimension: sizeData?.dimension,
+      price: Number(sizeData.price.replace(",", "")),
+      stock: Number(sizeData.stock),
+    },
+  };
+
+  try {
+    const product = await prisma.product.update({
+      where: {
+        id: productId,
+      },
+      data: {
+        sizes: sizeData?.id ? updateQuery : createQuery,
+      },
+    });
+
+    revalidatePath("/admin/products");
+    revalidatePath("/admin/products/" + productId);
+
+    return { data: product, error: null };
+  } catch (error) {
+    console.error(error);
+    return { error: "Failed to save size.", data: null };
+  }
+}
+
+export async function saveFilterList({
+  filterData,
+  productId,
+}: {
+  filterData: {
+    id?: string | undefined;
+    name: string;
+  };
+  productId: string | undefined;
+}) {
+  await verifyAdminSession();
+}
+
+export async function getProductList() {
+  await verifyAdminSession();
+
+  try {
+    const products = await prisma.product.findMany({
+      select: {
+        name: true,
+        id: true,
+      },
+    });
+
+    return products;
+  } catch (error) {
+    console.error(error);
     return null;
   }
 }

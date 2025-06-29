@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
+import FallbackImage from "@/assets/product-fallback.webp";
 
 //Shadcn
 import {
@@ -41,12 +42,14 @@ import {
 } from "@/data/cart/actions";
 
 // Types
-import { CartProductWithRelations } from "@/lib/types";
+import { CartProductWithRelations, TEngravingPreference } from "@/lib/types";
 
 export default function SingleCartProduct({
   product,
+  preferences,
 }: {
   product: CartProductWithRelations;
+  preferences: TEngravingPreference[] | null | undefined;
 }) {
   const [loading, setLoading] = useState(false);
   const [save, setSave] = useState(false);
@@ -145,19 +148,19 @@ export default function SingleCartProduct({
           <div className="flex items-center gap-2">
             <div className="w-1/4 lg:w-auto lg:mr-4">
               <img
-                src={productThumbnail}
-                alt={product.product.name}
+                src={productThumbnail || FallbackImage.src}
+                alt={product.product.name || "Product Thumbnail"}
                 className="max-h-[200px] rounded-md overflow-hidden"
               />
             </div>
             <div className="w-3/4 flex flex-col">
-              <h4 className="font-semibold text-lg leading-snug mb-2 lg:text-2xl">
+              <h4 className="capitalize font-semibold text-lg leading-snug mb-2 lg:text-2xl">
                 {product.product.name}
               </h4>
-              <p className="lg:text-base">
+              <p className="lg:text-base capitalize">
                 <strong>Brand:</strong> {product.brand}
               </p>
-              <p className="lg:text-base">
+              <p className="lg:text-base capitalize">
                 <strong>Handle:</strong> {product.handle}
               </p>
               <p className="lg:text-base w-full max-w-[200px] md:max-w-[500px] truncate">
@@ -278,7 +281,10 @@ export default function SingleCartProduct({
                   }}
                 >
                   <SelectTrigger className="w-full py-6">
-                    <SelectValue placeholder="Choose engraving brand." />
+                    <SelectValue
+                      className="capitalize"
+                      placeholder="Choose engraving brand."
+                    />
                   </SelectTrigger>
                   <SelectContent>
                     {product.brand !== product.product.brand && (
@@ -289,16 +295,23 @@ export default function SingleCartProduct({
                         </SelectItem>
                       </SelectGroup>
                     )}
-                    {/* {preferences && preferences.length > 0 && (
+                    {preferences && preferences.length > 0 && (
                       <SelectGroup>
                         <SelectLabel>Saved Preferences</SelectLabel>
-                        {preferences.map((value, i) => (
-                          <SelectItem key={i} value={value.slug}>
-                            {value.name}
-                          </SelectItem>
-                        ))}
+                        {preferences.map(
+                          (value, i) =>
+                            value.slug !== product.brand && (
+                              <SelectItem
+                                className="capitalize"
+                                key={i}
+                                value={value.slug}
+                              >
+                                {value.name}
+                              </SelectItem>
+                            )
+                        )}
                       </SelectGroup>
-                    )} */}
+                    )}
                     <SelectGroup>
                       <SelectLabel>Default</SelectLabel>
                       <SelectItem value={product.product.brand} className="capitalize">

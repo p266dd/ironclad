@@ -138,12 +138,15 @@ export default function ProductModal({
         <Image
           src={product.thumbnail?.url || FallbackImage}
           alt={product.name}
-          className="object-cover rounded-md overflow-hidden"
+          className="object-cover rounded-md overflow-hidden border"
           fill
         />
       </div>
       <Dialog open={open} onOpenChange={() => setOpen((prev) => !prev)}>
-        <DialogContent onOpenAutoFocus={(e) => e.preventDefault()}>
+        <DialogContent
+          onOpenAutoFocus={(e) => e.preventDefault()}
+          className="max-h-[95vh]"
+        >
           <DialogHeader className="sr-only">
             <DialogTitle>{product.name}</DialogTitle>
             <DialogDescription>{product.description}</DialogDescription>
@@ -153,15 +156,27 @@ export default function ProductModal({
 
             <Carousel>
               <CarouselContent>
-                {product.media &&
-                  product.media.length > 0 &&
+                {product.media && product.media.length > 0 ? (
                   product.media.map((media) => (
                     <CarouselItem key={media.id}>
-                      <div className="relative rounded-lg overflow-hidden">
-                        <img src={media.url} alt={media.name} className="w-ful" />
+                      <div className="relative min-h-[300px] h-[65vh] rounded-lg overflow-hidden">
+                        <img
+                          src={media.url}
+                          alt={media.name}
+                          className="w-full object-contain"
+                        />
                       </div>
                     </CarouselItem>
-                  ))}
+                  ))
+                ) : (
+                  <div className="relative rounded-lg overflow-hidden">
+                    <img
+                      src={FallbackImage.src}
+                      alt="Image Placeholder"
+                      className="w-full"
+                    />
+                  </div>
+                )}
               </CarouselContent>
               <CarouselPrevious />
               <CarouselNext />
@@ -173,7 +188,9 @@ export default function ProductModal({
                 <span className="text-xs text-slate-400 uppercase tracking-widest">
                   Product
                 </span>
-                <h4 className="text-xl font-semibold leading-tight">{product.name}</h4>
+                <h4 className="text-xl font-semibold leading-tight capitalize">
+                  {product.name}
+                </h4>
                 <span className="absolute -bottom-2 -right-2 md:hidden">
                   <MousePointerClickIcon color="#ccc" />
                 </span>

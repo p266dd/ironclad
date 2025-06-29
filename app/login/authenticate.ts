@@ -35,6 +35,15 @@ export async function authenticateUser(
       return { success: false, message: "Invalid credentials. Please try again." };
     }
 
+    if (
+      userResult.data.isActive === false ||
+      userResult.data.isActive === null ||
+      userResult.data.isActive === undefined
+    ) {
+      // User not active.
+      return { success: false, message: "User is not active. Please contact our staff." };
+    }
+
     const user = userResult.data as {
       id: string;
       name: string;

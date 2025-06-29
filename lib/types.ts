@@ -17,7 +17,10 @@ export type TSearchFields = {
   searchTerm?: string;
   style?: string;
   stock?: string;
-  price: string;
+  price: {
+    min: number;
+    max: number;
+  };
   brand: string | string[];
   material: string | string[];
 };

@@ -27,11 +27,19 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { CheckCircle2Icon, Loader2Icon, SaveIcon, ShoppingCartIcon } from "lucide-react";
+import {
+  ArrowRightIcon,
+  CheckCircle2Icon,
+  InfoIcon,
+  Loader2Icon,
+  SaveIcon,
+  ShoppingCartIcon,
+} from "lucide-react";
 
 // Types
 import { Prisma } from "@/lib/generated/prisma";
 import { TEngravingPreference } from "@/lib/types";
+import Link from "next/link";
 
 export default function ProductPageForm({
   product,
@@ -207,15 +215,6 @@ export default function ProductPageForm({
               <SelectValue placeholder="Choose engraving brand." />
             </SelectTrigger>
             <SelectContent>
-              {cart && cart.brand !== product.brand && (
-                <SelectGroup>
-                  <SelectLabel>Current In Cart</SelectLabel>
-                  <SelectItem value={cart.brand} className="capitalize">
-                    {cart.brand}
-                  </SelectItem>
-                </SelectGroup>
-              )}
-
               {preferences && preferences.length > 0 && (
                 <SelectGroup>
                   <SelectLabel>Saved Preferences</SelectLabel>
@@ -329,6 +328,7 @@ export default function ProductPageForm({
         <div className="mt-4">
           {cart && (
             <p className="text-sm text-center text-slate-500 mb-3">
+              <InfoIcon className="size-4 inline mr-2" />
               This product is in your cart.
             </p>
           )}
@@ -338,19 +338,27 @@ export default function ProductPageForm({
               <Loader2Icon className="animate-spin" />
               Loading...
             </Button>
-          ) : (
-            <Button className="w-full py-6" type="submit" variant="default" size="lg">
-              {cart ? (
+          ) : cart ? (
+            <div className="flex flex-col gap-2">
+              <Button className="w-full py-6" type="submit" variant="default" size="lg">
                 <span className="flex gap-2">
                   <SaveIcon />
                   Save Changes
                 </span>
-              ) : (
-                <span className="flex gap-2">
-                  <ShoppingCartIcon />
-                  Add to Cart
-                </span>
-              )}
+              </Button>
+              <Button asChild className="w-full py-5" variant="outline" size="sm">
+                <Link href="/cart" className="flex gap-2">
+                  <ArrowRightIcon />
+                  See Cart
+                </Link>
+              </Button>
+            </div>
+          ) : (
+            <Button className="w-full py-6" type="submit" variant="default" size="lg">
+              <span className="flex gap-2">
+                <ShoppingCartIcon />
+                Add to Cart
+              </span>
             </Button>
           )}
         </div>

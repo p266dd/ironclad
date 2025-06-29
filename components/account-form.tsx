@@ -173,7 +173,7 @@ export default function AccountForm({ currentInfo }: { currentInfo: TAccountChan
                 type="text"
                 name="businessCode"
                 id="businessCode"
-                placeholder="IR2025"
+                placeholder=""
                 value={unsavedChanges?.businessCode ?? currentInfo?.businessCode ?? ""}
                 onChange={(e) => {
                   setSave(true);

@@ -7,9 +7,6 @@ import { getSession, SessionPayload } from "@/lib/session";
 import { getFilters } from "@/data/filter/action";
 import { logout } from "@/lib/logout";
 
-// Shadcn
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-
 // Assets
 import Logo from "@/assets/logo.png";
 
@@ -53,14 +50,15 @@ export default async function HomePage({
 
       {filters.data !== null && filters.data.length > 0 ? (
         <div className="pt-2 mb-2 md:px-6 md:pt-6 md:mb-6">
-          <ScrollArea className="w-full p-4 whitespace-nowrap">
+          <div className="flex flex-wrap items-center gap-2 p-4">
             {filters.data.map((filter, i) => (
               <FilterTags key={i} filter={filter.name} active={tag || ""} />
             ))}
-            <ScrollBar orientation="horizontal" />
-          </ScrollArea>
+          </div>
         </div>
-      ) : null}
+      ) : (
+        <div className="sm:py-4"></div>
+      )}
 
       <ProductGrid activeFilters={{ tag: tag, search: null }} />
     </div>

@@ -23,7 +23,8 @@ export default function OrderSizeTable({
     id: number;
     name: string;
     productId: string | null;
-    size: string;
+    size: number;
+    dimension?: string | null;
     price: number;
     stock: number;
   }[];
@@ -45,7 +46,13 @@ export default function OrderSizeTable({
           return (
             <TableRow key={matchingProduct.id + "_SizeTable"}>
               <TableCell className="font-medium">{matchingProduct?.name}</TableCell>
-              <TableCell>{matchingProduct?.size}</TableCell>
+              <TableCell>
+                {matchingProduct?.size !== 0
+                  ? matchingProduct?.size
+                  : matchingProduct?.dimension !== "0mm"
+                  ? matchingProduct?.dimension
+                  : "No Size"}
+              </TableCell>
               <TableCell>{size?.quantity}</TableCell>
             </TableRow>
           );

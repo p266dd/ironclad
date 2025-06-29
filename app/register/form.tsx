@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useState, useActionState, useRef } from "react";
 import { signupUser } from "./register";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 // Shadcn
 import { Button } from "@/components/ui/button";
@@ -18,6 +20,7 @@ import { ActionFormInitialState } from "@/lib/types";
 export function SignupForm({ className, ...props }: React.ComponentProps<"form">) {
   const passwordRef = useRef(null);
   const [showPassword, setShowPassword] = useState(false);
+  const router = useRouter();
 
   const initialState: ActionFormInitialState = {
     success: false,
@@ -26,6 +29,13 @@ export function SignupForm({ className, ...props }: React.ComponentProps<"form">
   };
 
   const [state, formAction, pending] = useActionState(signupUser, initialState);
+
+  if (state.success === true) {
+    toast.success(state.message);
+    setTimeout(() => {
+      router.push("/login");
+    }, 2000);
+  }
 
   return (
     <form action={formAction} className={cn("flex flex-col gap-6", className)} {...props}>

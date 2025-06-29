@@ -7,7 +7,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -108,13 +108,12 @@ model Media {
 model Size {
   id        Int      @id @default(autoincrement())
   name      String
-  size      String
+  size      Int      @default(0)
+  dimension String?  @default("0mm")
   price     Int
   stock     Int
   product   Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId String?
-
-  @@unique([name, size])
 }
 
 model Handle {
@@ -167,7 +166,9 @@ model Message {
   id        Int      @id @default(autoincrement())
   title     String
   content   String
-  link      String
+  linkTitle String?
+  linkUrl   String?
+  image     String?
   isActive  Boolean  @default(false)
   createdAt DateTime @default(now())
 }

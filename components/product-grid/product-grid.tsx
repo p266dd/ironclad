@@ -55,7 +55,9 @@ export default function ProductGrid(props: { activeFilters: TActiveFilters }) {
     (entries: ReadonlyArray<IntersectionObserverEntry>) => {
       const target = entries[0];
       if (target.isIntersecting && hasMoreData && !isLoading) {
-        setSize((prevSize) => prevSize + 1); // Load the next page of results.
+        setSize((prevSize) => {
+          return prevSize + 1;
+        }); // Load the next page of results.
       }
     },
     [setSize, hasMoreData, isLoading]
