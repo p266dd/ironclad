@@ -517,16 +517,16 @@ export async function verifyBusinessCode(businessCode: string) {
   await verifyAdminSession();
 
   try {
-    const user = await prisma.user.count({
+    const users = await prisma.user.findMany({
       where: {
         businessCode: {
           equals: businessCode,
         },
       },
     });
-    return { data: user, error: null };
+    return users;
   } catch (error) {
     console.error(error);
-    return { error: "Failed to count user where business code matches.", data: null };
+    return null;
   }
 }

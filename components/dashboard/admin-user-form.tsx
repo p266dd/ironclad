@@ -57,11 +57,13 @@ export default function AdminUserForm({
 
   const validateBusinessCode = async (code: string) => {
     const isValid = await verifyBusinessCode(code);
-    if (isValid?.data === null || isValid?.error !== null || isValid?.data > 0) {
+    if (isValid === null) {
       generateBusinessCode();
     }
     return true;
   };
+
+  console.log(generatedBusinessCode);
 
   const handleSaveUser = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -207,20 +209,21 @@ export default function AdminUserForm({
               max={6}
               min={6}
               defaultValue={
-                isNew ? generatedBusinessCode || "" : user?.businessCode || ""
+                generatedBusinessCode ? generatedBusinessCode : user?.businessCode ?? ""
               }
               className="capitalize"
               placeholder=""
             />
-            {isNew && (
-              <span className="absolute right-2 bottom-2">
-                <Badge asChild variant="secondary" className="h-auto">
-                  <Button type="button" onClick={() => generateBusinessCode()}>
-                    Generate
-                  </Button>
-                </Badge>
-              </span>
-            )}
+
+            <span className="absolute right-2 bottom-2">
+              <Badge
+                variant="secondary"
+                className="cursor-pointer"
+                onClick={() => generateBusinessCode()}
+              >
+                Generate
+              </Badge>
+            </span>
           </div>
 
           <RadioGroup

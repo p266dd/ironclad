@@ -9,16 +9,20 @@ import {
   updateOwnUser,
 } from "@/data/user/actions";
 
+import { generateRandomString } from "@/lib/generate-random-string";
+import { verifyBusinessCode } from "@/data/user/actions";
+
 // Shadcn
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   CircleCheckIcon,
   Eye,
   EyeOff,
-  Loader2Icon,
+  LoaderCircleIcon,
   ReceiptJapaneseYenIcon,
   SaveIcon,
   Trash2Icon,
@@ -32,6 +36,9 @@ export default function AccountForm({ currentInfo }: { currentInfo: TAccountChan
   const [savePreference, setSavePreference] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  // Code validation state.
+  const [code, setCode] = useState<string | null>(null);
 
   // Keep unsaved preferences.
   const [unsavedPreference, setUnsavedPreference] = useState<{
@@ -74,6 +81,26 @@ export default function AccountForm({ currentInfo }: { currentInfo: TAccountChan
     setUnsavedPreference(null);
     setLoading(false);
   };
+
+  const validateBusinessCode = async (code: string) => {
+    const validUsers = await verifyBusinessCode(code);
+    if (validUsers === null || validUsers === undefined || validUsers.length === 0) {
+      return false;
+    }
+    return true;
+  };
+
+  const generateBusinessCode = async () => {
+    const generatedBusinessCode = generateRandomString("businessCode");
+    if (!generatedBusinessCode) return;
+    const isValid = validateBusinessCode(generatedBusinessCode);
+    if (!isValid) return;
+
+    setCode(generatedBusinessCode);
+    toast("Business code generated.");
+  };
+
+  console.log(code);
 
   return (
     <div className="flex flex-col gap-8">
@@ -166,7 +193,7 @@ export default function AccountForm({ currentInfo }: { currentInfo: TAccountChan
               />
             </div>
 
-            <div className="flex flex-col gap-3">
+            <div className="relative flex flex-col gap-3">
               <Label htmlFor="businessCode">Business Code</Label>
               <Input
                 autoComplete="off"
@@ -174,8 +201,12 @@ export default function AccountForm({ currentInfo }: { currentInfo: TAccountChan
                 name="businessCode"
                 id="businessCode"
                 placeholder=""
-                value={unsavedChanges?.businessCode ?? currentInfo?.businessCode ?? ""}
-                onChange={(e) => {
+                value={
+                  code
+                    ? code
+                    : unsavedChanges?.businessCode ?? currentInfo?.businessCode ?? ""
+                }
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                   setSave(true);
                   setUnsavedChanges((prev) => ({
                     ...prev,
@@ -183,6 +214,26 @@ export default function AccountForm({ currentInfo }: { currentInfo: TAccountChan
                   }));
                 }}
               />
+
+              <span className="absolute right-2 bottom-[6px] z-30">
+                {code === null ? (
+                  <Badge
+                    variant="default"
+                    className="cursor-pointer"
+                    onClick={() => generateBusinessCode()}
+                  >
+                    Generate
+                  </Badge>
+                ) : (
+                  <Badge
+                    variant="secondary"
+                    className="cursor-pointer"
+                    onClick={() => setCode(null)}
+                  >
+                    Clear
+                  </Badge>
+                )}
+              </span>
             </div>
           </div>
         </div>
@@ -237,7 +288,7 @@ export default function AccountForm({ currentInfo }: { currentInfo: TAccountChan
                   disabled={loading}
                   className="flex-1 w-full"
                 >
-                  {loading ? <Loader2Icon className="animate-spin" /> : <SaveIcon />}
+                  {loading ? <LoaderCircleIcon className="animate-spin" /> : <SaveIcon />}
                   {loading ? "Saving..." : "Save"}
                 </Button>
                 <Button
