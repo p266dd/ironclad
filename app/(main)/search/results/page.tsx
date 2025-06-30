@@ -20,6 +20,7 @@ export default async function ResultsPage(props: {
   const searchFilters: TSearchFields = {
     searchTerm: params.searchTerm ?? "",
     style: params.style ?? "",
+    type: params.type ?? "",
     stock: params.stock ?? "",
     price: params.price ?? { min: 0, max: 99999 },
     size: params.size ?? { min: 0, max: 300 },

@@ -53,6 +53,7 @@ export default function SearchForm({
   const [searchState, setSearchState] = useState<TSearchFields>({
     searchTerm: searchParams.get("searchTerms") || "",
     style: searchParams.get("style") || "all",
+    type: searchParams.get("type") || "all",
     stock: searchParams.get("stock") || "all",
     price: {
       min: getRange("price")?.min || 0,
@@ -126,6 +127,75 @@ export default function SearchForm({
       </div>
 
       <div>
+        <p className="text-lg text-slate-500 mb-2">Product Type</p>
+      </div>
+      <div className="flex items-center flex-wrap gap-3 max-w-6xl mb-6">
+        <Label
+          htmlFor="knife"
+          className="flex-1 flex items-center justify-center px-4 py-3 bg-slate-50 rounded-lg"
+        >
+          <Input
+            id="knife"
+            type="radio"
+            name="type"
+            className="w-4 h-4"
+            defaultChecked={
+              searchParams.get("type") === "knife" || searchState.type === "knife"
+            }
+            onChange={(e) => {
+              setSearchState((prev) => ({
+                ...prev,
+                type: e.target.checked ? "knife" : "",
+              }));
+            }}
+          />
+          Knife
+        </Label>
+
+        <Label
+          htmlFor="other"
+          className="flex-1 flex items-center justify-center px-4 py-3 bg-slate-50 rounded-lg"
+        >
+          <Input
+            id="other"
+            name="type"
+            type="radio"
+            className="w-4 h-4"
+            defaultChecked={
+              searchParams.get("type") === "other" || searchState.type === "other"
+            }
+            onChange={(e) => {
+              setSearchState((prev) => ({
+                ...prev,
+                type: e.target.checked ? "other" : "",
+              }));
+            }}
+          />
+          Other
+        </Label>
+
+        <Label
+          htmlFor="allTypes"
+          className="flex-1 flex items-center justify-center px-4 py-3 bg-slate-50 rounded-lg"
+        >
+          <Input
+            id="allTypes"
+            name="type"
+            type="radio"
+            className="w-4 h-4"
+            defaultChecked={!searchParams.get("type") || searchState.type === "all"}
+            onChange={(e) => {
+              setSearchState((prev) => ({
+                ...prev,
+                type: e.target.checked ? "all" : "",
+              }));
+            }}
+          />
+          All Products
+        </Label>
+      </div>
+
+      <div>
         <p className="text-lg text-slate-500 mb-2">Knife Style</p>
       </div>
       <div className="flex items-center flex-wrap gap-3 max-w-6xl mb-6">
@@ -190,7 +260,7 @@ export default function SearchForm({
               }));
             }}
           />
-          All
+          All Styles
         </Label>
       </div>
 
@@ -312,7 +382,7 @@ export default function SearchForm({
                           <Label
                             key={brand.id}
                             htmlFor={brand.name}
-                            className="flex-1 flex items-center justify-start px-4 py-3 bg-slate-50 rounded-lg"
+                            className="flex-1 flex items-center justify-start px-4 py-3 bg-slate-50 rounded-lg whitespace-nowrap"
                           >
                             <Input
                               id={brand.name}
@@ -355,7 +425,7 @@ export default function SearchForm({
                   Search by Material
                 </AccordionTrigger>
                 <AccordionContent className="px-4 py-5">
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center flex-wrap gap-4">
                     <Label
                       htmlFor="materialAll"
                       className="flex-1 flex items-center justify-start px-4 py-3 bg-slate-50 rounded-lg"
@@ -381,7 +451,7 @@ export default function SearchForm({
                           <Label
                             key={material.id}
                             htmlFor={material.name}
-                            className="flex-1 flex items-center justify-start px-4 py-3 bg-slate-50 rounded-lg"
+                            className="flex-1 flex items-center justify-start px-4 py-3 bg-slate-50 rounded-lg whitespace-nowrap"
                           >
                             <Input
                               id={material.name}

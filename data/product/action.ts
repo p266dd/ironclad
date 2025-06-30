@@ -29,13 +29,16 @@ export async function getProductsInfineScroll(keys: {
   let brandFilter: object | undefined = undefined;
   let materialFilter: object | undefined = undefined;
   let styleFilter: object | undefined = undefined;
+  let typeFilter: object | undefined = undefined;
 
   const sizeConditionsForAND = [];
 
   // * Add size condition.
   // * Cannot use due because of the possible format 120*100*10cm
   const searchBySize =
-    searchFilters && searchFilters.size ? String(searchFilters.size) : null;
+    searchFilters !== null && typeof searchFilters.size !== null
+      ? String(searchFilters.size)
+      : null;
   if (searchBySize !== null) {
     const sizes = searchBySize.split("-");
     sizeConditionsForAND.push({
@@ -48,7 +51,9 @@ export async function getProductsInfineScroll(keys: {
 
   // * Add price condition.
   const searchByPrice =
-    searchFilters && searchFilters.price ? String(searchFilters.price) : null;
+    searchFilters !== null && searchFilters.price !== null
+      ? String(searchFilters.price)
+      : null;
   if (searchByPrice !== null) {
     const prices = searchByPrice.split("-");
     sizeConditionsForAND.push({
@@ -60,7 +65,7 @@ export async function getProductsInfineScroll(keys: {
   }
 
   // * Add stock condition.
-  if (searchFilters && searchFilters.stock) {
+  if (searchFilters !== null && searchFilters.stock !== null) {
     if (searchFilters.stock === "inStock") {
       sizeConditionsForAND.push({
         stock: {
@@ -101,7 +106,7 @@ export async function getProductsInfineScroll(keys: {
       searchFilters.brand.trim() !== ""
     ) {
       // If brand is a empty string, use 'equals'.
-      brandFilter = { equals: searchFilters.brand };
+      brandFilter = { equals: searchFilters.brand, mode: "insensitive" };
     }
   }
 
@@ -121,15 +126,17 @@ export async function getProductsInfineScroll(keys: {
 
   // * Add styles to search clause.
   if (searchFilters && searchFilters.style) {
-    if (Array.isArray(searchFilters.style) && searchFilters.style.length > 0) {
-      // If style is an array of strings, use the 'in' operator.
-      styleFilter = { in: searchFilters.style };
-    } else if (
-      typeof searchFilters.style === "string" &&
-      searchFilters.style.trim() !== ""
-    ) {
-      // If style is a string, use 'equals'
+    if (typeof searchFilters.style === "string" && searchFilters.style.trim() !== "") {
+      // If style is a string, use 'equals'.
       styleFilter = { equals: searchFilters.style, mode: "insensitive" };
+    }
+  }
+
+  // * Add styles to search clause.
+  if (searchFilters && searchFilters.type) {
+    if (typeof searchFilters.type === "string" && searchFilters.type.trim() !== "") {
+      // If style is a string, use 'equals'.
+      typeFilter = { contains: searchFilters.type, mode: "insensitive" };
     }
   }
 
@@ -150,15 +157,27 @@ export async function getProductsInfineScroll(keys: {
           }
         : searchFilters
         ? {
-            name: {
-              contains: searchFilters?.searchTerm,
-              mode: "insensitive",
-            },
-            type: searchBySize !== null ? "knife" : undefined,
-            style: searchFilters?.style === "all" ? undefined : styleFilter,
-            material: searchFilters?.material === "all" ? undefined : materialFilter,
-            brand: searchFilters?.brand === "all" ? undefined : brandFilter,
-            sizes: sizesFilter,
+            AND: [
+              {
+                name: {
+                  contains: searchFilters?.searchTerm,
+                  mode: "insensitive",
+                },
+              },
+              { type: searchFilters?.type === "all" ? undefined : typeFilter },
+              {
+                style: searchFilters?.style === "all" ? undefined : styleFilter,
+              },
+              {
+                material: searchFilters?.material === "all" ? undefined : materialFilter,
+              },
+              {
+                brand: searchFilters?.brand === "all" ? undefined : brandFilter,
+              },
+              {
+                sizes: sizesFilter,
+              },
+            ],
           }
         : undefined,
       include: {
@@ -469,8 +488,6 @@ export async function saveSize({
   if (!productId) {
     return null;
   }
-
-  console.log(sizeData);
 
   const updateQuery = {
     update: {

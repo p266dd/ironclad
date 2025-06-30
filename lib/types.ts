@@ -15,6 +15,7 @@ export type TActiveFilters = {
 
 export type TSearchFields = {
   searchTerm?: string;
+  type?: string;
   style?: string;
   stock?: string;
   price: {
