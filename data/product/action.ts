@@ -34,15 +34,17 @@ export async function getProductsInfineScroll(keys: {
 
   // * Add size condition.
   // * Cannot use due because of the possible format 120*100*10cm
-  // if (searchFilters && searchFilters.size) {
-  //   const sizes = searchFilters.size.split("-");
-  //   sizeConditionsForAND.push({
-  //     size: {
-  //       gte: Number(sizes[0]), // Greater than or equal to minSize.
-  //       lte: Number(sizes[1]), // Less than or equal to maxSize.
-  //     },
-  //   });
-  // }
+  const searchBySize =
+    searchFilters && searchFilters.size ? String(searchFilters.size) : null;
+  if (searchBySize !== null) {
+    const sizes = searchBySize.split("-");
+    sizeConditionsForAND.push({
+      size: {
+        gte: Number(sizes[0]), // Greater than or equal to minSize.
+        lte: Number(sizes[1]), // Less than or equal to maxSize.
+      },
+    });
+  }
 
   // * Add price condition.
   const searchByPrice =
@@ -152,6 +154,7 @@ export async function getProductsInfineScroll(keys: {
               contains: searchFilters?.searchTerm,
               mode: "insensitive",
             },
+            type: searchBySize !== null ? "knife" : undefined,
             style: searchFilters?.style === "all" ? undefined : styleFilter,
             material: searchFilters?.material === "all" ? undefined : materialFilter,
             brand: searchFilters?.brand === "all" ? undefined : brandFilter,

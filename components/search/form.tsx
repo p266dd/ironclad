@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { redirect, RedirectType, useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import SearchPreview from "./preview";
 import RangeSlider from "./range-slider";
 
@@ -48,6 +48,8 @@ export default function SearchForm({
     }
   };
 
+  const router = useRouter();
+
   const [searchState, setSearchState] = useState<TSearchFields>({
     searchTerm: searchParams.get("searchTerms") || "",
     style: searchParams.get("style") || "all",
@@ -55,6 +57,10 @@ export default function SearchForm({
     price: {
       min: getRange("price")?.min || 0,
       max: getRange("price")?.max || 90000,
+    },
+    size: {
+      min: getRange("size")?.min || 0,
+      max: getRange("size")?.max || 400,
     },
     brand: searchParams.getAll("brand") || [],
     material: searchParams.getAll("material") || [],
@@ -80,6 +86,17 @@ export default function SearchForm({
         ) {
           searchParams.append(key, `${value.min}-${value.max}`);
         }
+      } else if (key === "size") {
+        // Only append if min/max are defined.
+        if (
+          typeof value === "object" &&
+          "min" in value &&
+          "max" in value &&
+          value.min !== undefined &&
+          value.max !== undefined
+        ) {
+          searchParams.append(key, `${value.min}-${value.max}`);
+        }
       } else if (key === "searchTerm") {
         // Only append if searchTerm isn't empty.
         if (value !== "") {
@@ -94,7 +111,7 @@ export default function SearchForm({
 
     setLoading(false);
     if (remoteClose !== undefined) remoteClose();
-    redirect(`/search/results?${searchParams.toString()}`, RedirectType.push);
+    router.push(`/search/results?${searchParams.toString()}`);
   };
 
   return (
@@ -243,11 +260,11 @@ export default function SearchForm({
             }}
           />
         </div>
-        {/* <div className="flex-1 w-full">
+
+        <div className="flex-1 w-full">
           <div>
             <p className="text-lg text-slate-500 mb-2">Product Sizes</p>
           </div>
-
           <RangeSlider
             label="Size"
             min={70}
@@ -257,7 +274,7 @@ export default function SearchForm({
               setSearchState((prev) => ({ ...prev, size: data }));
             }}
           />
-        </div> */}
+        </div>
       </div>
 
       <div className="mb-6 max-w-6xl">

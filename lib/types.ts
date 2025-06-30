@@ -21,6 +21,10 @@ export type TSearchFields = {
     min: number;
     max: number;
   };
+  size: {
+    min: number;
+    max: number;
+  };
   brand: string | string[];
   material: string | string[];
 };
