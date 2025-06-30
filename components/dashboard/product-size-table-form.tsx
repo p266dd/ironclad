@@ -133,6 +133,7 @@ export default function ProductSizesTableForm({
                     type="text"
                     name="name"
                     id="sizeName"
+                    required
                     className="bg-white"
                     autoComplete="off"
                     defaultValue={edit ? editObject?.name : ""}
@@ -148,6 +149,7 @@ export default function ProductSizesTableForm({
                       type="number"
                       name="size"
                       id="size"
+                      required
                       className="bg-white"
                       autoComplete="off"
                       defaultValue={edit ? editObject?.size || 0 : ""}
@@ -167,6 +169,7 @@ export default function ProductSizesTableForm({
                       type="text"
                       name="dimension"
                       id="dimension"
+                      required
                       className="bg-white"
                       autoComplete="off"
                       defaultValue={edit ? editObject?.dimension || "0mm" : ""}
@@ -187,6 +190,7 @@ export default function ProductSizesTableForm({
                     type="string"
                     name="price"
                     id="price"
+                    required
                     className="bg-white"
                     autoComplete="off"
                     defaultValue={edit ? editObject?.price?.toLocaleString("ja-JP") : ""}
@@ -220,6 +224,7 @@ export default function ProductSizesTableForm({
                     type="text"
                     name="stock"
                     id="stock"
+                    required
                     className="bg-white"
                     autoComplete="off"
                     defaultValue={edit ? editObject?.stock : ""}

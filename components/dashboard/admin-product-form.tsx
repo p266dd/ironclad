@@ -350,8 +350,9 @@ export default function AdminProductForm({
                 type="text"
                 name="name"
                 id="name"
-                defaultValue={product?.name || ""}
+                defaultValue={isNew ? "COPY " + product?.name : ""}
                 className="capitalize"
+                required
                 placeholder=""
               />
             </div>
@@ -377,6 +378,7 @@ export default function AdminProductForm({
               <div className="flex items-center gap-2">
                 <Select
                   name="brand"
+                  required
                   value={productBrand}
                   onValueChange={(value) => setProductBrand(value)}
                 >
@@ -410,7 +412,7 @@ export default function AdminProductForm({
               <Label asChild>
                 <p>Style</p>
               </Label>
-              <Select defaultValue={product?.style || undefined} name="style">
+              <Select defaultValue={product?.style || undefined} name="style" required>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select style" />
                 </SelectTrigger>
@@ -427,7 +429,11 @@ export default function AdminProductForm({
                 <p>Material</p>
               </Label>
               <div className="flex items-center gap-2">
-                <Select defaultValue={product?.material || undefined} name="material">
+                <Select
+                  defaultValue={product?.material || undefined}
+                  name="material"
+                  required
+                >
                   <SelectTrigger className="w-full">
                     <SelectValue
                       placeholder={
@@ -457,7 +463,11 @@ export default function AdminProductForm({
               </Label>
               <div className="flex flex-col gap-4">
                 <div className="flex items-center gap-2">
-                  <Select defaultValue={product?.handle || undefined} name="handle">
+                  <Select
+                    defaultValue={product?.handle || undefined}
+                    name="handle"
+                    required
+                  >
                     <SelectTrigger className="w-full">
                       <SelectValue
                         placeholder={
@@ -668,6 +678,7 @@ export default function AdminProductForm({
                                   type="text"
                                   name="name"
                                   autoComplete="off"
+                                  required
                                   defaultValue={filter?.name || ""}
                                 />
                                 <Input

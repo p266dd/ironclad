@@ -196,6 +196,7 @@ export default function AdminUserForm({
               defaultValue={user?.businessName || ""}
               className="capitalize"
               placeholder=""
+              required
             />
           </div>
 

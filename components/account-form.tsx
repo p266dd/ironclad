@@ -215,7 +215,7 @@ export default function AccountForm({ currentInfo }: { currentInfo: TAccountChan
                 }}
               />
 
-              <span className="absolute right-2 bottom-[6px] z-30">
+              <span className="absolute right-2 bottom-[6px]">
                 {code === null ? (
                   <Badge
                     variant="default"
