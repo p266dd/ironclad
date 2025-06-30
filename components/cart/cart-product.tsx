@@ -94,7 +94,12 @@ export default function SingleCartProduct({
     setLoading(true);
     const deletedQuantity = await deleteOrderProductSize({ cartProductId, sizeId });
 
-    if (!deletedQuantity) {
+    if (deletedQuantity == null) {
+      toast.error("Product has been removed.");
+      return;
+    }
+
+    if ("success" in deletedQuantity && deletedQuantity.success === false) {
       toast.error("Failed to update quantity.");
       return;
     }
@@ -413,7 +418,6 @@ export default function SingleCartProduct({
                   value={unsavedChanges?.request ?? product.request ?? ""}
                   disabled={false}
                   onChange={(e) => {
-                    console.log(typeof e.target.value);
                     if (!save) setSave(true);
                     setUnsavedChanges((prev) => ({ ...prev, request: e.target.value }));
                   }}

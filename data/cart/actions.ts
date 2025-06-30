@@ -168,8 +168,6 @@ export async function updateProductFromCart(
         : "",
   };
 
-  // console.log(inputData.details);
-
   try {
     // Validate data.
     const validatedData = await CartProductCreateSchema.validate(inputData, {
@@ -417,6 +415,19 @@ export async function deleteOrderProductSize({
     const newDetails = Array.isArray(oldDetails)
       ? oldDetails.filter((detail) => detail.sizeId !== sizeId)
       : [];
+
+    if (newDetails.length === 0) {
+      await prisma.cartProduct.delete({
+        where: {
+          id: cartProductId,
+        },
+        select: {
+          id: true,
+        },
+      });
+      revalidatePath("/cart");
+      return null;
+    }
 
     const cart = await prisma.cartProduct.update({
       where: {
