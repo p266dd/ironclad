@@ -16,7 +16,7 @@ export default function DashboardLogout() {
   return (
     <Card className="text-primary-foreground border-0 bg-transparent shadow-none">
       <CardHeader>
-        <CardTitle>Dhavidy Pires</CardTitle>
+        <CardTitle></CardTitle>
         <CardDescription>Logged In</CardDescription>
       </CardHeader>
       <CardContent>
