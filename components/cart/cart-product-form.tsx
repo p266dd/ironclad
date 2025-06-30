@@ -30,7 +30,7 @@ export default function CartProduct({
   return (
     <div className="flex flex-col gap-y-8 gap-x-20 lg:flex-row">
       <div className="flex flex-col gap-3">
-        {cartProducts.map((product) => (
+        {cartProducts?.map((product) => (
           <SingleCartProduct
             key={product.id}
             product={product}

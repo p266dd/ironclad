@@ -114,8 +114,8 @@ export default function ProductPageForm({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {product.sizes.length > 0 ? (
-              product.sizes.map((size) => {
+            {product?.sizes?.length > 0 ? (
+              product?.sizes.map((size) => {
                 const productDetails = details as {
                   sizeId: number;
                   quantity: number;
@@ -131,9 +131,11 @@ export default function ProductPageForm({
                   <TableRow key={size.id}>
                     <TableCell>
                       <p>
-                        <span className="text-lg">{size.name}</span>
+                        <span className="text-lg">{size?.name}</span>
                         <br />
-                        <span className="text-sm">{size.size}</span>
+                        <span className="text-sm">
+                          {product?.type === "knife" ? size?.size : size?.dimension}
+                        </span>
                       </p>
                     </TableCell>
                     <TableCell>
@@ -141,19 +143,19 @@ export default function ProductPageForm({
                         {new Intl.NumberFormat("ja-JP", {
                           style: "currency",
                           currency: "JPY",
-                        }).format(size.price)}{" "}
+                        }).format(size?.price)}{" "}
                         <span className="text-xs">ea.</span>
                       </p>
                     </TableCell>
                     <TableCell>
-                      <p className="text-lg font-semibold">{size.stock}</p>
+                      <p className="text-lg font-semibold">{size?.stock}</p>
                     </TableCell>
                     <TableCell>
                       <Input
                         type="number"
-                        max={size.stock}
+                        max={size?.stock}
                         min={0}
-                        name={`size_${size.id}`}
+                        name={`size_${size?.id}`}
                         placeholder="0"
                         autoComplete="off"
                         className="px-1 text-center"
@@ -206,7 +208,7 @@ export default function ProductPageForm({
           <Select
             disabled={false}
             name="brand"
-            defaultValue={cart?.brand || product.brand}
+            defaultValue={cart?.brand || product?.brand}
             onValueChange={(value) =>
               value === "other" ? setOtherEngraving(true) : setOtherEngraving(false)
             }
@@ -215,13 +217,13 @@ export default function ProductPageForm({
               <SelectValue placeholder="Choose engraving brand." />
             </SelectTrigger>
             <SelectContent>
-              {preferences && preferences.length > 0 && (
+              {preferences && preferences?.length > 0 && (
                 <SelectGroup>
                   <SelectLabel>Saved Preferences</SelectLabel>
                   {preferences.map((value, i) => {
                     return (
-                      <SelectItem key={`engraving-${i}`} value={value.slug}>
-                        {value.name}
+                      <SelectItem key={`engraving-${i}`} value={value?.slug}>
+                        {value?.name}
                       </SelectItem>
                     );
                   })}
@@ -229,12 +231,12 @@ export default function ProductPageForm({
               )}
               <SelectGroup>
                 <SelectLabel>Default</SelectLabel>
-                <SelectItem value={product.brand} className="capitalize">
-                  {product.brand}
+                <SelectItem value={product?.brand} className="capitalize">
+                  {product?.brand}
                 </SelectItem>
               </SelectGroup>
 
-              {product.brand === "OEM" && (
+              {product?.brand === "OEM" && (
                 <SelectGroup>
                   <SelectLabel>Write Your Own</SelectLabel>
                   <SelectItem value="other" className="capitalize">
@@ -261,7 +263,7 @@ export default function ProductPageForm({
           <Select
             disabled={false}
             name="handle"
-            defaultValue={cart?.handle || product.handle}
+            defaultValue={cart?.handle || product?.handle}
             onValueChange={(value) =>
               value === "custom" ? setOtherHandle(true) : setOtherHandle(false)
             }
@@ -270,23 +272,23 @@ export default function ProductPageForm({
               <SelectValue placeholder="Choose engraving brand." />
             </SelectTrigger>
             <SelectContent>
-              {cart && cart.handle && cart.handle !== product.handle && (
+              {cart && cart?.handle && cart?.handle !== product?.handle && (
                 <SelectGroup>
                   <SelectLabel>Current In Cart</SelectLabel>
-                  <SelectItem value={cart.handle || ""} className="capitalize">
-                    {cart.handle}
+                  <SelectItem value={cart?.handle || ""} className="capitalize">
+                    {cart?.handle}
                   </SelectItem>
                 </SelectGroup>
               )}
 
               <SelectGroup>
                 <SelectLabel>Default</SelectLabel>
-                <SelectItem value={product.handle} className="capitalize">
-                  {product.handle}
+                <SelectItem value={product?.handle} className="capitalize">
+                  {product?.handle}
                 </SelectItem>
               </SelectGroup>
 
-              {product.canChangeHandle && (
+              {product?.canChangeHandle && (
                 <SelectGroup>
                   <SelectLabel>Custom</SelectLabel>
                   <SelectItem value="custom" className="capitalize">

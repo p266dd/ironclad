@@ -57,7 +57,7 @@ export default function AccountForm({ currentInfo }: { currentInfo: TAccountChan
     const data = new FormData(e.currentTarget);
     const formData = Object.fromEntries(data.entries()) as TAccountChange;
     const updatedUser = await updateOwnUser(formData);
-    if ("error" in updatedUser && typeof updatedUser.error === "string") {
+    if ("error" in updatedUser && typeof updatedUser?.error === "string") {
       toast.error(`${updatedUser.error}`);
       setLoading(false);
       return;
@@ -71,8 +71,8 @@ export default function AccountForm({ currentInfo }: { currentInfo: TAccountChan
     e.preventDefault();
     setLoading(true);
     const updatedPreference = await updateUserPreferences(unsavedPreference);
-    if ("error" in updatedPreference && typeof updatedPreference.error === "string") {
-      toast.error(`${updatedPreference.error}`);
+    if ("error" in updatedPreference && typeof updatedPreference?.error === "string") {
+      toast.error(`${updatedPreference?.error}`);
       setLoading(false);
       return;
     }
@@ -84,7 +84,7 @@ export default function AccountForm({ currentInfo }: { currentInfo: TAccountChan
 
   const validateBusinessCode = async (code: string) => {
     const validUsers = await verifyBusinessCode(code);
-    if (validUsers === null || validUsers === undefined || validUsers.length === 0) {
+    if (validUsers === null || validUsers === undefined || validUsers?.length === 0) {
       return false;
     }
     return true;

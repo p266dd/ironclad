@@ -146,7 +146,7 @@ export default function SingleCartProduct({
   return (
     <Accordion type="single" collapsible>
       <AccordionItem
-        value={product.cartId}
+        value={product?.cartId}
         className="data-[state=open]:bg-slate-100 rounded-lg px-4"
       >
         <AccordionTrigger className="flex items-center">
@@ -154,22 +154,22 @@ export default function SingleCartProduct({
             <div className="w-1/4 lg:w-auto lg:mr-4">
               <img
                 src={productThumbnail || FallbackImage.src}
-                alt={product.product.name || "Product Thumbnail"}
+                alt={product.product?.name || "Product Thumbnail"}
                 className="max-h-[200px] rounded-md overflow-hidden"
               />
             </div>
             <div className="w-3/4 flex flex-col">
               <h4 className="capitalize font-semibold text-lg leading-snug mb-2 lg:text-2xl">
-                {product.product.name}
+                {product?.product?.name}
               </h4>
               <p className="lg:text-base capitalize">
-                <strong>Brand:</strong> {product.brand}
+                <strong>Brand:</strong> {product?.brand}
               </p>
               <p className="lg:text-base capitalize">
-                <strong>Handle:</strong> {product.handle}
+                <strong>Handle:</strong> {product?.handle}
               </p>
               <p className="lg:text-base w-full max-w-[200px] md:max-w-[500px] truncate">
-                <strong>Request:</strong> {product.request || "No special request."}
+                <strong>Request:</strong> {product?.request || "No special request."}
               </p>
             </div>
           </div>
@@ -182,7 +182,7 @@ export default function SingleCartProduct({
               className="w-full flex items-center justify-center"
               asChild
             >
-              <Link className="text-xs" href={"/products/" + product.product.id}>
+              <Link className="text-xs" href={"/products/" + product?.product?.id}>
                 Open Product Page
               </Link>
             </Button>
@@ -197,26 +197,28 @@ export default function SingleCartProduct({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {productDetail.map((detail) => {
-                  const matchingProduct = product.product.sizes.find(
-                    (size) => size.id === detail.sizeId
+                {productDetail?.map((detail) => {
+                  const matchingProduct = product?.product?.sizes.find(
+                    (size) => size?.id === detail?.sizeId
                   );
                   if (!matchingProduct) return null;
 
                   return (
-                    <TableRow key={matchingProduct.id}>
+                    <TableRow key={matchingProduct?.id}>
                       <TableCell>
-                        <h4 className="text-lg leading-tight">{matchingProduct.name}</h4>
-                        <p className="text-sm">{matchingProduct.size}</p>
+                        <h4 className="text-lg leading-tight">{matchingProduct?.name}</h4>
+                        <p className="text-sm">{matchingProduct?.size}</p>
                       </TableCell>
                       <TableCell>
-                        <h4 className="text-lg font-semibold">{matchingProduct.stock}</h4>
+                        <h4 className="text-lg font-semibold">
+                          {matchingProduct?.stock}
+                        </h4>
                       </TableCell>
                       <TableCell>
                         <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
                           <PopoverTrigger>
                             <h4 className="text-lg font-semibold flex items-center gap-2">
-                              {detail.quantity} <PencilIcon size={14} />
+                              {detail?.quantity} <PencilIcon size={14} />
                             </h4>
                           </PopoverTrigger>
                           <PopoverContent align="start" side="top">
@@ -230,19 +232,19 @@ export default function SingleCartProduct({
                                     <Input
                                       type="hidden"
                                       name="cartProductId"
-                                      value={product.id}
+                                      value={product?.id}
                                       readOnly
                                     />
                                     <Input
                                       type="hidden"
                                       name="sizeId"
-                                      value={detail.sizeId}
+                                      value={detail?.sizeId}
                                       readOnly
                                     />
                                     <Input
                                       name="newQuantity"
                                       type="number"
-                                      defaultValue={detail.quantity}
+                                      defaultValue={detail?.quantity}
                                     />
                                     <Button type="submit" variant="default">
                                       <CheckCheckIcon />
@@ -251,8 +253,8 @@ export default function SingleCartProduct({
                                       type="button"
                                       onClick={() =>
                                         handleDeleteQuantity({
-                                          cartProductId: product.id,
-                                          sizeId: detail.sizeId,
+                                          cartProductId: product?.id,
+                                          sizeId: detail?.sizeId,
                                         })
                                       }
                                       variant="destructive"
@@ -278,7 +280,9 @@ export default function SingleCartProduct({
                 <Select
                   disabled={false}
                   name="brand"
-                  value={unsavedChanges?.brand || product.brand || product.product.brand}
+                  value={
+                    unsavedChanges?.brand || product?.brand || product?.product.brand
+                  }
                   onValueChange={(value) => {
                     setSave(true);
                     if (value === "other") setOtherEngraving(true);
@@ -292,26 +296,26 @@ export default function SingleCartProduct({
                     />
                   </SelectTrigger>
                   <SelectContent>
-                    {product.brand !== product.product.brand && (
+                    {product?.brand !== product.product?.brand && (
                       <SelectGroup>
                         <SelectLabel>Current In Cart</SelectLabel>
-                        <SelectItem value={product.brand} className="capitalize">
-                          {product.brand}
+                        <SelectItem value={product?.brand} className="capitalize">
+                          {product?.brand}
                         </SelectItem>
                       </SelectGroup>
                     )}
-                    {preferences && preferences.length > 0 && (
+                    {preferences && preferences?.length > 0 && (
                       <SelectGroup>
                         <SelectLabel>Saved Preferences</SelectLabel>
                         {preferences.map(
                           (value, i) =>
-                            value.slug !== product.brand && (
+                            value.slug !== product?.brand && (
                               <SelectItem
                                 className="capitalize"
                                 key={i}
-                                value={value.slug}
+                                value={value?.slug}
                               >
-                                {value.name}
+                                {value?.name}
                               </SelectItem>
                             )
                         )}
@@ -319,12 +323,12 @@ export default function SingleCartProduct({
                     )}
                     <SelectGroup>
                       <SelectLabel>Default</SelectLabel>
-                      <SelectItem value={product.product.brand} className="capitalize">
-                        {product.product.brand}
+                      <SelectItem value={product?.product?.brand} className="capitalize">
+                        {product?.product?.brand}
                       </SelectItem>
                     </SelectGroup>
 
-                    {product.product.brand === "OEM" && (
+                    {product?.product?.brand === "OEM" && (
                       <SelectGroup>
                         <SelectLabel>Write Your Own</SelectLabel>
                         <SelectItem value="other" className="capitalize">
@@ -356,7 +360,7 @@ export default function SingleCartProduct({
                   disabled={false}
                   name="handle"
                   value={
-                    unsavedChanges?.handle || product.handle || product.product.handle
+                    unsavedChanges?.handle || product?.handle || product?.product?.handle
                   }
                   onValueChange={(value) => {
                     setSave(true);
@@ -368,23 +372,23 @@ export default function SingleCartProduct({
                     <SelectValue placeholder="Choose engraving brand." />
                   </SelectTrigger>
                   <SelectContent>
-                    {product.handle !== product.product.handle && (
+                    {product?.handle !== product?.product?.handle && (
                       <SelectGroup>
                         <SelectLabel>Current In Cart</SelectLabel>
-                        <SelectItem value={product.handle} className="capitalize">
-                          {product.handle}
+                        <SelectItem value={product?.handle} className="capitalize">
+                          {product?.handle}
                         </SelectItem>
                       </SelectGroup>
                     )}
 
                     <SelectGroup>
                       <SelectLabel>Default</SelectLabel>
-                      <SelectItem value={product.product.handle} className="capitalize">
-                        {product.product.handle}
+                      <SelectItem value={product?.product?.handle} className="capitalize">
+                        {product?.product?.handle}
                       </SelectItem>
                     </SelectGroup>
 
-                    {product.product.canChangeHandle && (
+                    {product?.product?.canChangeHandle && (
                       <SelectGroup>
                         <SelectLabel>Custom</SelectLabel>
                         <SelectItem value="custom" className="capitalize">
@@ -415,7 +419,7 @@ export default function SingleCartProduct({
                 <Textarea
                   name="request"
                   placeholder="Type your message here."
-                  value={unsavedChanges?.request ?? product.request ?? ""}
+                  value={unsavedChanges?.request ?? product?.request ?? ""}
                   disabled={false}
                   onChange={(e) => {
                     if (!save) setSave(true);
