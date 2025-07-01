@@ -20,6 +20,7 @@ import { SessionPayload } from "@/lib/session";
 
 // Assets
 import Logo from "@/assets/logo-icon.png";
+import LoadingIndicator from "./loading-indicator";
 
 export default function Navigation({
   cartCount,
@@ -85,6 +86,7 @@ export default function Navigation({
           >
             <HouseIcon strokeWidth={1.3} size={28} />
             Home
+            <LoadingIndicator />
           </Link>
         </div>
 
@@ -107,6 +109,7 @@ export default function Navigation({
               >
                 {link.icon}
                 <span className="tracking-wider"> {link.title}</span>
+                <LoadingIndicator />
                 {link.title === "Cart" && cartCount > 0 ? (
                   <span
                     className={cn(
@@ -144,6 +147,7 @@ export default function Navigation({
             >
               <LayoutDashboard />
               <span className="tracking-wider">Dashboard</span>
+              <LoadingIndicator />
             </Link>
           </div>
         )}
@@ -157,7 +161,7 @@ export default function Navigation({
             "md:hidden"
           )}
         >
-          <LayoutDashboard size={18} strokeWidth={1.3} />
+          <LoadingIndicator /> <LayoutDashboard size={18} strokeWidth={1.3} />
           <span>Dashboard</span>
         </Link>
       )}

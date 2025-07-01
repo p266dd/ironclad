@@ -24,7 +24,7 @@ import {
   DialogTitle,
   DialogHeader,
 } from "@/components/ui/dialog";
-import { MousePointerClickIcon } from "lucide-react";
+import { LoaderCircleIcon, MousePointerClickIcon } from "lucide-react";
 
 // Types & Schemas
 import { Prisma } from "@/lib/generated/prisma";
@@ -32,12 +32,14 @@ import { Prisma } from "@/lib/generated/prisma";
 // Import fallback image.
 import FallbackImage from "@/assets/product-fallback.webp";
 import FavoriteButton from "../favorite-button";
+import LoadingIndicator from "../loading-indicator";
 
 export default function ProductModal({
   product,
 }: {
   product: Prisma.ProductGetPayload<{ include: { thumbnail: true; media: true } }>;
 }) {
+  const [loadingNavigation, setLoadingnavigation] = useState("");
   const [open, setOpen] = useState(false);
   const triggerRef = useRef<HTMLDivElement | null>(null);
   const router = useRouter();
@@ -91,6 +93,7 @@ export default function ProductModal({
         if (duration <= 400 && !hasMoved) {
           // Treat as a click if very short hold.
           router.push("/products/" + product.id);
+          setLoadingnavigation(product.id);
         }
         return;
       });
@@ -113,6 +116,7 @@ export default function ProductModal({
         clearTimeout(clickTimer);
         clickTimer = setTimeout(() => {
           router.push("/products/" + product.id);
+          setLoadingnavigation(product.id);
         }, 200);
         return;
       });
@@ -141,6 +145,11 @@ export default function ProductModal({
           className="object-cover rounded-md overflow-hidden border"
           fill
         />
+        {loadingNavigation === product.id && (
+          <span className="absolute top-2 right-2 p-1 bg-white/30 rounded-full">
+            <LoaderCircleIcon className="animate-spin" />
+          </span>
+        )}
       </div>
       <Dialog open={open} onOpenChange={() => setOpen((prev) => !prev)}>
         <DialogContent
@@ -195,6 +204,7 @@ export default function ProductModal({
                   <MousePointerClickIcon color="#ccc" />
                 </span>
                 <Button type="button" className="mt-2">
+                  <LoadingIndicator />
                   See Product
                 </Button>
               </div>
