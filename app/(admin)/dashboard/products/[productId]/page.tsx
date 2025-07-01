@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { toast } from "sonner";
 import BackButton from "@/components/back-button";
 import PageTitle from "@/components/page-title";
 import AdminProductForm from "@/components/dashboard/admin-product-form";
@@ -14,7 +13,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { AnnoyedIcon, PlusCircleIcon, TrashIcon } from "lucide-react";
+import { AnnoyedIcon, PlusCircleIcon } from "lucide-react";
 import DeleteProductIcon from "@/components/dashboard/delete-product-icon";
 import LoadingIndicator from "@/components/loading-indicator";
 
