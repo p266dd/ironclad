@@ -5,6 +5,7 @@ import AdminUsersTable from "@/components/dashboard/user-table";
 
 import { Button } from "@/components/ui/button";
 import { PlusCircleIcon } from "lucide-react";
+import LoadingIndicator from "@/components/loading-indicator";
 
 export default async function AdminProductsPage() {
   return (
@@ -19,6 +20,7 @@ export default async function AdminProductsPage() {
         <div>
           <Button asChild variant="default" size="lg">
             <Link href="/dashboard/users/add">
+              <LoadingIndicator />
               <PlusCircleIcon /> New Client
             </Link>
           </Button>

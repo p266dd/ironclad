@@ -221,6 +221,29 @@ export async function getProduct(productId: string) {
   }
 }
 
+export async function deleteProduct(productId: string) {
+  await verifyAdminSession();
+
+  try {
+    const product = await prisma.product.delete({
+      where: {
+        id: productId,
+      },
+    });
+
+    revalidatePath("/admin/products");
+    revalidatePath("/admin/products/" + productId);
+    revalidatePath("/dashboard/products");
+    revalidatePath("/dashboard/products/" + productId);
+
+    return product;
+  } catch (error) {
+    const errorMessage = await generatePrismaErrorMessage(error, "product", "delete");
+    console.error(errorMessage);
+    return null;
+  }
+}
+
 export async function getProductsPreview(searchTerm: string) {
   await verifyUserSession();
 

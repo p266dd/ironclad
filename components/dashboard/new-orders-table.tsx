@@ -33,6 +33,8 @@ import { fetchOrders, completeOrder, deleteOrder } from "@/data/order/action";
 
 // Types
 import { Prisma } from "@/lib/generated/prisma";
+import { useState } from "react";
+
 type OrderResponse = Prisma.OrderGetPayload<{
   include: {
     client: {
@@ -43,27 +45,34 @@ type OrderResponse = Prisma.OrderGetPayload<{
   };
 }>;
 
-const handleComplete = async (orderId: string) => {
-  await completeOrder({
-    orderId,
-    status: "completed",
-  });
-  toast.success("Order was marked as completed.");
-  mutate("getOrders");
-  mutate("getNewOrders");
-};
-
-const handleDelete = async (orderId: string) => {
-  await deleteOrder({
-    orderId,
-  });
-  toast.success("Order was deleted.");
-  mutate("getOrders");
-  mutate("getNewOrders");
-};
-
 export default function AdminNewOrdersTable() {
+  const [loadingAction, setLoadingAction] = useState("");
+  const [loadingNavigation, setLoadingNavigation] = useState("");
+
   const router = useRouter();
+
+  const handleComplete = async (orderId: string) => {
+    setLoadingAction(orderId);
+    await completeOrder({
+      orderId,
+      status: "completed",
+    });
+    toast.success("Order was marked as completed.");
+    mutate("getOrders");
+    mutate("getNewOrders");
+    setLoadingAction("");
+  };
+
+  const handleDelete = async (orderId: string) => {
+    setLoadingAction(orderId);
+    await deleteOrder({
+      orderId,
+    });
+    toast.success("Order was deleted.");
+    mutate("getOrders");
+    mutate("getNewOrders");
+    setLoadingAction("");
+  };
 
   const { data, error, isLoading } = useSWR("getNewOrders", () =>
     fetchOrders({
@@ -112,26 +121,42 @@ export default function AdminNewOrdersTable() {
             <TableRow key={order.id}>
               <TableCell
                 className="cursor-pointer"
-                onClick={() => router.push("/dashboard/orders/" + order.id)}
+                onClick={() => {
+                  setLoadingNavigation(order.id);
+                  router.push("/dashboard/orders/" + order.id);
+                }}
               >
+                {loadingNavigation === order.id || loadingAction === order.id ? (
+                  <LoaderCircleIcon className="animate-spin" />
+                ) : null}{" "}
                 {format(order.createdAt, "MM/dd")}
               </TableCell>
               <TableCell
                 className="cursor-pointer"
-                onClick={() => router.push("/dashboard/orders/" + order.id)}
+                onClick={() => {
+                  setLoadingNavigation(order.id);
+                  router.push("/dashboard/orders/" + order.id);
+                }}
               >
                 {order.code.split("-")[1]}
               </TableCell>
               <TableCell
                 className="cursor-pointer overflow-hidden overflow-ellipsis w-[50px]"
-                onClick={() => router.push("/dashboard/orders/" + order.id)}
+                onClick={() => {
+                  setLoadingNavigation(order.id);
+                  router.push("/dashboard/orders/" + order.id);
+                }}
               >
                 {order.client.businessName}
               </TableCell>
               <TableCell className="text-right">
                 <DropdownMenu>
                   <DropdownMenuTrigger>
-                    <EllipsisIcon />
+                    {loadingAction === order.id ? (
+                      <LoaderCircleIcon className="animate-spin" />
+                    ) : (
+                      <EllipsisIcon />
+                    )}
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
@@ -146,6 +171,7 @@ export default function AdminNewOrdersTable() {
                     <DropdownMenuItem
                       className="cursor-pointer"
                       onClick={() => {
+                        setLoadingNavigation(order.id);
                         router.push("/dashboard/orders/" + order.id + "/print");
                       }}
                     >

@@ -1,7 +1,9 @@
 import Link from "next/link";
+import { toast } from "sonner";
 import BackButton from "@/components/back-button";
 import PageTitle from "@/components/page-title";
 import AdminProductForm from "@/components/dashboard/admin-product-form";
+import { getProductById } from "@/data/product/action";
 
 // Shadcn
 import {
@@ -12,9 +14,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { AnnoyedIcon, PlusCircleIcon } from "lucide-react";
-
-import { getProductById } from "@/data/product/action";
+import { AnnoyedIcon, PlusCircleIcon, TrashIcon } from "lucide-react";
+import DeleteProductIcon from "@/components/dashboard/delete-product-icon";
+import LoadingIndicator from "@/components/loading-indicator";
 
 export default async function AdminSingleProductPage({
   params,
@@ -35,14 +37,16 @@ export default async function AdminSingleProductPage({
 
       <PageTitle title={product?.name || "Product Details"} subtitle="Product Name" />
 
-      <div className="flex tems-center justify-between my-6">
+      <div className="flex tems-center gap-4 my-6">
         <div>
-          <Button asChild variant="secondary">
+          <Button asChild variant="outline">
             <Link href={`/dashboard/products/add?starter=${product?.id}`}>
+              <LoadingIndicator />
               <PlusCircleIcon /> Create a Copy
             </Link>
           </Button>
         </div>
+        <div>{product?.id && <DeleteProductIcon productId={product?.id} />}</div>
       </div>
 
       <div className="my-6">

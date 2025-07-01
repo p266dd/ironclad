@@ -35,11 +35,16 @@ import {
   HashIcon,
   LoaderCircleIcon,
   SearchIcon,
+  SearchX,
   XCircle,
   XCircleIcon,
 } from "lucide-react";
 
 export default function AdminProductTable() {
+  const [loadingSearch, setLoadingSearch] = useState(false);
+  const [loadingFilter, setLoadingFilter] = useState(false);
+  const [loadingNavigation, setLoadingNavigation] = useState("");
+
   // * Search input content.
   const [searchQuery, setSearchQuery] = useState<
     | {
@@ -71,17 +76,20 @@ export default function AdminProductTable() {
 
   // * Set the searchQuery.
   const handleSearch = async (searchTerm: string | undefined) => {
+    setLoadingSearch(true);
     setSearchQuery((prev) => ({
       input: searchTerm !== "" ? searchTerm : undefined,
       filter: prev?.filter,
     }));
     await mutate("getProducts");
     await mutate("getProducts");
+    setLoadingSearch(false);
     router.replace("/dashboard/products?page=1");
   };
 
   // * Set the new filter.
   const handleFilterChange = async (filter?: string) => {
+    setLoadingFilter(true);
     setSearchQuery((prev) => ({
       input: prev?.input,
       filter: filter ? filter : undefined,
@@ -89,6 +97,7 @@ export default function AdminProductTable() {
     await mutate("getProducts");
     await mutate("getProducts");
     router.replace("/dashboard/products?page=1");
+    setLoadingFilter(false);
   };
 
   // * Set the number of items per page.
@@ -246,7 +255,11 @@ export default function AdminProductTable() {
                 variant={searchQuery?.filter ? "default" : "outline"}
               >
                 <span>
-                  <FilterIcon />
+                  {loadingFilter ? (
+                    <LoaderCircleIcon className="animate-spin" />
+                  ) : (
+                    <FilterIcon />
+                  )}
                 </span>
               </Button>
             </DropdownMenuTrigger>
@@ -283,24 +296,38 @@ export default function AdminProductTable() {
           </DropdownMenu>
         </div>
 
-        <div className="flex items-center gap-2">
-          <Input
-            ref={inputRef}
-            name="searchTerm"
-            autoComplete="off"
-            placeholder="Search"
-          />
-          <Button
-            variant={searchQuery?.input ? "default" : "outline"}
-            type="button"
-            onClick={() => handleSearch(inputRef.current?.value)}
-          >
-            <SearchIcon />
-          </Button>
-          <Button variant="outline" type="button" onClick={handleClearSearch}>
-            <XCircle />
-          </Button>
-        </div>
+        <form
+          onSubmit={(e: React.FormEvent<HTMLFormElement>) => {
+            e.preventDefault();
+            handleSearch(inputRef.current?.value);
+          }}
+        >
+          <div className="flex items-center gap-2">
+            <Input
+              ref={inputRef}
+              name="searchTerm"
+              autoComplete="off"
+              placeholder="Search"
+            />
+            <Button
+              variant={searchQuery?.input ? "default" : "outline"}
+              type="button"
+              onClick={() => handleSearch(inputRef.current?.value)}
+            >
+              {loadingSearch ? (
+                <LoaderCircleIcon className="animate-spin" />
+              ) : searchQuery?.input ? (
+                <SearchX />
+              ) : (
+                <SearchIcon />
+              )}
+            </Button>
+
+            <Button variant="outline" type="button" onClick={handleClearSearch}>
+              <XCircle />
+            </Button>
+          </div>
+        </form>
       </div>
 
       <div className="mb-6">
@@ -332,12 +359,15 @@ export default function AdminProductTable() {
                 <TableRow key={product.id}>
                   <TableCell
                     className="cursor-pointer w-[100px]"
-                    onClick={() => router.push("/dashboard/products/" + product.id)}
+                    onClick={() => {
+                      setLoadingNavigation(product.id);
+                      router.push("/dashboard/products/" + product.id);
+                    }}
                   >
                     <div className="relative h-[120px] rounded-lg overflow-hidden">
                       <Image
-                        src={product.thumbnail?.url || "/product-fallback.webp"}
-                        alt={product.thumbnail?.name || "Product Image"}
+                        src={product?.thumbnail?.url || "/product-fallback.webp"}
+                        alt={product?.thumbnail?.name || "Product Image"}
                         fill
                         className="object-cover"
                       />
@@ -345,23 +375,29 @@ export default function AdminProductTable() {
                   </TableCell>
                   <TableCell
                     className="cursor-pointer"
-                    onClick={() => router.push("/dashboard/products/" + product.id)}
+                    onClick={() => {
+                      setLoadingNavigation(product.id);
+                      router.push("/dashboard/products/" + product.id);
+                    }}
                   >
                     <div>
                       <h5 className="font-medium text-lg text-wrap line-clamp-2 capitalize">
-                        {product.name}
+                        {loadingNavigation === product.id ? (
+                          <LoaderCircleIcon className="inline animate-spin mr-2 size-4" />
+                        ) : null}
+                        {product?.name}
                       </h5>
                       <p className="text-sm">
                         <span className="text-slate-500 capitalize">Brand:</span>{" "}
-                        {product.brand}
+                        {product?.brand}
                       </p>
                       <p className="text-sm">
                         <span className="text-slate-500 capitalize">handle:</span>{" "}
-                        {product.handle}
+                        {product?.handle}
                       </p>
                       <p className="text-sm">
                         <span className="text-slate-500 capitalize">Material:</span>{" "}
-                        {product.material}
+                        {product?.material}
                       </p>
                     </div>
                   </TableCell>

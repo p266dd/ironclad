@@ -55,6 +55,10 @@ type SearchReference = {
 } | null;
 
 export default function AdminUsersTable() {
+  const [loadingSearch, setLoadingSearch] = useState(false);
+  const [loadingAction, setLoadingAction] = useState("");
+  const [loadingNavigation, setLoadingNavigation] = useState("");
+
   // * User's search input content.
   const [searchQuery, setSearchQuery] = useState<SearchReference>(null);
   // * Pagination settings.
@@ -75,10 +79,12 @@ export default function AdminUsersTable() {
 
   // * Set the searchQuery state and set page to 1.
   const handleSearch = async () => {
+    setLoadingSearch(true);
     setSearchQuery(searchReference);
     await mutate("getUsers");
     await mutate("getUsers");
     setPage(1);
+    setLoadingSearch(false);
   };
 
   const handleClearSearch = async () => {
@@ -100,11 +106,13 @@ export default function AdminUsersTable() {
   };
 
   const handleDelete = async (userId: string) => {
+    setLoadingAction(userId);
     await deleteUser({
       userId,
     });
     toast.success("User was deleted.");
     mutate("getUsers");
+    setLoadingAction("");
   };
 
   // Function to render pagination links.
@@ -231,7 +239,11 @@ export default function AdminUsersTable() {
             className="flex-grow md:flex-3/4 cursor-pointer"
             onClick={handleSearch}
           >
-            <SearchIcon />
+            {loadingSearch ? (
+              <LoaderCircleIcon className="animate-spin" />
+            ) : (
+              <SearchIcon />
+            )}
             Search
           </Button>
 
@@ -283,33 +295,52 @@ export default function AdminUsersTable() {
                 <TableRow key={user.id}>
                   <TableCell
                     className="cursor-pointer"
-                    onClick={() => router.push("/dashboard/users/" + user.id)}
+                    onClick={() => {
+                      setLoadingNavigation(user.id);
+                      router.push("/dashboard/users/" + user.id);
+                    }}
                   >
-                    {user.businessName}
+                    {loadingNavigation === user.id || loadingAction !== "" ? (
+                      <LoaderCircleIcon className="inline mr-2 animate-spin size-4" />
+                    ) : null}
+                    {user?.businessName}
                   </TableCell>
                   <TableCell
                     className="cursor-pointer"
-                    onClick={() => router.push("/dashboard/users/" + user.id)}
+                    onClick={() => {
+                      setLoadingNavigation(user.id);
+                      router.push("/dashboard/users/" + user.id);
+                    }}
                   >
-                    {user.name}
+                    {user?.name}
                   </TableCell>
                   <TableCell
                     className="cursor-pointer overflow-hidden overflow-ellipsis w-[50px]"
-                    onClick={() => router.push("/dashboard/users/" + user.id)}
+                    onClick={() => {
+                      setLoadingNavigation(user.id);
+                      router.push("/dashboard/users/" + user.id);
+                    }}
                   >
-                    {user.isActive ? "Yes" : "No"}
+                    {user?.isActive ? "Yes" : "No"}
                   </TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger>
-                        <EllipsisIcon />
+                        {loadingAction === user.id ? (
+                          <LoaderCircleIcon className="animate-spin" />
+                        ) : (
+                          <EllipsisIcon />
+                        )}
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                           className="cursor-pointer"
-                          onClick={() => router.push("/dashboard/users/" + user.id)}
+                          onClick={() => {
+                            setLoadingNavigation(user.id);
+                            router.push("/dashboard/users/" + user.id);
+                          }}
                         >
                           <PencilIcon />
                           Edit
@@ -318,7 +349,11 @@ export default function AdminUsersTable() {
                           className="cursor-pointer"
                           onClick={() => handleDelete(user.id)}
                         >
-                          <Trash2Icon />
+                          {loadingAction === user.id ? (
+                            <LoaderCircleIcon className="animate-spin" />
+                          ) : (
+                            <Trash2Icon />
+                          )}
                           Delete
                         </DropdownMenuItem>
                       </DropdownMenuContent>

@@ -43,6 +43,7 @@ import {
   MinusCircle,
   PencilIcon,
   PlusCircle,
+  PlusCircleIcon,
   PlusIcon,
   SaveIcon,
   TrashIcon,
@@ -350,7 +351,13 @@ export default function AdminProductForm({
                 type="text"
                 name="name"
                 id="name"
-                defaultValue={isNew ? "COPY " + product?.name : ""}
+                defaultValue={
+                  isNew && product?.name
+                    ? "COPY " + product?.name
+                    : product?.name
+                    ? product?.name
+                    : ""
+                }
                 className="capitalize"
                 required
                 placeholder=""
@@ -504,8 +511,14 @@ export default function AdminProductForm({
         </div>
         <div className="my-6">
           <Button type="submit" variant="default" disabled={loading}>
-            {loading ? <LoaderCircleIcon className="animate-spin" /> : <SaveIcon />}
-            {loading ? "Saving..." : "Save Changes"}
+            {loading ? (
+              <LoaderCircleIcon className="animate-spin" />
+            ) : isNew ? (
+              <PlusCircleIcon />
+            ) : (
+              <SaveIcon />
+            )}
+            {loading ? "Saving..." : isNew ? "Create Product" : "Save Changes"}
           </Button>
         </div>
       </form>

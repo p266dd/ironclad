@@ -57,6 +57,10 @@ type SearchReference = {
 } | null;
 
 export default function AdminOrdersTable() {
+  const [loadingAction, setLoadingAction] = useState("");
+  const [loadingSearch, setLoadingSearch] = useState(false);
+  const [loadingNavigation, setLoadingNavigation] = useState("");
+
   // * User's search input content.
   const [searchQuery, setSearchQuery] = useState<SearchReference>(null);
   // * Pagination settings.
@@ -78,10 +82,12 @@ export default function AdminOrdersTable() {
 
   // * Set the searchQuery state and set page to 1.
   const handleSearch = async () => {
+    setLoadingSearch(true);
     setSearchQuery(searchReference);
     await mutate("getOrders");
     await mutate("getOrders");
     setPage(1);
+    setLoadingSearch(false);
   };
 
   const handleClearSearch = async () => {
@@ -103,12 +109,14 @@ export default function AdminOrdersTable() {
   };
 
   const handleDelete = async (orderId: string) => {
+    setLoadingAction(orderId);
     await deleteOrder({
       orderId,
     });
     toast.success("Order was deleted.");
     mutate("getOrders");
     mutate("getNewOrders");
+    setLoadingAction("");
   };
 
   // Function to render pagination links.
@@ -249,7 +257,11 @@ export default function AdminOrdersTable() {
             className="flex-grow md:flex-3/4 cursor-pointer"
             onClick={handleSearch}
           >
-            <SearchIcon />
+            {loadingSearch ? (
+              <LoaderCircleIcon className="animate-spin" />
+            ) : (
+              <SearchIcon />
+            )}
             Search
           </Button>
 
@@ -301,26 +313,42 @@ export default function AdminOrdersTable() {
                 <TableRow key={order.id}>
                   <TableCell
                     className="cursor-pointer"
-                    onClick={() => router.push("/dashboard/orders/" + order.id)}
+                    onClick={() => {
+                      setLoadingNavigation(order.id);
+                      router.push("/dashboard/orders/" + order.id);
+                    }}
                   >
+                    {loadingNavigation === order.id || loadingAction === order.id ? (
+                      <LoaderCircleIcon className="animate-spin" />
+                    ) : null}{" "}
                     {format(order.createdAt, "MM/dd")}
                   </TableCell>
                   <TableCell
                     className="cursor-pointer"
-                    onClick={() => router.push("/dashboard/orders/" + order.id)}
+                    onClick={() => {
+                      setLoadingNavigation(order.id);
+                      router.push("/dashboard/orders/" + order.id);
+                    }}
                   >
                     {order.code.split("-")[1]}
                   </TableCell>
                   <TableCell
                     className="cursor-pointer overflow-hidden overflow-ellipsis w-[50px]"
-                    onClick={() => router.push("/dashboard/orders/" + order.id)}
+                    onClick={() => {
+                      setLoadingNavigation(order.id);
+                      router.push("/dashboard/orders/" + order.id);
+                    }}
                   >
                     {order.client.businessName}
                   </TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger>
-                        <EllipsisIcon />
+                        {loadingAction === order.id ? (
+                          <LoaderCircleIcon className="animate-spin" />
+                        ) : (
+                          <EllipsisIcon />
+                        )}
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
@@ -329,6 +357,7 @@ export default function AdminOrdersTable() {
                         <DropdownMenuItem
                           onClick={(e: React.MouseEvent<HTMLDivElement>) => {
                             e.preventDefault();
+                            setLoadingNavigation(order.id);
                             router.push("/dashboard/orders/" + order.id + "/print");
                           }}
                           className="text-right cursor-pointer"
@@ -337,9 +366,16 @@ export default function AdminOrdersTable() {
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           className="cursor-pointer"
-                          onClick={() => handleDelete(order.id)}
+                          onClick={() => {
+                            setLoadingAction(order.id);
+                            handleDelete(order.id);
+                          }}
                         >
-                          <Trash2Icon />
+                          {loadingAction === order.id ? (
+                            <LoaderCircleIcon className="animate-spin" />
+                          ) : (
+                            <Trash2Icon />
+                          )}
                           Delete
                         </DropdownMenuItem>
                       </DropdownMenuContent>

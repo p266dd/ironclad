@@ -5,6 +5,7 @@ import AdminProductTable from "@/components/dashboard/product-table";
 
 import { Button } from "@/components/ui/button";
 import { PlusCircleIcon } from "lucide-react";
+import LoadingIndicator from "@/components/loading-indicator";
 
 export default async function AdminProductsPage() {
   return (
@@ -19,6 +20,7 @@ export default async function AdminProductsPage() {
         <div>
           <Button asChild variant="default" size="lg">
             <Link href="/dashboard/products/add">
+              <LoadingIndicator />
               <PlusCircleIcon /> Add Product
             </Link>
           </Button>

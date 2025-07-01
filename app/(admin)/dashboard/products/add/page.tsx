@@ -13,8 +13,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { AnnoyedIcon } from "lucide-react";
+import { AnnoyedIcon, CopyCheckIcon } from "lucide-react";
 
 export default async function AdminAddProductPage({
   searchParams,
@@ -34,6 +35,16 @@ export default async function AdminAddProductPage({
       </div>
 
       <PageTitle title="Add New Product" subtitle="" />
+
+      {starter !== null && starter !== undefined && (
+        <div>
+          <Alert variant="default" className="bg-yellow-50">
+            <CopyCheckIcon />
+            <AlertTitle>Creating a copy!</AlertTitle>
+            <AlertDescription>You are creating a copy of a product.</AlertDescription>
+          </Alert>
+        </div>
+      )}
 
       <div className="my-6">
         {starter && result.error && (

@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import DashboardLogout from "./logout";
 import Link from "next/link";
+import LoadingIndicator from "../loading-indicator";
 
 const items = [
   {
@@ -81,10 +82,11 @@ export function DashboardSidebar() {
                     }
                     className="text-base"
                   >
-                    <a href={item.url}>
+                    <Link href={item.url}>
+                      <LoadingIndicator />
                       <item.icon />
                       <span>{item.title}</span>
-                    </a>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
@@ -97,6 +99,7 @@ export function DashboardSidebar() {
             <SidebarMenuItem>
               <SidebarMenuButton asChild className="text-base">
                 <Link href="/dashboard/products/add">
+                  <LoadingIndicator />
                   <PlusCircleIcon />
                   <span>New Product</span>
                 </Link>
@@ -106,6 +109,7 @@ export function DashboardSidebar() {
             <SidebarMenuItem>
               <SidebarMenuButton asChild className="text-base">
                 <Link href="/dashboard/users/add">
+                  <LoadingIndicator />
                   <PlusCircleIcon />
                   <span>New Client</span>
                 </Link>
@@ -115,6 +119,7 @@ export function DashboardSidebar() {
             <SidebarMenuItem>
               <SidebarMenuButton asChild className="text-base">
                 <Link href="/dashboard/orders/add">
+                  <LoadingIndicator />
                   <PlusCircleIcon />
                   <span>New Order</span>
                 </Link>
