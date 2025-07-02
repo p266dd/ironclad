@@ -13,10 +13,11 @@ import { revalidatePath } from "next/cache";
 export async function getMaterials() {
   try {
     const result = await prisma.material.findMany({ orderBy: { name: "asc" } });
-    return { data: result, error: null };
+    return result;
   } catch (error) {
-    const errorMessage = await generatePrismaErrorMessage(error, "Material", "findMany");
-    return { data: null, error: errorMessage };
+    const errorMessage = await generatePrismaErrorMessage(error, "material", "findMany");
+    console.error(errorMessage);
+    return null;
   }
 }
 

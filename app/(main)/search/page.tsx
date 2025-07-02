@@ -13,8 +13,8 @@ export default async function SearchPage() {
       <div className="w-full h-full flex flex-col items-center justify-center">
         <PageTitle title="Search" subtitle="What are you looking for?" />
         <SearchForm
-          availableBrands={availableBrands.data}
-          availableMaterials={availableMaterials.data}
+          availableBrands={availableBrands}
+          availableMaterials={availableMaterials}
         />
       </div>
     </div>

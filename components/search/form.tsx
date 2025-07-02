@@ -33,6 +33,8 @@ export default function SearchForm({
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
 
+  const router = useRouter();
+
   const getRange = (_for: string) => {
     const range = searchParams.get(String(_for));
     if (range) {
@@ -48,23 +50,21 @@ export default function SearchForm({
     }
   };
 
-  const router = useRouter();
-
   const [searchState, setSearchState] = useState<TSearchFields>({
-    searchTerm: searchParams.get("searchTerms") || "",
-    style: searchParams.get("style") || "all",
-    type: searchParams.get("type") || "all",
-    stock: searchParams.get("stock") || "all",
+    searchTerm: searchParams.get("searchTerms") ?? "",
+    style: searchParams.get("style") ?? "all",
+    type: searchParams.get("type") ?? "all",
+    stock: searchParams.get("stock") ?? "all",
     price: {
-      min: getRange("price")?.min || 0,
-      max: getRange("price")?.max || 90000,
+      min: getRange("price")?.min ?? 0,
+      max: getRange("price")?.max ?? 90000,
     },
     size: {
-      min: getRange("size")?.min || 0,
-      max: getRange("size")?.max || 400,
+      min: getRange("size")?.min ?? 0,
+      max: getRange("size")?.max ?? 400,
     },
-    brand: searchParams.getAll("brand") || [],
-    material: searchParams.getAll("material") || [],
+    brand: searchParams.getAll("brand") ?? [],
+    material: searchParams.getAll("material") ?? [],
   });
 
   // Handle the search data url search params.
@@ -140,7 +140,7 @@ export default function SearchForm({
             name="type"
             className="w-4 h-4"
             defaultChecked={
-              searchParams.get("type") === "knife" || searchState.type === "knife"
+              searchParams.get("type") === "knife" || searchState?.type === "knife"
             }
             onChange={(e) => {
               setSearchState((prev) => ({
@@ -162,7 +162,7 @@ export default function SearchForm({
             type="radio"
             className="w-4 h-4"
             defaultChecked={
-              searchParams.get("type") === "other" || searchState.type === "other"
+              searchParams.get("type") === "other" || searchState?.type === "other"
             }
             onChange={(e) => {
               setSearchState((prev) => ({
@@ -183,7 +183,7 @@ export default function SearchForm({
             name="type"
             type="radio"
             className="w-4 h-4"
-            defaultChecked={!searchParams.get("type") || searchState.type === "all"}
+            defaultChecked={!searchParams.get("type") || searchState?.type === "all"}
             onChange={(e) => {
               setSearchState((prev) => ({
                 ...prev,
@@ -209,7 +209,8 @@ export default function SearchForm({
             name="style"
             className="w-4 h-4"
             defaultChecked={
-              searchParams.get("style") === "japanese" || searchState.style === "japanese"
+              searchParams.get("style") === "japanese" ||
+              searchState?.style === "japanese"
             }
             onChange={(e) => {
               setSearchState((prev) => ({
@@ -231,7 +232,7 @@ export default function SearchForm({
             type="radio"
             className="w-4 h-4"
             defaultChecked={
-              searchParams.get("style") === "western" || searchState.style === "western"
+              searchParams.get("style") === "western" || searchState?.style === "western"
             }
             onChange={(e) => {
               setSearchState((prev) => ({
@@ -252,7 +253,7 @@ export default function SearchForm({
             name="style"
             type="radio"
             className="w-4 h-4"
-            defaultChecked={!searchParams.get("style") || searchState.style === "all"}
+            defaultChecked={!searchParams.get("style") || searchState?.style === "all"}
             onChange={(e) => {
               setSearchState((prev) => ({
                 ...prev,
@@ -279,7 +280,7 @@ export default function SearchForm({
             className="w-4 h-4"
             defaultChecked={
               searchParams.get("stock") === "largeStock" ||
-              searchState.style === "largeStock"
+              searchState?.style === "largeStock"
             }
             onChange={(e) => {
               setSearchState((prev) => ({
@@ -301,7 +302,7 @@ export default function SearchForm({
             name="stock"
             className="w-4 h-4"
             defaultChecked={
-              searchParams.get("stock") === "aall" || searchState.style === "all"
+              searchParams.get("stock") === "all" || searchState?.style === "all"
             }
             onChange={(e) => {
               setSearchState((prev) => ({
@@ -324,7 +325,7 @@ export default function SearchForm({
             label="Price"
             min={2000}
             max={90000}
-            data={searchState.price}
+            data={searchState?.price}
             setData={(data: { min: number; max: number }) => {
               setSearchState((prev) => ({ ...prev, price: data }));
             }}
@@ -339,7 +340,7 @@ export default function SearchForm({
             label="Size"
             min={70}
             max={350}
-            data={searchState.size}
+            data={searchState?.size}
             setData={(data: { min: number; max: number }) => {
               setSearchState((prev) => ({ ...prev, size: data }));
             }}
@@ -370,7 +371,7 @@ export default function SearchForm({
                         onChange={() =>
                           setSearchState((prev) => ({
                             ...prev,
-                            brand: [...prev.brand, "all"],
+                            brand: [...prev?.brand, "all"],
                           }))
                         }
                       />
@@ -381,17 +382,17 @@ export default function SearchForm({
                       ? availableBrands.map((brand) => (
                           <Label
                             key={brand.id}
-                            htmlFor={brand.name}
+                            htmlFor={brand?.name}
                             className="flex-1 flex items-center justify-start px-4 py-3 bg-slate-50 rounded-lg whitespace-nowrap"
                           >
                             <Input
-                              id={brand.name}
+                              id={brand?.name}
                               name="brand"
                               type="checkbox"
                               className="w-4 h-4"
                               defaultChecked={
                                 searchState.brand && typeof searchState.brand === "object"
-                                  ? searchState.brand.some((name) => name === brand.name)
+                                  ? searchState.brand?.some((name) => name === brand.name)
                                   : searchState.brand === brand.name
                               }
                               onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
@@ -439,7 +440,7 @@ export default function SearchForm({
                         onChange={() =>
                           setSearchState((prev) => ({
                             ...prev,
-                            material: [...prev.material, "all"],
+                            material: [...prev?.material, "all"],
                           }))
                         }
                       />
@@ -450,11 +451,11 @@ export default function SearchForm({
                       ? availableMaterials.map((material) => (
                           <Label
                             key={material.id}
-                            htmlFor={material.name}
+                            htmlFor={material?.name}
                             className="flex-1 flex items-center justify-start px-4 py-3 bg-slate-50 rounded-lg whitespace-nowrap"
                           >
                             <Input
-                              id={material.name}
+                              id={material?.name}
                               name="material"
                               type="checkbox"
                               className="w-4 h-4"
@@ -482,7 +483,7 @@ export default function SearchForm({
                                 }
                               }}
                             />
-                            {material.name}
+                            {material?.name}
                           </Label>
                         ))
                       : "No materials registered."}

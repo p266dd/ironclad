@@ -43,7 +43,7 @@ export default function ProductGrid(props: { activeFilters: TActiveFilters }) {
     const uniqueProductsMap = new Map<string | number, TProductItemResult>();
     allProductsResponse.forEach((product) => {
       if (product && typeof product.id !== "undefined") {
-        // Ensure product and id exist
+        // Ensure product and id exists.
         uniqueProductsMap.set(product.id, product);
       }
     });
@@ -66,7 +66,7 @@ export default function ProductGrid(props: { activeFilters: TActiveFilters }) {
   useEffect(() => {
     const observer = new IntersectionObserver(handleObserver, {
       root: null,
-      rootMargin: "200px",
+      rootMargin: "100px",
       threshold: 0.1,
     });
 

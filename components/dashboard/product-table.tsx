@@ -282,9 +282,9 @@ export default function AdminProductTable() {
                 Other
               </DropdownMenuItem>
 
-              {filtersData?.data &&
-                filtersData?.data?.length > 0 &&
-                filtersData.data.map((filter) => (
+              {filtersData &&
+                filtersData?.length > 0 &&
+                filtersData.map((filter) => (
                   <DropdownMenuItem
                     key={filter.id}
                     onClick={() => handleFilterChange(`${filter.name}`)}

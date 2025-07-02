@@ -340,18 +340,19 @@ export async function updateOrderProductQuantity({
   sizeId,
   newQuantity,
 }: {
-  cartProductId: number | null;
-  sizeId: number | null;
+  cartProductId: number;
+  sizeId: number;
   newQuantity: number;
 }) {
   await verifyUserSession();
 
-  if (cartProductId === null || sizeId === null) return null;
+  if (cartProductId === null || sizeId === null) {
+    return { success: false, message: "Product and size was not provided" };
+  }
 
   try {
     // Get current cartProduct details
     const cartProduct = await getCurrentCartProductDetails(cartProductId);
-
     const oldDetails = cartProduct;
 
     // Create a new Json
@@ -387,10 +388,10 @@ export async function updateOrderProductQuantity({
     revalidatePath("/cart");
     revalidatePath("/products/" + cart.product.id);
 
-    return cart;
+    return { success: true, message: null, data: cart };
   } catch (error) {
     const errorMessage = await generatePrismaErrorMessage(error, "user", "create");
-    return { success: false, message: errorMessage, fieldErrors: {} };
+    return { success: false, message: errorMessage };
   }
 }
 
@@ -408,7 +409,6 @@ export async function deleteOrderProductSize({
   try {
     // Get current cartProduct details
     const cartProduct = await getCurrentCartProductDetails(cartProductId);
-
     const oldDetails = cartProduct;
 
     // Create a new Json
@@ -449,10 +449,10 @@ export async function deleteOrderProductSize({
     revalidatePath("/cart");
     revalidatePath("/products/" + cart.product.id);
 
-    return cart;
+    return { success: true, message: null, data: cart };
   } catch (error) {
     const errorMessage = await generatePrismaErrorMessage(error, "user", "create");
-    return { success: false, message: errorMessage, fieldErrors: {} };
+    return { success: false, message: errorMessage };
   }
 }
 
@@ -469,8 +469,17 @@ export async function updateOrderProductDetails({
 }) {
   await verifyUserSession();
 
-  if (cartProductId === null || details === null)
-    return { success: false, message: "Error updating order." };
+  if (cartProductId === null || details === null) {
+    return { success: false, message: "Product and details must be provided." };
+  }
+
+  if (details.brand === "") {
+    return { success: false, message: "Details must contain a brand." };
+  }
+
+  if (details.handle === "") {
+    return { success: false, message: "Details must contain a handle." };
+  }
 
   try {
     const cartProduct = await prisma.cartProduct.update({
@@ -480,7 +489,7 @@ export async function updateOrderProductDetails({
       data: {
         brand: details.brand,
         handle: details.handle,
-        request: details.request,
+        request: details?.request,
       },
       select: {
         id: true,
@@ -495,7 +504,7 @@ export async function updateOrderProductDetails({
     revalidatePath("/cart");
     revalidatePath("/products/" + cartProduct.product.id);
 
-    return cartProduct;
+    return { success: true, message: null, data: cartProduct };
   } catch (error) {
     const errorMessage = await generatePrismaErrorMessage(error, "user", "create");
     return { success: false, message: errorMessage };

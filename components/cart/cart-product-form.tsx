@@ -30,7 +30,7 @@ export default function CartProduct({
   return (
     <div className="flex flex-col gap-y-8 gap-x-20 lg:flex-row">
       <div className="flex flex-col gap-3">
-        {cartProducts?.map((product) => (
+        {cartProducts.map((product) => (
           <SingleCartProduct
             key={product.id}
             product={product}
@@ -45,20 +45,12 @@ export default function CartProduct({
             e.preventDefault();
             setLoading(true);
             const order = await createOrder();
-            if (!order) {
-              toast.error("Failed to create order.");
-              setLoading(false);
-              return;
-            }
-            if (
-              typeof order === "object" &&
-              "error" in order &&
-              typeof order.error === "string"
-            ) {
+            if (order.error !== null) {
               toast.error(order.error);
               setLoading(false);
               return;
             }
+
             toast.success("Order created.");
             setLoading(false);
             setTimeout(

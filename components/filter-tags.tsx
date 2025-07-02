@@ -21,7 +21,7 @@ export default function FilterTags({
       onClick={() => {
         return isActive
           ? router.push("/")
-          : router.push("/?filter=" + filter.toLowerCase().trim());
+          : router.push("/?filter=" + filter.toLowerCase());
       }}
       variant={isActive ? "default" : "outline"}
       size="lg"

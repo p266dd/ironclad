@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import useSWR, { mutate } from "swr";
+import { useState, useRef } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { getOwnOrders } from "@/data/order/action";
 import { format } from "date-fns";
 
@@ -32,89 +33,93 @@ import { CalendarIcon, LoaderCircleIcon, SearchIcon, XCircleIcon } from "lucide-
 import { TOrderWithConnection } from "@/lib/types";
 
 export default function OrdersTable() {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [loadingSearch, setLoadingSearch] = useState(false);
+  const [loadingNavigation, setLoadingNavigation] = useState("");
+
   const [open, setOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [date, setDate] = useState<Date | undefined>(undefined);
-  const [searchData, setSearchData] = useState<{
-    searchTerm?: string;
-    date?: Date;
-  } | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [orders, setOrders] = useState<TOrderWithConnection[]>([]);
+  const [inputDate, setInputDate] = useState<Date | undefined>(undefined);
+
+  const getSearchParams = useSearchParams();
+  const page = getSearchParams.get("page");
+  const perPage = 15;
+
+  const dateRef = useRef<HTMLInputElement>(null);
+  const getDate = getSearchParams.get("date");
+  const getSearchTerm = getSearchParams.get("searchTerm");
+  const [searchQuery, setSearchQuery] = useState<
+    | {
+        searchTerm: string | undefined;
+        date: Date | undefined;
+      }
+    | undefined
+  >({
+    searchTerm: getSearchTerm || undefined,
+    date: getDate ? new Date(getDate) : undefined,
+  });
 
   const router = useRouter();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const response = await getOwnOrders(currentPage, 2);
-        if (response.error) {
-          setError(response.error);
-          setLoading(false);
-          return;
-        }
-        setOrders(response.data && response.data?.length > 0 ? response.data : []);
-        setLoading(false);
-      } catch (error) {
-        console.error(error);
-        setError("Failed to fetch orders.");
-      }
-    };
-    fetchData();
-  }, [currentPage, searchData]);
+  const {
+    data: orders,
+    error,
+    isLoading,
+  } = useSWR("getOwnOrders", () =>
+    getOwnOrders({
+      searchQuery,
+      page: page ? Number(page) : 1,
+      perPage,
+    })
+  );
 
-  const filteredOrders = useMemo(() => {
-    return orders.filter((order) => {
-      const orderDate = new Date(order.createdAt);
+  // * Set the searchQuery.
+  const handleSearch = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
 
-      const searchTermMatch =
-        !searchTerm || order.code.toLowerCase().includes(searchTerm.toLowerCase());
+    const data = new FormData(e.currentTarget);
+    const searchTerm = data.get("searchTerm") as string;
+    const date = data.get("date") as string;
 
-      const dateMatch =
-        !date ||
-        (orderDate.getFullYear() === date.getFullYear() &&
-          orderDate.getMonth() === date.getMonth() &&
-          orderDate.getDate() === date.getDate());
+    setLoadingSearch(true);
+    router.replace("/account/orders?page=1?searchTerm=" + searchTerm + "&date=" + date);
+    await mutate("getOwnOrders");
+    await mutate("getOwnOrders");
+    setLoadingSearch(false);
+  };
 
-      return searchTermMatch && dateMatch;
-    });
-  }, [orders, searchData]);
+  const handleClearSearch = async () => {
+    setSearchQuery(undefined);
+    setInputDate(undefined);
+    router.replace("/account/orders?page=1");
+    await mutate("getOwnOrders");
+    await mutate("getOwnOrders");
+  };
 
-  // Calculate pagination derived state.
-  const ITEMS_PER_PAGE = 10;
-  const totalOrders = filteredOrders.length;
-  const totalPages = Math.ceil(totalOrders / ITEMS_PER_PAGE);
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const endIndex = startIndex + ITEMS_PER_PAGE;
-  const paginatedOrders = filteredOrders.slice(startIndex, endIndex);
-
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchData]);
-
-  const handlePageChange = (page: number) => {
-    if (page >= 1 && page <= totalPages) {
-      setCurrentPage(page);
+  // * Set the new page number.
+  const handlePageChange = async (page: number) => {
+    if (page >= 1 && page <= (orders?.totalPages || 1)) {
+      router.replace(
+        `/account/orders?page=${page}?searchTerm=${getSearchTerm || ""}&date=${
+          getDate || ""
+        }`
+      );
+      await mutate("getOwnOrders");
+      await mutate("getOwnOrders");
     }
   };
 
-  // Function to render pagination links.
   const renderPaginationLinks = () => {
     const links = [];
     const maxPageLinks = 6;
 
-    if (totalPages <= maxPageLinks) {
-      for (let i = 1; i <= totalPages; i++) {
+    if ((orders?.totalPages || 1) <= maxPageLinks) {
+      for (let i = 1; i <= (orders?.totalPages || 1); i++) {
         links.push(
           <PaginationItem key={i}>
             <PaginationLink
-              href="#"
-              isActive={i === currentPage}
-              onClick={() => handlePageChange(i)}
+              href={`/account/orders?page=${i}?searchTerm=${getSearchTerm || ""}&date=${
+                getDate || ""
+              }`}
+              isActive={i === orders?.currentPage}
             >
               {i}
             </PaginationLink>
@@ -126,9 +131,10 @@ export default function OrdersTable() {
       links.push(
         <PaginationItem key={1}>
           <PaginationLink
-            href="#"
-            isActive={1 === currentPage}
-            onClick={() => handlePageChange(1)}
+            href={`/account/orders?page=${1}?searchTerm=${getSearchTerm || ""}&date=${
+              getDate || ""
+            }`}
+            isActive={1 === orders?.currentPage}
           >
             1
           </PaginationLink>
@@ -136,7 +142,7 @@ export default function OrdersTable() {
       );
 
       // Show ellipsis if current page is far from the beginning.
-      if (currentPage > 2) {
+      if ((orders?.currentPage || 1) > 2) {
         links.push(
           <PaginationItem key="ellipsis-start">
             <PaginationEllipsis />
@@ -145,26 +151,27 @@ export default function OrdersTable() {
       }
 
       // Show pages around the current page.
-      let start = Math.max(2, currentPage - 1);
-      let end = Math.min(totalPages - 1, currentPage + 1);
+      let start = Math.max(2, (orders?.currentPage || 1) - 1);
+      let end = Math.min((orders?.totalPages || 1) - 1, (orders?.currentPage || 1) + 1);
 
-      if (currentPage === 1) {
+      if ((orders?.currentPage || 1) === 1) {
         // Adjust range if current page is 1.
         start = 2;
-        end = Math.min(totalPages - 1, 3);
-      } else if (currentPage === totalPages) {
+        end = Math.min((orders?.totalPages || 1) - 1, 3);
+      } else if ((orders?.currentPage || 1) === (orders?.totalPages || 1)) {
         // Adjust range if current page is last.
-        start = Math.max(2, totalPages - 2);
-        end = totalPages - 1;
+        start = Math.max(2, (orders?.totalPages || 1) - 2);
+        end = (orders?.totalPages || 1) - 1;
       }
 
       for (let i = start; i <= end; i++) {
         links.push(
           <PaginationItem key={i}>
             <PaginationLink
-              href="#"
-              isActive={i === currentPage}
-              onClick={() => handlePageChange(i)}
+              href={`/account/orders?page=${i}?searchTerm=${getSearchTerm || ""}&date=${
+                getDate || ""
+              }`}
+              isActive={i === (orders?.currentPage || 1)}
             >
               {i}
             </PaginationLink>
@@ -173,7 +180,7 @@ export default function OrdersTable() {
       }
 
       // Show ellipsis if current page is far from the end.
-      if (currentPage < totalPages - 1) {
+      if ((orders?.currentPage || 1) < (orders?.totalPages || 1) - 1) {
         links.push(
           <PaginationItem key="ellipsis-end">
             <PaginationEllipsis />
@@ -182,16 +189,17 @@ export default function OrdersTable() {
       }
 
       // Always show last page.
-      if (totalPages > 1) {
+      if ((orders?.totalPages || 1) > 1) {
         // Only show last page if there's more than one page.
         links.push(
-          <PaginationItem key={totalPages}>
+          <PaginationItem key={orders?.totalPages || 1}>
             <PaginationLink
-              href="#"
-              isActive={totalPages === currentPage}
-              onClick={() => handlePageChange(totalPages)}
+              href={`/account/orders?page=${orders?.totalPages || 1}?searchTerm=${
+                getSearchTerm || ""
+              }&date=${getDate || ""}`}
+              isActive={(orders?.totalPages || 1) === (orders?.currentPage || 1)}
             >
-              {totalPages}
+              {orders?.totalPages || 1}
             </PaginationLink>
           </PaginationItem>
         );
@@ -202,7 +210,7 @@ export default function OrdersTable() {
 
   return (
     <div className="flex flex-col gap-5">
-      <form onSubmit={(e) => e.preventDefault()}>
+      <form onSubmit={handleSearch}>
         <div className="flex flex-col lg:flex-row gap-4">
           <div className="flex items-center gap-2">
             <div className="flex-1">
@@ -211,11 +219,8 @@ export default function OrdersTable() {
                 name="searchTerm"
                 placeholder="Order Number"
                 autoComplete="off"
-                value={searchTerm}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  setSearchTerm(e.target.value)
-                }
               />
+              <Input ref={dateRef} type="hidden" name="date" value={undefined} />
             </div>
             <div className="flex-1">
               <Popover open={open} onOpenChange={setOpen}>
@@ -224,17 +229,30 @@ export default function OrdersTable() {
                     variant={"outline"}
                     className="w-full pl-3 text-left font-normal"
                   >
-                    <span>{date ? format(date, "PPP") : "Select date"}</span>
+                    <span>
+                      {inputDate
+                        ? format(inputDate, "PPP")
+                        : getDate
+                        ? format(new Date(getDate), "PPP")
+                        : "Select date"}
+                    </span>
                     <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
                   <Calendar
                     mode="single"
-                    selected={date}
+                    selected={
+                      inputDate ? inputDate : getDate ? new Date(getDate) : undefined
+                    }
                     captionLayout="dropdown"
                     onSelect={(date) => {
-                      setDate(date);
+                      if (dateRef.current !== null) {
+                        dateRef.current.value = date
+                          ? new Date(date).toLocaleString()
+                          : "";
+                      }
+                      setInputDate(date);
                       setOpen(false);
                     }}
                   />
@@ -243,17 +261,7 @@ export default function OrdersTable() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Button
-              type="button"
-              variant="default"
-              className="flex-2/3"
-              onClick={() =>
-                setSearchData({
-                  searchTerm: searchTerm,
-                  date: date,
-                })
-              }
-            >
+            <Button type="submit" variant="default" className="flex-2/3">
               <SearchIcon />
               Search
             </Button>
@@ -261,12 +269,7 @@ export default function OrdersTable() {
               type="button"
               variant="outline"
               className="flex-1/3"
-              onClick={() => {
-                setSearchData(null);
-                setDate(undefined);
-                setSearchTerm("");
-                setCurrentPage(1);
-              }}
+              onClick={handleClearSearch}
             >
               <XCircleIcon />
               Clear
@@ -286,8 +289,8 @@ export default function OrdersTable() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {paginatedOrders.length > 0 ? (
-              paginatedOrders.map((order) => {
+            {orders?.data && orders.data.length > 0 ? (
+              orders.data.map((order) => {
                 const totalItems = order.orderProduct.reduce((sum, product) => {
                   // Ensure product.details is treated as an array of objects with quantity
                   const productDetails = product.details as {
@@ -303,13 +306,19 @@ export default function OrdersTable() {
                 return (
                   <TableRow
                     key={order.id}
-                    onClick={() => router.push("/account/orders/" + order.id)}
+                    onClick={() => {
+                      setLoadingNavigation(order.id);
+                      router.push("/account/orders/" + order.id);
+                    }}
                     className="cursor-pointer"
                   >
                     <TableCell className="font-medium">
                       {order.code.split("-")[1]}
                     </TableCell>
                     <TableCell className="hidden md:table-cell">
+                      {loadingNavigation === order.id ? (
+                        <LoaderCircleIcon className="animate-spin" />
+                      ) : null}{" "}
                       {format(new Date(order.createdAt), "d/M/y")}
                     </TableCell>
                     <TableCell className="md:hidden">
@@ -328,7 +337,7 @@ export default function OrdersTable() {
             ) : (
               <TableRow>
                 <TableCell colSpan={4} className="text-center text-slate-500">
-                  {loading ? (
+                  {isLoading || loadingSearch ? (
                     <span className="flex items-center gap-4">
                       <LoaderCircleIcon /> Loading...
                     </span>
@@ -344,35 +353,42 @@ export default function OrdersTable() {
         </Table>
       </div>
       <div>
-        <Pagination className="justify-start">
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious
-                href="#"
-                onClick={() => handlePageChange(currentPage - 1)}
-                aria-disabled={currentPage === 1}
-                tabIndex={currentPage === 1 ? -1 : undefined}
-                className={
-                  currentPage === 1 ? "pointer-events-none opacity-50" : undefined
-                }
-              />
-            </PaginationItem>
-            {renderPaginationLinks()}
-            <PaginationItem>
-              <PaginationNext
-                href="#"
-                onClick={() => handlePageChange(currentPage + 1)}
-                aria-disabled={currentPage === totalPages}
-                tabIndex={currentPage === totalPages ? -1 : undefined}
-                className={
-                  currentPage === totalPages
-                    ? "pointer-events-none opacity-50"
-                    : undefined
-                }
-              />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
+        {orders && orders?.totalPages && orders?.totalPages > 0 ? (
+          <Pagination className="justify-start">
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  href={`/account/orders?page=${
+                    orders?.currentPage ? orders?.currentPage - 1 : 1
+                  }?searchTerm=${getSearchTerm || ""}&date=${getDate || ""}`}
+                  onClick={() => handlePageChange((orders?.currentPage || 1) - 1)}
+                  aria-disabled={orders?.currentPage === 1}
+                  tabIndex={orders?.currentPage === 1 ? -1 : undefined}
+                  className={
+                    orders?.currentPage === 1
+                      ? "pointer-events-none opacity-50"
+                      : undefined
+                  }
+                />
+              </PaginationItem>
+              {renderPaginationLinks()}
+              <PaginationItem>
+                <PaginationNext
+                  href={`/account/orders?page=${
+                    orders?.currentPage ? orders?.currentPage + 1 : 2
+                  }?searchTerm=${getSearchTerm || ""}&date=${getDate || ""}`}
+                  aria-disabled={orders?.currentPage === orders?.totalPages}
+                  tabIndex={orders?.currentPage === orders?.totalPages ? -1 : undefined}
+                  className={
+                    orders?.currentPage === orders?.totalPages
+                      ? "pointer-events-none opacity-50"
+                      : undefined
+                  }
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        ) : null}
       </div>
     </div>
   );

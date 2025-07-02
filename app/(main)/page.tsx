@@ -9,18 +9,20 @@ import { logout } from "@/lib/logout";
 
 // Assets
 import Logo from "@/assets/logo.png";
+import { SearchParams } from "next/dist/server/request/search-params";
 
 export default async function HomePage({
   searchParams,
 }: {
-  searchParams: Promise<{ filter: string | null }>;
+  searchParams: Promise<{
+    [key: string]: string | string[] | undefined;
+  }>;
 }) {
-  const session: SessionPayload | null = await getSession();
+  const session = await getSession();
   const params = await searchParams;
-
   const filters = await getFilters();
 
-  const tag = params.filter;
+  const tag = params?.filter;
 
   return (
     <div className="pb-44 sm:pb-0 bg-linear-180 from-slate-100 to-slate-50/10">
@@ -48,11 +50,15 @@ export default async function HomePage({
         </div>
       </div>
 
-      {filters.data !== null && filters.data.length > 0 ? (
+      {filters && filters.length > 0 ? (
         <div className="pt-2 mb-2 md:px-6 md:pt-6 md:mb-6">
           <div className="flex flex-wrap items-center gap-2 p-4">
-            {filters.data.map((filter, i) => (
-              <FilterTags key={i} filter={filter.name} active={tag || ""} />
+            {filters.map((filter) => (
+              <FilterTags
+                key={filter.id}
+                filter={filter.name}
+                active={(tag !== undefined && tag[0]) || ""}
+              />
             ))}
           </div>
         </div>
@@ -60,7 +66,9 @@ export default async function HomePage({
         <div className="sm:py-4"></div>
       )}
 
-      <ProductGrid activeFilters={{ tag: tag, search: null }} />
+      <ProductGrid
+        activeFilters={{ tag: (tag !== undefined && tag[0]) || "", search: null }}
+      />
     </div>
   );
 }

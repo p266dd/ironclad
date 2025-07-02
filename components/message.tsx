@@ -1,6 +1,7 @@
 "use client";
 
 import useSWR from "swr";
+import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 
@@ -21,6 +22,7 @@ import { Button } from "./ui/button";
 export default function DisplayMessage() {
   const SESSION_KEY = "hasSessionMessageBeenShown";
 
+  const [isVisible, setIsVisible] = useState(false);
   const [message, setMessage] = useState<{
     title: string;
     content: string;
@@ -28,7 +30,6 @@ export default function DisplayMessage() {
     linkUrl: string | null;
     image: string | null;
   } | null>(null);
-  const [isVisible, setIsVisible] = useState(false);
 
   const { data, isLoading } = useSWR("fetchActiveMessage", getActiveMessage);
 
@@ -59,39 +60,38 @@ export default function DisplayMessage() {
     <Dialog open={isVisible} onOpenChange={setIsVisible}>
       <DialogContent showCloseButton={false} className="md:max-w-10/12 lg:max-w-4xl">
         <DialogHeader className="flex flex-col sm:flex-row sm:items-center gap-6 lg:mb-4">
-          {message.image && (
-            <div className="flex justify-center md:max-w-[350px]">
-              <img
+          {message?.image && (
+            <div className="relative flex justify-center md:max-w-[350px]">
+              <Image
+                className="w-full rounded-lg overflow-hidden"
                 src={message.image}
                 alt="Dialog Image"
-                className=" rounded-lg overflow-hidden"
+                width={600}
+                height={600}
               />
             </div>
           )}
 
           <div className="flex flex-col gap-4">
-            <DialogTitle className="md:text-2xl">
-              {message.title || <span className="text-gray-400">Missing title.</span>}
-            </DialogTitle>
+            <DialogTitle className="md:text-2xl">{message?.title}</DialogTitle>
             <DialogDescription className="md:text-base">
-              {message.content || <span className="text-gray-400">Missing content.</span>}
+              {message.content}
             </DialogDescription>
           </div>
         </DialogHeader>
-        {message.linkTitle && message.linkUrl && (
-          <DialogFooter>
-            <DialogClose asChild>
-              <Button variant="outline">Close</Button>
-            </DialogClose>
+
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button variant="outline">Close</Button>
+          </DialogClose>
+          {message?.linkTitle && message?.linkUrl && (
             <Button asChild type="button">
-              <Link href="#" target="_blank">
-                {message.linkTitle || (
-                  <span className="text-sm text-gray-400">Missing Link</span>
-                )}
+              <Link href={message.linkUrl} target="_blank">
+                {message.linkTitle}
               </Link>
             </Button>
-          </DialogFooter>
-        )}
+          )}
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

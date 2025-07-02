@@ -127,10 +127,11 @@ export async function getUserPreferences() {
         engraving: true,
       },
     })) as { id: string; engraving: Prisma.JsonArray | null };
-    return { data: preferences, error: null };
+    return preferences;
   } catch (error) {
     const errorMessage = await generatePrismaErrorMessage(error, "user", "findUnique");
-    return { data: null, error: errorMessage };
+    console.error(errorMessage);
+    return null;
   }
 }
 
@@ -152,7 +153,7 @@ export async function getOwnUserProfile() {
       },
     });
     const preferences = await getUserPreferences();
-    return { ...user, ...preferences.data };
+    return { ...user, ...preferences };
   } catch (error) {
     const errorMessage = await generatePrismaErrorMessage(error, "user", "findUnique");
     console.error(errorMessage);
@@ -160,15 +161,13 @@ export async function getOwnUserProfile() {
   }
 }
 
-export async function updateOwnUser(
-  data: {
-    name?: string;
-    email?: string;
-    password?: string;
-    businessName?: string;
-    businessCode?: string | null;
-  } | null
-) {
+export async function updateOwnUser(data: {
+  name: string;
+  email: string;
+  password: string | undefined;
+  businessName: string;
+  businessCode: string | undefined;
+}) {
   const session = await verifyUserSession();
   const userId = session.id;
 
@@ -205,21 +204,22 @@ export async function updateOwnUser(
 
     revalidatePath("/account");
 
-    return updatedUser;
+    return { error: null, data: updatedUser };
   } catch (error) {
     console.error(error);
-    return { error: "An error occurred. We were unable to update your information." };
+    return { error: "We were unable to update your information." };
   }
 }
 
-export async function updateUserPreferences(
-  preference: { slug: string; name: string } | null
-) {
+export async function updateUserPreferences(preference: {
+  slug: string | null;
+  name: string;
+}) {
   const session = await verifyUserSession();
   const userId = session.id;
 
-  if (preference === null || preference.slug === "" || preference.name === "") {
-    return { error: "Invalid data." };
+  if (preference.slug === "" || preference.name === "") {
+    return { error: "Preference name must be provided." };
   }
 
   try {
@@ -231,7 +231,7 @@ export async function updateUserPreferences(
 
     // Get current preferences
     const getOldPreferences = await getUserPreferences();
-    const oldPreferences = getOldPreferences.data?.engraving ?? [];
+    const oldPreferences = getOldPreferences?.engraving || [];
 
     // Update User
     const updatedUser = await prisma.user.update({
@@ -248,7 +248,7 @@ export async function updateUserPreferences(
 
     revalidatePath("/account");
 
-    return { data: updatedUser, error: null };
+    return { error: null, data: updatedUser };
   } catch (error) {
     const errorMessage = generatePrismaErrorMessage(error, "user", "update");
     return { error: errorMessage };
@@ -264,10 +264,7 @@ export async function removeUserPreference(slug: string) {
   }
 
   const preferences = await getUserPreferences();
-  const oldPreferences = preferences.data?.engraving as
-    | Prisma.JsonArray
-    | null
-    | undefined;
+  const oldPreferences = preferences?.engraving as Prisma.JsonArray | null | undefined;
 
   if (!oldPreferences || oldPreferences === undefined) {
     return { error: "No preferences found." };

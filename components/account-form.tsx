@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
+import LoadingIndicator from "./loading-indicator";
 import {
   updateUserPreferences,
   removeUserPreference,
@@ -56,9 +57,29 @@ export default function AccountForm({ currentInfo }: { currentInfo: TAccountChan
     setLoading(true);
     const data = new FormData(e.currentTarget);
     const formData = Object.fromEntries(data.entries()) as TAccountChange;
-    const updatedUser = await updateOwnUser(formData);
-    if ("error" in updatedUser && typeof updatedUser?.error === "string") {
-      toast.error(`${updatedUser.error}`);
+
+    if (formData === null) {
+      toast.error("No data was provided.");
+      setLoading(false);
+      return;
+    }
+
+    // Validate
+    const validatedData = {
+      name: formData.name === undefined ? "Missing Name" : formData.name,
+      email: formData.email === undefined ? "Missing Email" : formData.email,
+      password: formData.password,
+      businessName:
+        formData.businessName === undefined
+          ? "Missing Business Name"
+          : formData.businessName,
+      businessCode: !formData.businessCode ? undefined : formData.businessCode,
+    };
+
+    const updatedUser = await updateOwnUser(validatedData);
+
+    if (updatedUser?.error !== null) {
+      toast.error(updatedUser.error);
       setLoading(false);
       return;
     }
@@ -70,9 +91,16 @@ export default function AccountForm({ currentInfo }: { currentInfo: TAccountChan
   const handlePreferenceSave = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
+    if (unsavedPreference === null || unsavedPreference?.name === undefined) {
+      toast.error("No preference was provided.");
+      setLoading(false);
+      return;
+    }
+
     const updatedPreference = await updateUserPreferences(unsavedPreference);
-    if ("error" in updatedPreference && typeof updatedPreference?.error === "string") {
-      toast.error(`${updatedPreference?.error}`);
+
+    if (updatedPreference.error !== null) {
+      toast.error(updatedPreference?.error);
       setLoading(false);
       return;
     }
@@ -98,15 +126,15 @@ export default function AccountForm({ currentInfo }: { currentInfo: TAccountChan
 
     setCode(generatedBusinessCode);
     toast("Business code generated.");
+    setSave(true);
   };
-
-  console.log(code);
 
   return (
     <div className="flex flex-col gap-8">
       <div>
         <Button asChild variant="default" size="lg">
           <Link href="/account/orders">
+            <LoadingIndicator />
             <ReceiptJapaneseYenIcon /> See All Orders
           </Link>
         </Button>
@@ -127,7 +155,7 @@ export default function AccountForm({ currentInfo }: { currentInfo: TAccountChan
                   setSave(true);
                   setUnsavedChanges((prev) => ({ ...prev, name: e.target.value }));
                 }}
-                placeholder="John Doe"
+                placeholder=""
               />
             </div>
 
@@ -138,7 +166,7 @@ export default function AccountForm({ currentInfo }: { currentInfo: TAccountChan
                 type="email"
                 name="email"
                 id="email"
-                placeholder="name@email.com"
+                placeholder=""
                 value={unsavedChanges?.email ?? currentInfo?.email ?? ""}
                 onChange={(e) => {
                   setSave(true);
@@ -155,7 +183,7 @@ export default function AccountForm({ currentInfo }: { currentInfo: TAccountChan
                   type={showPassword ? "text" : "password"}
                   name="password"
                   id="password"
-                  placeholder="•••••••••"
+                  placeholder=""
                   value={unsavedChanges?.password ?? currentInfo?.password ?? ""}
                   onChange={(e) => {
                     setSave(true);
@@ -181,7 +209,7 @@ export default function AccountForm({ currentInfo }: { currentInfo: TAccountChan
                 type="text"
                 name="businessName"
                 id="businessName"
-                placeholder="Ironclad"
+                placeholder=""
                 value={unsavedChanges?.businessName ?? currentInfo?.businessName ?? ""}
                 onChange={(e) => {
                   setSave(true);
@@ -252,6 +280,7 @@ export default function AccountForm({ currentInfo }: { currentInfo: TAccountChan
               onClick={() => {
                 setSave(false);
                 setUnsavedChanges(null);
+                setCode(null);
               }}
             >
               Cancel
@@ -271,6 +300,7 @@ export default function AccountForm({ currentInfo }: { currentInfo: TAccountChan
               placeholder="Engraving Brand"
               className="flex-grow py-6"
               value={unsavedPreference !== null ? unsavedPreference.name : ""}
+              required
               onChange={(e) => {
                 const value = e.target.value;
                 setSavePreference(true);
@@ -322,7 +352,7 @@ export default function AccountForm({ currentInfo }: { currentInfo: TAccountChan
                 >
                   <span>{engraving.name}</span>
                   <Popover>
-                    <PopoverTrigger>
+                    <PopoverTrigger className="cursor-pointer">
                       <Trash2Icon color="red" size={18} />
                     </PopoverTrigger>
                     <PopoverContent align="center" side="bottom">
@@ -334,6 +364,7 @@ export default function AccountForm({ currentInfo }: { currentInfo: TAccountChan
                           type="button"
                           variant="destructive"
                           size="sm"
+                          className="cursor-pointer"
                           onClick={() => {
                             removeUserPreference(engraving.slug).then(() => {
                               toast.success("Preference removed successfully");

@@ -18,50 +18,116 @@ import { TCreateOrderProduct, TProductDetails, TProductStockUpdate } from "@/lib
 // Error Utility
 // import { generatePrismaErrorMessage } from "@/prisma/error-handling";
 
-export const getOwnOrders = cache(async (page: number, itemsPerPage: number) => {
-  const session = await verifyUserSession();
-  const userId = session.id;
+export const getOwnOrders = cache(
+  async ({
+    searchQuery,
+    page,
+    perPage,
+  }: {
+    searchQuery:
+      | {
+          searchTerm: string | undefined;
+          date: Date | undefined;
+        }
+      | undefined;
+    page: number;
+    perPage: number;
+  }) => {
+    const session = await verifyUserSession();
+    const userId = session.id;
 
-  try {
-    const orders = await prisma.order.findMany({
-      where: {
+    const whereANDConditions: Prisma.OrderWhereInput[] = [
+      {
         clientId: userId,
       },
-      skip: (page - 1) * itemsPerPage,
-      orderBy: {
-        createdAt: "desc",
-      },
-      select: {
-        id: true,
-        code: true,
-        client: {
-          select: {
-            name: true,
+    ];
+
+    if (searchQuery) {
+      // Add conditions for searchQuery.input if it exists.
+      if (searchQuery.searchTerm) {
+        whereANDConditions.push({
+          OR: [
+            { code: { contains: searchQuery?.searchTerm || undefined } },
+            {
+              client: {
+                businessName: {
+                  contains: searchQuery?.searchTerm || undefined,
+                },
+              },
+            },
+          ],
+        });
+      }
+
+      if (searchQuery.date) {
+        whereANDConditions.push({
+          createdAt: {
+            gte: searchQuery?.date || undefined,
+            lte: searchQuery?.date || undefined,
           },
-        },
-        createdAt: true,
-        orderProduct: {
+        });
+      }
+    }
+
+    try {
+      const [totalCount, orders] = await prisma.$transaction([
+        prisma.order.count({
+          where: { AND: whereANDConditions.length > 0 ? whereANDConditions : undefined },
+        }),
+
+        prisma.order.findMany({
+          where: { AND: whereANDConditions.length > 0 ? whereANDConditions : undefined },
+          skip: (page - 1) * perPage,
+          orderBy: {
+            createdAt: "desc",
+          },
           select: {
-            details: true,
-            brand: true,
-            handle: true,
-            request: true,
-            product: {
-              include: {
-                sizes: true,
+            id: true,
+            code: true,
+            client: {
+              select: {
+                name: true,
+              },
+            },
+            createdAt: true,
+            orderProduct: {
+              select: {
+                details: true,
+                brand: true,
+                handle: true,
+                request: true,
+                product: {
+                  include: {
+                    sizes: true,
+                  },
+                },
               },
             },
           },
-        },
-      },
-    });
+        }),
+      ]);
 
-    return { data: orders, error: null };
-  } catch (error) {
-    console.error(error);
-    return { error: "Failed to fetch orders.", data: null };
+      const totalPages = Math.ceil(totalCount / perPage);
+
+      return {
+        data: orders,
+        error: null,
+        totalCount: totalCount || 0,
+        totalPages: totalPages || 0,
+        currentPage: page,
+      };
+    } catch (error) {
+      console.error(error);
+      return {
+        data: null,
+        error: "Failed to fetch orders.",
+        totalCount: 0,
+        totalPages: 0,
+        currentPage: page,
+      };
+    }
   }
-});
+);
 
 export async function getOwnOrderById(orderId: string) {
   const session = await verifyUserSession();
@@ -112,7 +178,7 @@ export async function createOrder() {
   const cart = await getCart();
 
   if (!cart) {
-    return { error: "No cart found." };
+    return { error: "Your cart was not found." };
   }
 
   // Verify quantities are available.
@@ -120,27 +186,27 @@ export async function createOrder() {
   const stockUpdateOperations: TProductStockUpdate[] = [];
 
   for (const cartProduct of cart.products) {
-    if (!cartProduct.product || !cartProduct.product.sizes) {
-      return { error: "Invalid cart product." };
+    if (cartProduct.product === undefined || cartProduct.product.sizes === undefined) {
+      return { error: "Invalid product in your cart." };
     }
 
-    const parsedDetails = cartProduct.details as TProductDetails[];
+    const parsedDetails = cartProduct?.details as TProductDetails[];
 
     const validItemsForThisOrder = [];
 
     // Perform a stock check.
     for (const itemDetail of parsedDetails) {
-      const sizeId = itemDetail.sizeId;
-      const requestedQuantity = itemDetail.quantity;
+      const sizeId = itemDetail?.sizeId;
+      const requestedQuantity = itemDetail?.quantity;
 
       if (requestedQuantity === 0) {
         continue; // Skip items with no valid quantity.
       }
 
-      const sizeInfo = cartProduct.product.sizes.find((s) => s.id === Number(sizeId));
+      const sizeInfo = cartProduct.product?.sizes.find((s) => s.id === Number(sizeId));
 
       if (!sizeInfo) {
-        return null;
+        return { error: "Product size is missing." };
       }
 
       if (requestedQuantity > sizeInfo.stock) {
@@ -165,9 +231,9 @@ export async function createOrder() {
     if (validItemsForThisOrder.length > 0) {
       orderProductCreateInputs.push({
         product: { connect: { id: cartProduct.productId } },
-        brand: cartProduct.brand,
-        handle: cartProduct.handle,
-        request: cartProduct.request,
+        brand: cartProduct?.brand,
+        handle: cartProduct?.handle,
+        request: cartProduct?.request,
         details: validItemsForThisOrder as Prisma.JsonArray,
       });
     } else {
@@ -243,7 +309,7 @@ export async function createOrder() {
     });
 
     // Client emails.
-    const clientEmail = await sendEmail({
+    await sendEmail({
       to: session.email,
       subject: "Order Confirmation",
       html: NewOrderEmailClient({ name: session.name, order: newOrder }).html,
@@ -256,10 +322,9 @@ export async function createOrder() {
         },
       ],
     });
-    console.log("Client Email: ", clientEmail);
 
     // Staff email.
-    const staffEmail = await sendEmail({
+    await sendEmail({
       to: "staff@ironcladknives.com",
       subject: "New Order From " + session.name,
       html: NewOrderEmailStaff({ client: session.name, orderId: newOrder.id }).html,
@@ -272,11 +337,11 @@ export async function createOrder() {
         },
       ],
     });
-    console.log("Staff Email: ", staffEmail);
 
     // Revalidate paths for updated data.
     revalidatePath("/cart");
     revalidatePath("/account/orders");
+    revalidatePath("/dashboard");
 
     // Revalidate each product pages from order.
     const uniqueProductIds = [
@@ -286,7 +351,7 @@ export async function createOrder() {
       revalidatePath(`/products/${productId}`, "page");
     }
 
-    return newOrder.id;
+    return { error: null, data: newOrder.id };
   } catch (error) {
     console.error(error);
     return { error: "Failed to create order." };

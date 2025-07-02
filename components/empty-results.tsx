@@ -9,7 +9,7 @@ import { RefreshCcwIcon } from "lucide-react";
 
 export default function EmptyResults() {
   return (
-    <div className="max-w-[400px] mx-6 md:pt-8">
+    <div className="max-w-[400px] md:pt-8">
       <Card className="w-full max-w-sm">
         <CardHeader>
           <CardTitle className="flex items-center gap-3">

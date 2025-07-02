@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -62,8 +63,8 @@ export default function SingleCartProduct({
   const [otherHandle, setOtherHandle] = useState(false);
   const [popoverOpen, setPopoverOpen] = useState(false);
 
-  const productThumbnail = product.product.thumbnail?.url;
-  const productDetail = product.details as { sizeId: number; quantity: number }[];
+  const productThumbnail = product.product?.thumbnail?.url;
+  const productDetail = product?.details as { sizeId: number; quantity: number }[];
 
   const handleUpdateDetails = async () => {
     setLoading(true);
@@ -72,12 +73,13 @@ export default function SingleCartProduct({
       details: unsavedChanges,
     });
 
-    if (!updatedDetails) {
-      toast.error("Failed to update details.");
+    if (updatedDetails.success === false && "message" in updatedDetails) {
+      toast.error(updatedDetails.message);
+      setLoading(false);
       return;
     }
 
-    toast.success("Details updated!");
+    toast.success("Product in cart updated!");
     setPopoverOpen(false);
     setUnsavedChanges(null);
     setSave(false);
@@ -92,21 +94,29 @@ export default function SingleCartProduct({
     sizeId: number | null;
   }) => {
     setLoading(true);
-    const deletedQuantity = await deleteOrderProductSize({ cartProductId, sizeId });
-
-    if (deletedQuantity == null) {
-      toast.error("Product has been removed.");
+    if (cartProductId === null || sizeId === null) {
+      toast.error("Product and size was not provided.");
+      setLoading(false);
       return;
     }
 
-    if ("success" in deletedQuantity && deletedQuantity.success === false) {
-      toast.error("Failed to update quantity.");
+    const deletedQuantity = await deleteOrderProductSize({ cartProductId, sizeId });
+
+    if (deletedQuantity === null) {
+      toast.error("Product has been removed from cart.");
+      return;
+    }
+
+    if (deletedQuantity.success === false && "message" in deletedQuantity) {
+      toast.error(deletedQuantity.message);
+      setLoading(false);
       return;
     }
 
     toast.success("Quantity updated!");
     setPopoverOpen(false);
-    return deletedQuantity;
+    setLoading(false);
+    return;
   };
 
   const handleChangeQuantity = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -115,31 +125,49 @@ export default function SingleCartProduct({
     setLoading(true);
     const formData = new FormData(e.target as HTMLFormElement);
 
-    const cartProductId = formData.get("cartProductId");
-    const sizeId = formData.get("sizeId");
+    const cartProductId = Number(formData.get("cartProductId"));
+    const sizeId = Number(formData.get("sizeId"));
     const newQuantity = formData.get("newQuantity");
 
+    if (Number.isNaN(cartProductId) || cartProductId === null) {
+      toast.error("Product was not provided.");
+      setLoading(false);
+      return;
+    }
+
+    if (Number.isNaN(sizeId) || sizeId === null) {
+      toast.error("Size was not provided.");
+      setLoading(false);
+      return;
+    }
+
+    if (Number.isNaN(newQuantity) || newQuantity === null) {
+      toast.error("Quantity was not provided.");
+      setLoading(false);
+      return;
+    }
+
     const validateData = {
-      cartProductId: Number(cartProductId) || null,
-      sizeId: Number(sizeId) || null,
-      newQuantity: Number(newQuantity) || 0,
+      cartProductId: Number(cartProductId),
+      sizeId: Number(sizeId),
+      newQuantity: Number(newQuantity),
     } as {
-      cartProductId: number | null;
-      sizeId: number | null;
+      cartProductId: number;
+      sizeId: number;
       newQuantity: number;
     };
 
     const updatedQuantity = await updateOrderProductQuantity(validateData);
 
-    setLoading(false);
-
-    if (!updatedQuantity) {
-      toast.error("Failed to update quantity.");
+    if (updatedQuantity.success && "message" in updatedQuantity) {
+      toast.error(updatedQuantity.message);
+      setLoading(false);
       return;
     }
 
     toast.success("Quantity updated!");
     setPopoverOpen(false);
+    setLoading(false);
     return updatedQuantity;
   };
 
@@ -151,11 +179,14 @@ export default function SingleCartProduct({
       >
         <AccordionTrigger className="flex items-center">
           <div className="flex items-center gap-2">
-            <div className="w-1/4 lg:w-auto lg:mr-4">
-              <img
-                src={productThumbnail || FallbackImage.src}
+            <div className="relative max-h-[200px] h-[200px] w-1/4 lg:w-[120px] lg:mr-4">
+              <Image
+                src={productThumbnail || FallbackImage}
                 alt={product.product?.name || "Product Thumbnail"}
-                className="max-h-[200px] rounded-md overflow-hidden"
+                className="rounded-md overflow-hidden object-cover"
+                sizes="(max-width: 768px) 50vw, (max-width: 1200px) 20vw, 15vw"
+                priority
+                fill
               />
             </div>
             <div className="w-3/4 flex flex-col">

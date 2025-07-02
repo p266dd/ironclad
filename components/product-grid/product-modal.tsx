@@ -4,8 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
-
-import { cn } from "@/lib/utils";
+import FavoriteButton from "../favorite-button";
+import LoadingIndicator from "../loading-indicator";
 
 // Shadcn
 import {
@@ -31,8 +31,6 @@ import { Prisma } from "@/lib/generated/prisma";
 
 // Import fallback image.
 import FallbackImage from "@/assets/product-fallback.webp";
-import FavoriteButton from "../favorite-button";
-import LoadingIndicator from "../loading-indicator";
 
 export default function ProductModal({
   product,
@@ -135,14 +133,13 @@ export default function ProductModal({
     <>
       <div
         ref={triggerRef}
-        className={cn(
-          "relative h-[240px] sm:h-[320px] md:h-[320px] lg:h-[420px] xl:h-[500px]"
-        )}
+        className="relative h-[240px] sm:h-[320px] md:h-[320px] lg:h-[420px] xl:h-[500px]"
       >
         <Image
-          src={product.thumbnail?.url || FallbackImage}
-          alt={product.name}
+          src={product?.thumbnail?.url || FallbackImage}
+          alt={product?.name}
           className="object-cover rounded-md overflow-hidden border"
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           fill
         />
         {loadingNavigation === product.id && (
@@ -157,32 +154,36 @@ export default function ProductModal({
           className="max-h-[95vh]"
         >
           <DialogHeader className="sr-only">
-            <DialogTitle>{product.name}</DialogTitle>
-            <DialogDescription>{product.description}</DialogDescription>
+            <DialogTitle>{product?.name}</DialogTitle>
+            <DialogDescription>{product?.description}</DialogDescription>
           </DialogHeader>
           <div className="relative">
-            <FavoriteButton productId={product.id} />
+            <FavoriteButton productId={product?.id} />
 
             <Carousel>
               <CarouselContent>
-                {product.media && product.media.length > 0 ? (
+                {product?.media && product?.media?.length > 0 ? (
                   product.media.map((media) => (
                     <CarouselItem key={media.id}>
                       <div className="relative min-h-[300px] h-[65vh] rounded-lg overflow-hidden">
-                        <img
-                          src={media.url}
-                          alt={media.name}
+                        <Image
+                          src={media?.url || "#"}
+                          alt={media?.name || "Product Image"}
                           className="w-full object-contain"
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 40vw, 33vw"
+                          fill
                         />
                       </div>
                     </CarouselItem>
                   ))
                 ) : (
-                  <div className="relative rounded-lg overflow-hidden">
-                    <img
-                      src={FallbackImage.src}
+                  <div className="relative min-h-[300px] h-[65vh] rounded-lg overflow-hidden">
+                    <Image
+                      src={FallbackImage}
                       alt="Image Placeholder"
                       className="w-full"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 40vw, 33vw"
+                      fill
                     />
                   </div>
                 )}
@@ -198,14 +199,14 @@ export default function ProductModal({
                   Product
                 </span>
                 <h4 className="text-xl font-semibold leading-tight capitalize">
-                  {product.name}
+                  {product?.name || "Product Name"}
                 </h4>
                 <span className="absolute -bottom-2 -right-2 md:hidden">
                   <MousePointerClickIcon color="#ccc" />
                 </span>
                 <Button type="button" className="mt-2">
                   <LoadingIndicator />
-                  See Product
+                  Open Product
                 </Button>
               </div>
             </Link>

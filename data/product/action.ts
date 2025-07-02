@@ -250,10 +250,26 @@ export async function getProductsPreview(searchTerm: string) {
   try {
     const products = await prisma.product.findMany({
       where: {
-        name: {
-          contains: searchTerm,
-          mode: "insensitive",
-        },
+        OR: [
+          {
+            name: {
+              contains: searchTerm,
+              mode: "insensitive",
+            },
+          },
+          {
+            handle: {
+              contains: searchTerm,
+              mode: "insensitive",
+            },
+          },
+          {
+            material: {
+              contains: searchTerm,
+              mode: "insensitive",
+            },
+          },
+        ],
       },
       select: {
         id: true,

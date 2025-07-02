@@ -1,6 +1,7 @@
 import PageTitle from "@/components/page-title";
 import ProductModal from "@/components/product-grid/product-modal";
 import EmptyFavorites from "@/components/empty-favorites";
+
 import { getFavorites } from "@/data/favorite/action";
 
 export default async function FavoritesPage() {
