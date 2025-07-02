@@ -3,13 +3,12 @@ import FilterTags from "@/components/filter-tags";
 import ProductGrid from "@/components/product-grid/product-grid";
 import { LockIcon } from "lucide-react";
 
-import { getSession, SessionPayload } from "@/lib/session";
+import { getSession } from "@/lib/session";
 import { getFilters } from "@/data/filter/action";
 import { logout } from "@/lib/logout";
 
 // Assets
 import Logo from "@/assets/logo.png";
-import { SearchParams } from "next/dist/server/request/search-params";
 
 export default async function HomePage({
   searchParams,

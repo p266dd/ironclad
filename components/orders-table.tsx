@@ -29,9 +29,6 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { CalendarIcon, LoaderCircleIcon, SearchIcon, XCircleIcon } from "lucide-react";
 
-// Types
-import { TOrderWithConnection } from "@/lib/types";
-
 export default function OrdersTable() {
   const [loadingSearch, setLoadingSearch] = useState(false);
   const [loadingNavigation, setLoadingNavigation] = useState("");

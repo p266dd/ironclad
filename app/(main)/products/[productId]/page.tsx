@@ -18,7 +18,7 @@ export default async function SingleProductPage({
   const getParams = await params;
   const product = await getProduct(getParams.productId);
 
-  const getUser = (await getUserPreferences()).data;
+  const getUser = await getUserPreferences();
   const getPreferences = getUser?.engraving as TEngravingPreference[] | null | undefined;
 
   const getCurrentProductFromcart = product && (await getProductFromCart(product.id));

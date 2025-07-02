@@ -39,8 +39,8 @@ export default async function ResultsPage(props: {
 
           <div className="mb-2">
             <SearchDialog
-              availableBrands={availableBrands.data}
-              availableMaterials={availableMaterials.data}
+              availableBrands={availableBrands}
+              availableMaterials={availableMaterials}
             />
           </div>
         </div>
