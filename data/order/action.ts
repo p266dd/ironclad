@@ -3,6 +3,7 @@
 import path from "path";
 import { cache } from "react";
 import prisma from "@/lib/prisma";
+import { startOfDay, endOfDay } from "date-fns";
 import { revalidatePath } from "next/cache";
 
 import { sendEmail } from "@/lib/nodemailer";
@@ -47,11 +48,25 @@ export const getOwnOrders = cache(
       if (searchQuery.searchTerm) {
         whereANDConditions.push({
           OR: [
-            { code: { contains: searchQuery?.searchTerm || undefined } },
+            {
+              code: {
+                contains: searchQuery?.searchTerm || undefined,
+                mode: "insensitive",
+              },
+            },
             {
               client: {
                 businessName: {
                   contains: searchQuery?.searchTerm || undefined,
+                  mode: "insensitive",
+                },
+              },
+            },
+            {
+              client: {
+                name: {
+                  contains: searchQuery?.searchTerm || undefined,
+                  mode: "insensitive",
                 },
               },
             },
@@ -59,11 +74,19 @@ export const getOwnOrders = cache(
         });
       }
 
+      const from =
+        searchQuery?.date && searchQuery?.date !== null
+          ? startOfDay(searchQuery?.date)
+          : undefined;
+      const to =
+        searchQuery?.date && searchQuery?.date !== null
+          ? endOfDay(searchQuery?.date)
+          : undefined;
       if (searchQuery.date) {
         whereANDConditions.push({
           createdAt: {
-            gte: searchQuery?.date || undefined,
-            lte: searchQuery?.date || undefined,
+            gte: from,
+            lt: to,
           },
         });
       }
@@ -87,6 +110,7 @@ export const getOwnOrders = cache(
             client: {
               select: {
                 name: true,
+                businessName: true,
               },
             },
             createdAt: true,

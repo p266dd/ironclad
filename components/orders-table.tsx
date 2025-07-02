@@ -38,21 +38,13 @@ export default function OrdersTable() {
 
   const getSearchParams = useSearchParams();
   const page = getSearchParams.get("page");
+  const currentPage = page ? Number(page) : 1;
   const perPage = 15;
 
   const dateRef = useRef<HTMLInputElement>(null);
   const getDate = getSearchParams.get("date");
+  const inputRef = useRef<HTMLInputElement>(null);
   const getSearchTerm = getSearchParams.get("searchTerm");
-  const [searchQuery, setSearchQuery] = useState<
-    | {
-        searchTerm: string | undefined;
-        date: Date | undefined;
-      }
-    | undefined
-  >({
-    searchTerm: getSearchTerm || undefined,
-    date: getDate ? new Date(getDate) : undefined,
-  });
 
   const router = useRouter();
 
@@ -60,12 +52,18 @@ export default function OrdersTable() {
     data: orders,
     error,
     isLoading,
-  } = useSWR("getOwnOrders", () =>
-    getOwnOrders({
-      searchQuery,
-      page: page ? Number(page) : 1,
-      perPage,
-    })
+  } = useSWR(
+    ["getOwnOrders", getSearchTerm, getDate, currentPage],
+    () =>
+      getOwnOrders({
+        searchQuery: {
+          searchTerm: getSearchTerm || undefined,
+          date: getDate ? new Date(getDate) : undefined,
+        },
+        page: page ? Number(page) : 1,
+        perPage,
+      }),
+    { keepPreviousData: true }
   );
 
   // * Set the searchQuery.
@@ -77,30 +75,24 @@ export default function OrdersTable() {
     const date = data.get("date") as string;
 
     setLoadingSearch(true);
-    router.replace("/account/orders?page=1?searchTerm=" + searchTerm + "&date=" + date);
-    await mutate("getOwnOrders");
-    await mutate("getOwnOrders");
+    router.replace("/account/orders?page=1&searchTerm=" + searchTerm + "&date=" + date);
     setLoadingSearch(false);
   };
 
   const handleClearSearch = async () => {
-    setSearchQuery(undefined);
     setInputDate(undefined);
+    if (inputRef.current !== null) inputRef.current.value = "";
     router.replace("/account/orders?page=1");
-    await mutate("getOwnOrders");
-    await mutate("getOwnOrders");
   };
 
   // * Set the new page number.
   const handlePageChange = async (page: number) => {
     if (page >= 1 && page <= (orders?.totalPages || 1)) {
       router.replace(
-        `/account/orders?page=${page}?searchTerm=${getSearchTerm || ""}&date=${
+        `/account/orders?page=${page}&searchTerm=${getSearchTerm || ""}&date=${
           getDate || ""
         }`
       );
-      await mutate("getOwnOrders");
-      await mutate("getOwnOrders");
     }
   };
 
@@ -113,7 +105,7 @@ export default function OrdersTable() {
         links.push(
           <PaginationItem key={i}>
             <PaginationLink
-              href={`/account/orders?page=${i}?searchTerm=${getSearchTerm || ""}&date=${
+              href={`/account/orders?page=${i}&searchTerm=${getSearchTerm || ""}&date=${
                 getDate || ""
               }`}
               isActive={i === orders?.currentPage}
@@ -128,7 +120,7 @@ export default function OrdersTable() {
       links.push(
         <PaginationItem key={1}>
           <PaginationLink
-            href={`/account/orders?page=${1}?searchTerm=${getSearchTerm || ""}&date=${
+            href={`/account/orders?page=${1}&searchTerm=${getSearchTerm || ""}&date=${
               getDate || ""
             }`}
             isActive={1 === orders?.currentPage}
@@ -165,7 +157,7 @@ export default function OrdersTable() {
         links.push(
           <PaginationItem key={i}>
             <PaginationLink
-              href={`/account/orders?page=${i}?searchTerm=${getSearchTerm || ""}&date=${
+              href={`/account/orders?page=${i}&searchTerm=${getSearchTerm || ""}&date=${
                 getDate || ""
               }`}
               isActive={i === (orders?.currentPage || 1)}
@@ -191,7 +183,7 @@ export default function OrdersTable() {
         links.push(
           <PaginationItem key={orders?.totalPages || 1}>
             <PaginationLink
-              href={`/account/orders?page=${orders?.totalPages || 1}?searchTerm=${
+              href={`/account/orders?page=${orders?.totalPages || 1}&searchTerm=${
                 getSearchTerm || ""
               }&date=${getDate || ""}`}
               isActive={(orders?.totalPages || 1) === (orders?.currentPage || 1)}
@@ -212,6 +204,7 @@ export default function OrdersTable() {
           <div className="flex items-center gap-2">
             <div className="flex-1">
               <Input
+                ref={inputRef}
                 type="text"
                 name="searchTerm"
                 placeholder="Order Number"
@@ -357,7 +350,7 @@ export default function OrdersTable() {
                 <PaginationPrevious
                   href={`/account/orders?page=${
                     orders?.currentPage ? orders?.currentPage - 1 : 1
-                  }?searchTerm=${getSearchTerm || ""}&date=${getDate || ""}`}
+                  }&searchTerm=${getSearchTerm || ""}&date=${getDate || ""}`}
                   onClick={() => handlePageChange((orders?.currentPage || 1) - 1)}
                   aria-disabled={orders?.currentPage === 1}
                   tabIndex={orders?.currentPage === 1 ? -1 : undefined}
@@ -373,7 +366,7 @@ export default function OrdersTable() {
                 <PaginationNext
                   href={`/account/orders?page=${
                     orders?.currentPage ? orders?.currentPage + 1 : 2
-                  }?searchTerm=${getSearchTerm || ""}&date=${getDate || ""}`}
+                  }&searchTerm=${getSearchTerm || ""}&date=${getDate || ""}`}
                   aria-disabled={orders?.currentPage === orders?.totalPages}
                   tabIndex={orders?.currentPage === orders?.totalPages ? -1 : undefined}
                   className={
