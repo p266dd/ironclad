@@ -38,12 +38,14 @@ export default async function AdminSingleProductPage({
 
       <div className="flex tems-center gap-4 my-6">
         <div>
-          <Button asChild variant="outline">
-            <Link href={`/dashboard/products/add?starter=${product?.id}`}>
-              <LoadingIndicator />
-              <PlusCircleIcon /> Create a Copy
-            </Link>
-          </Button>
+          {product !== null && (
+            <Button asChild variant="outline">
+              <Link href={`/dashboard/products/add?starter=${product?.id}`}>
+                <LoadingIndicator />
+                <PlusCircleIcon /> Create a Copy
+              </Link>
+            </Button>
+          )}
         </div>
         <div>{product?.id && <DeleteProductIcon productId={product?.id} />}</div>
       </div>
@@ -72,7 +74,7 @@ export default async function AdminSingleProductPage({
           </div>
         )}
 
-        {!product && (
+        {!product ? (
           <div className="max-w-[400px]">
             <Card className="w-full max-w-sm">
               <CardHeader>
@@ -93,9 +95,9 @@ export default async function AdminSingleProductPage({
               </CardContent>
             </Card>
           </div>
+        ) : (
+          <AdminProductForm product={product} />
         )}
-
-        <AdminProductForm product={product} />
       </div>
     </div>
   );

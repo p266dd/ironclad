@@ -542,7 +542,7 @@ export async function completeOrder({
     revalidatePath("/dashboard");
     revalidatePath("/dashboard/orders/" + orderId);
     revalidatePath("/dashboard/orders/" + orderId + "/print");
-    return { data: updatedOrder.id, error: null };
+    return { error: null, data: updatedOrder.id };
   } catch (error) {
     console.error(error);
     return { error: "Failed to update order.", data: null };
@@ -567,7 +567,7 @@ export async function deleteOrder({ orderId }: { orderId: string }) {
     revalidatePath("/dashboard");
     revalidatePath("/dashboard/orders/" + orderId);
     revalidatePath("/dashboard/orders/" + orderId + "/print");
-    return { data: deletedOrder.id, error: null };
+    return { error: null, data: deletedOrder.id };
   } catch (error) {
     console.error(error);
     return { error: "Failed to delete order.", data: null };

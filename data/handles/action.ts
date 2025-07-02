@@ -13,10 +13,11 @@ import { revalidatePath } from "next/cache";
 export async function getHandles() {
   try {
     const result = await prisma.handle.findMany({ orderBy: { name: "asc" } });
-    return { data: result, error: null };
+    return result;
   } catch (error) {
     const errorMessage = await generatePrismaErrorMessage(error, "handle", "findMany");
-    return { data: null, error: errorMessage };
+    console.error(errorMessage);
+    return null;
   }
 }
 

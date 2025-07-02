@@ -32,46 +32,33 @@ export async function saveFilter({
   await verifyAdminSession();
 
   if (!filterData) {
-    return null;
+    return { error: "Filter was not provided.", data: null };
   }
 
   const updateQuery = {
-    update: {
-      where: {
-        id: Number(filterData.id),
-      },
-      data: {
-        name: filterData.name,
-      },
+    where: {
+      id: Number(filterData.id),
+    },
+    data: {
+      name: filterData.name,
     },
   };
 
   const createQuery = {
-    create: {
+    data: {
       name: filterData.name,
     },
   };
 
   try {
-    if (filterData?.id) {
-      await prisma.filter.update({
-        where: {
-          id: Number(filterData.id),
-        },
-        data: {
-          name: filterData.name,
-        },
-      });
+    if (filterData?.id !== null) {
+      await prisma.filter.update(updateQuery);
     } else {
-      await prisma.filter.create({
-        data: {
-          name: filterData.name,
-        },
-      });
+      await prisma.filter.create(createQuery);
     }
 
     revalidatePath("/");
-    return { data: true, error: null };
+    return { error: null, data: true };
   } catch (error) {
     console.error(error);
     return { error: "Failed to save filter.", data: null };
@@ -82,7 +69,7 @@ export async function deleteFilter(filterId: number) {
   await verifyAdminSession();
 
   if (!filterId) {
-    return null;
+    return { error: "Filter was not provided.", data: null };
   }
 
   try {
@@ -92,12 +79,8 @@ export async function deleteFilter(filterId: number) {
       },
     });
 
-    if (!result) {
-      return { error: "Failed to delete filter.", data: null };
-    }
-
     revalidatePath("/");
-    return { data: true, error: null };
+    return { error: null, data: result };
   } catch (error) {
     console.error(error);
     return { error: "Failed to delete filter.", data: null };
@@ -116,10 +99,8 @@ export async function toggleFilter({
   await verifyAdminSession();
 
   if (!filterId || !productId) {
-    return null;
+    return { error: "No filter or product provided." };
   }
-
-  console.log(status);
 
   try {
     const result = await prisma.filter.update({
@@ -142,14 +123,10 @@ export async function toggleFilter({
       },
     });
 
-    if (!result) {
-      return { error: "Failed to toggle filter.", data: null };
-    }
-
     revalidatePath("/");
-    return { data: result.id, error: null };
+    return { error: null, data: result.id };
   } catch (error) {
     console.error(error);
-    return { error: "Failed to toggle filter.", data: null };
+    return { error: "Failed to toggle filter." };
   }
 }

@@ -104,6 +104,7 @@ export default function AdminMessagesPage() {
 
       if (result === null) {
         toast.error("Error adding message.");
+        return;
       }
 
       toast.success("Message added successfully!");
@@ -137,8 +138,9 @@ export default function AdminMessagesPage() {
         },
       });
 
-      if (!result) {
+      if (result === null) {
         toast.error("Error updating message.");
+        return;
       }
 
       toast.success("Message updated successfully!");
@@ -160,14 +162,15 @@ export default function AdminMessagesPage() {
     }
   };
 
-  const handleDeleteMessage = (messageId: number) => {
+  const handleDeleteMessage = async (messageId: number) => {
     setActionLoading(true);
     setDeletingId(messageId);
     try {
-      const result = deleteMessage({ id: messageId });
+      const result = await deleteMessage({ id: messageId });
 
-      if (!result) {
+      if (result === null) {
         toast.error("Error deleting message.");
+        return;
       }
 
       toast.success("Message deleted successfully!");
@@ -189,13 +192,14 @@ export default function AdminMessagesPage() {
     }
   };
 
-  const makeMessageActive = (messageId: number) => {
+  const makeMessageActive = async (messageId: number) => {
     setActionLoading(true);
     try {
-      const result = makeActiveMessage({ id: messageId });
+      const result = await makeActiveMessage({ id: messageId });
 
-      if (!result) {
+      if (result === null) {
         toast.error("Error selecting message.");
+        return;
       }
 
       toast.success("Message is now active!");
@@ -248,6 +252,7 @@ export default function AdminMessagesPage() {
                 type="text"
                 name="title"
                 id="title"
+                required
                 className="bg-white"
                 value={formData?.title || ""}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -261,6 +266,7 @@ export default function AdminMessagesPage() {
               <Label htmlFor="content">Message Content</Label>
               <Textarea
                 name="content"
+                required
                 id="content"
                 className="bg-white"
                 value={formData?.content || ""}
@@ -365,7 +371,7 @@ export default function AdminMessagesPage() {
                   className="md:max-w-10/12 lg:max-w-4xl"
                 >
                   <DialogHeader className="flex flex-col sm:flex-row sm:items-center gap-6 lg:mb-4">
-                    {formData.image && (
+                    {formData?.image && (
                       <div className="flex justify-center md:max-w-[350px]">
                         <img
                           src={formData.image}
@@ -388,7 +394,7 @@ export default function AdminMessagesPage() {
                       </DialogDescription>
                     </div>
                   </DialogHeader>
-                  {formData.linkTitle && formData.linkUrl && (
+                  {formData?.linkTitle && formData?.linkUrl && (
                     <DialogFooter>
                       <DialogClose asChild>
                         <Button variant="outline">Close</Button>
@@ -456,7 +462,11 @@ export default function AdminMessagesPage() {
                       {message.title}
                     </TableCell>
                     <TableCell>
-                      {message.isActive ? <StarIcon size={18} color="orange" /> : ""}
+                      {message.isActive ? (
+                        <StarIcon size={18} color="orange" fill="orange" />
+                      ) : (
+                        ""
+                      )}
                     </TableCell>
                     <TableCell className="text-right">
                       <DropdownMenu>

@@ -72,24 +72,13 @@ export default function AdminProductForm({
   const router = useRouter();
 
   // Fetch data
-  const { data: filtersData, isLoading: loadingFilters } = useSWR(
-    "fetchFilters",
-    getFilters
-  );
-  const { data: brandsData, isLoading: loadingBrands } = useSWR("fetchBrands", getBrands);
-  const { data: materialsData, isLoading: loadingMaterials } = useSWR(
+  const { data: filters, isLoading: loadingFilters } = useSWR("fetchFilters", getFilters);
+  const { data: brands, isLoading: loadingBrands } = useSWR("fetchBrands", getBrands);
+  const { data: handles, isLoading: loadingHandles } = useSWR("fetchHandles", getHandles);
+  const { data: materials, isLoading: loadingMaterials } = useSWR(
     "fetchMaterials",
     getMaterials
   );
-  const { data: handlesData, isLoading: loadingHandles } = useSWR(
-    "fetchHandles",
-    getHandles
-  );
-
-  const brands = brandsData?.data;
-  const materials = materialsData?.data;
-  const handles = handlesData?.data;
-  const filters = filtersData?.data;
 
   const [productBrand, setProductBrand] = useState(product?.brand || "");
 
@@ -100,20 +89,28 @@ export default function AdminProductForm({
   }, [product]);
 
   const addFilter = async (filterId: number) => {
-    await toggleFilter({
+    const response = await toggleFilter({
       filterId: filterId,
       productId: product?.id || "",
       status: true,
     });
+    if (response.error !== null) {
+      toast.error(response.error);
+      return;
+    }
     mutate("fetchFilters");
   };
 
   const removeFilter = async (filterId: number) => {
-    await toggleFilter({
+    const response = await toggleFilter({
       filterId: filterId,
       productId: product?.id || "",
       status: false,
     });
+    if (response.error !== null) {
+      toast.error(response.error);
+      return;
+    }
     mutate("fetchFilters");
   };
 
@@ -211,8 +208,9 @@ export default function AdminProductForm({
         });
       }
 
-      if (result.error) {
+      if (result.error !== null) {
         toast.error(result.error);
+        return;
       }
 
       toast.success("Product updated successfully!");
@@ -235,8 +233,9 @@ export default function AdminProductForm({
         thumbnailId,
         productId: product?.id || "",
       });
-      if (result.error) {
+      if (result.error !== null) {
         toast.error(result.error);
+        return;
       }
       toast.success("Product updated successfully!");
     } catch (error) {
@@ -263,7 +262,7 @@ export default function AdminProductForm({
           id: filterId,
         },
       });
-      if (!result) {
+      if (result.error !== null) {
         toast.error("Failed save filter.");
         return;
       }
@@ -282,7 +281,7 @@ export default function AdminProductForm({
 
     try {
       const result = await deleteFilter(filterId);
-      if (!result) {
+      if (result.error !== null) {
         toast.error("Failed delete filter.");
         return;
       }
@@ -303,6 +302,7 @@ export default function AdminProductForm({
           <RadioGroup
             defaultValue={product?.type || "knife"}
             name="type"
+            required
             className="max-w-[400px] flex items-center gap-6 mb-6"
           >
             <Label htmlFor="typeKnife" className="flex-1">

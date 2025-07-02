@@ -403,7 +403,7 @@ export async function addNewUser({
 
     revalidatePath("/admin/users");
 
-    return { data: user, error: null };
+    return { error: null, data: user };
   } catch (error) {
     console.error(error);
     return { error: "Failed to add new user.", data: null };
@@ -440,7 +440,7 @@ export async function updateUser({
     revalidatePath("/admin/users");
     revalidatePath("/admin/users/" + userId);
 
-    return { data: user, error: null };
+    return { error: null, data: user };
   } catch (error) {
     console.error(error);
     return { error: "Failed to update user.", data: null };

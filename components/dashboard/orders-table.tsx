@@ -110,9 +110,14 @@ export default function AdminOrdersTable() {
 
   const handleDelete = async (orderId: string) => {
     setLoadingAction(orderId);
-    await deleteOrder({
+    const response = await deleteOrder({
       orderId,
     });
+    if (response.error !== null) {
+      toast.success(response.error);
+      setLoadingAction("");
+      return;
+    }
     toast.success("Order was deleted.");
     mutate("getOrders");
     mutate("getNewOrders");
@@ -388,35 +393,37 @@ export default function AdminOrdersTable() {
       </div>
 
       <div>
-        <Pagination className="justify-start">
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious
-                href="#"
-                onClick={() => handlePageChange((data?.currentPage || 1) - 1)}
-                aria-disabled={data?.currentPage === 1}
-                tabIndex={data?.currentPage === 1 ? -1 : undefined}
-                className={
-                  data?.currentPage === 1 ? "pointer-events-none opacity-50" : undefined
-                }
-              />
-            </PaginationItem>
-            {renderPaginationLinks()}
-            <PaginationItem>
-              <PaginationNext
-                href="#"
-                onClick={() => handlePageChange((data?.currentPage || 1) + 1)}
-                aria-disabled={data?.currentPage === data?.totalPages}
-                tabIndex={data?.currentPage === data?.totalPages ? -1 : undefined}
-                className={
-                  data?.currentPage === data?.totalPages
-                    ? "pointer-events-none opacity-50"
-                    : undefined
-                }
-              />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
+        {data && data.totalPages > 1 ? (
+          <Pagination className="justify-start">
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  href="#"
+                  onClick={() => handlePageChange((data?.currentPage || 1) - 1)}
+                  aria-disabled={data?.currentPage === 1}
+                  tabIndex={data?.currentPage === 1 ? -1 : undefined}
+                  className={
+                    data?.currentPage === 1 ? "pointer-events-none opacity-50" : undefined
+                  }
+                />
+              </PaginationItem>
+              {renderPaginationLinks()}
+              <PaginationItem>
+                <PaginationNext
+                  href="#"
+                  onClick={() => handlePageChange((data?.currentPage || 1) + 1)}
+                  aria-disabled={data?.currentPage === data?.totalPages}
+                  tabIndex={data?.currentPage === data?.totalPages ? -1 : undefined}
+                  className={
+                    data?.currentPage === data?.totalPages
+                      ? "pointer-events-none opacity-50"
+                      : undefined
+                  }
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        ) : null}
       </div>
     </div>
   );

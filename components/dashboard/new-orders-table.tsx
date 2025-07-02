@@ -53,10 +53,15 @@ export default function AdminNewOrdersTable() {
 
   const handleComplete = async (orderId: string) => {
     setLoadingAction(orderId);
-    await completeOrder({
+    const response = await completeOrder({
       orderId,
       status: "completed",
     });
+    if (response.error !== null) {
+      toast.error(response.error);
+      setLoadingAction("");
+      return;
+    }
     toast.success("Order was marked as completed.");
     mutate("getOrders");
     mutate("getNewOrders");
@@ -65,9 +70,14 @@ export default function AdminNewOrdersTable() {
 
   const handleDelete = async (orderId: string) => {
     setLoadingAction(orderId);
-    await deleteOrder({
+    const response = await deleteOrder({
       orderId,
     });
+    if (response.error !== null) {
+      toast.success(response.error);
+      setLoadingAction("");
+      return;
+    }
     toast.success("Order was deleted.");
     mutate("getOrders");
     mutate("getNewOrders");

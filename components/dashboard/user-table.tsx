@@ -63,7 +63,7 @@ export default function AdminUsersTable() {
   const [searchQuery, setSearchQuery] = useState<SearchReference>(null);
   // * Pagination settings.
   const [page, setPage] = useState<number>(1);
-  const itemsPerPage: number = 16;
+  const itemsPerPage: number = 20;
   // * Search references.
   const [searchReference, setSearchReference] = useState<SearchReference>(null);
 
@@ -366,35 +366,37 @@ export default function AdminUsersTable() {
       </div>
 
       <div>
-        <Pagination className="justify-start">
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious
-                href="#"
-                onClick={() => handlePageChange((data?.currentPage || 1) - 1)}
-                aria-disabled={data?.currentPage === 1}
-                tabIndex={data?.currentPage === 1 ? -1 : undefined}
-                className={
-                  data?.currentPage === 1 ? "pointer-events-none opacity-50" : undefined
-                }
-              />
-            </PaginationItem>
-            {renderPaginationLinks()}
-            <PaginationItem>
-              <PaginationNext
-                href="#"
-                onClick={() => handlePageChange((data?.currentPage || 1) + 1)}
-                aria-disabled={data?.currentPage === data?.totalPages}
-                tabIndex={data?.currentPage === data?.totalPages ? -1 : undefined}
-                className={
-                  data?.currentPage === data?.totalPages
-                    ? "pointer-events-none opacity-50"
-                    : undefined
-                }
-              />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
+        {data && data?.totalPages > 1 ? (
+          <Pagination className="justify-start">
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  href="#"
+                  onClick={() => handlePageChange((data?.currentPage || 1) - 1)}
+                  aria-disabled={data?.currentPage === 1}
+                  tabIndex={data?.currentPage === 1 ? -1 : undefined}
+                  className={
+                    data?.currentPage === 1 ? "pointer-events-none opacity-50" : undefined
+                  }
+                />
+              </PaginationItem>
+              {renderPaginationLinks()}
+              <PaginationItem>
+                <PaginationNext
+                  href="#"
+                  onClick={() => handlePageChange((data?.currentPage || 1) + 1)}
+                  aria-disabled={data?.currentPage === data?.totalPages}
+                  tabIndex={data?.currentPage === data?.totalPages ? -1 : undefined}
+                  className={
+                    data?.currentPage === data?.totalPages
+                      ? "pointer-events-none opacity-50"
+                      : undefined
+                  }
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        ) : null}
       </div>
     </div>
   );

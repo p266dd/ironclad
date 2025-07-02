@@ -58,7 +58,7 @@ export default async function AdminSingleUserPage({
         </div>
       )}
 
-      {!user && (
+      {!user ? (
         <div className="max-w-[400px]">
           <Card className="w-full max-w-sm">
             <CardHeader>
@@ -79,11 +79,11 @@ export default async function AdminSingleUserPage({
             </CardContent>
           </Card>
         </div>
+      ) : (
+        <div className="my-6">
+          <AdminUserForm user={user} />
+        </div>
       )}
-
-      <div className="my-6">
-        <AdminUserForm user={user} />
-      </div>
     </div>
   );
 }

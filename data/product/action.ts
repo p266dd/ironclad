@@ -398,7 +398,7 @@ export async function getProductById(productId: string) {
       },
     });
 
-    return { data: order, error: null };
+    return { error: null, data: order };
   } catch (error) {
     console.error(error);
     return { error: "Failed to fetch Product.", data: null };
@@ -438,7 +438,7 @@ export async function updateProductDetails({
     revalidatePath("/admin/products");
     revalidatePath("/admin/products/" + productId);
 
-    return { data: product, error: null };
+    return { error: null, data: product };
   } catch (error) {
     console.error(error);
     return { error: "Failed to update product.", data: null };
@@ -472,10 +472,10 @@ export async function addNewProduct({
 
     revalidatePath("/admin/products");
 
-    return { data: product, error: null };
+    return { error: null, data: product };
   } catch (error) {
     console.error(error);
-    return { error: "Failed to update product.", data: null };
+    return { error: "Failed to create product. Is the name unique?", data: null };
   }
 }
 
@@ -501,7 +501,7 @@ export async function saveThumbnail({
     revalidatePath("/admin/products");
     revalidatePath("/admin/products/" + productId);
 
-    return { data: product, error: null };
+    return { error: null, data: product };
   } catch (error) {
     console.error(error);
     return { error: "Failed to save thumbnail.", data: null };

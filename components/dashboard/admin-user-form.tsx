@@ -63,8 +63,6 @@ export default function AdminUserForm({
     return true;
   };
 
-  console.log(generatedBusinessCode);
-
   const handleSaveUser = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
@@ -103,7 +101,7 @@ export default function AdminUserForm({
         });
       }
 
-      if (result?.error) {
+      if (result.error !== null) {
         toast.error(result.error);
       }
 
