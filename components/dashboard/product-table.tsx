@@ -369,6 +369,7 @@ export default function AdminProductTable() {
                         src={product?.thumbnail?.url || "/product-fallback.webp"}
                         alt={product?.thumbnail?.name || "Product Image"}
                         fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                         className="object-cover"
                       />
                     </div>
