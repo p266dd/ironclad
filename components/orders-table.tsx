@@ -1,6 +1,6 @@
 "use client";
 
-import useSWR, { mutate } from "swr";
+import useSWR from "swr";
 import { useState, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { getOwnOrders } from "@/data/order/action";
