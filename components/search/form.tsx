@@ -51,7 +51,7 @@ export default function SearchForm({
   };
 
   const [searchState, setSearchState] = useState<TSearchFields>({
-    searchTerm: searchParams.get("searchTerms") ?? "",
+    searchTerm: searchParams.get("searchTerm") ?? "",
     style: searchParams.get("style") ?? "all",
     type: searchParams.get("type") ?? "all",
     stock: searchParams.get("stock") ?? "all",
