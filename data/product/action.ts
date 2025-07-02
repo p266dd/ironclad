@@ -158,12 +158,6 @@ export async function getProductsInfineScroll(keys: {
         : searchFilters
         ? {
             AND: [
-              {
-                name: {
-                  contains: searchFilters?.searchTerm,
-                  mode: "insensitive",
-                },
-              },
               { type: searchFilters?.type === "all" ? undefined : typeFilter },
               {
                 style: searchFilters?.style === "all" ? undefined : styleFilter,
@@ -176,6 +170,50 @@ export async function getProductsInfineScroll(keys: {
               },
               {
                 sizes: sizesFilter,
+              },
+              {
+                OR: [
+                  {
+                    name: {
+                      contains: searchFilters?.searchTerm,
+                      mode: "insensitive",
+                    },
+                  },
+                  {
+                    brand: {
+                      contains: searchFilters?.searchTerm,
+                      mode: "insensitive",
+                    },
+                  },
+                  {
+                    material: {
+                      contains: searchFilters?.searchTerm,
+                      mode: "insensitive",
+                    },
+                  },
+                  {
+                    style: {
+                      contains: searchFilters?.searchTerm,
+                      mode: "insensitive",
+                    },
+                  },
+                  {
+                    handle: {
+                      contains: searchFilters?.searchTerm,
+                      mode: "insensitive",
+                    },
+                  },
+                  {
+                    sizes: {
+                      some: {
+                        name: {
+                          contains: searchFilters?.searchTerm,
+                          mode: "insensitive",
+                        },
+                      },
+                    },
+                  },
+                ],
               },
             ],
           }
