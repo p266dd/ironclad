@@ -162,12 +162,23 @@ export default function ProductModal({
 
             <Carousel>
               <CarouselContent>
-                {product?.media && product?.media?.length > 0 ? (
+                <CarouselItem>
+                  <div className="relative min-h-[300px] h-[65vh] rounded-lg overflow-hidden">
+                    <Image
+                      src={product?.thumbnail?.url || FallbackImage}
+                      alt={product?.name || "Product Image"}
+                      className="w-full object-contain"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 40vw, 33vw"
+                      fill
+                    />
+                  </div>
+                </CarouselItem>
+                {product?.media && product?.media?.length > 1 ? (
                   product.media.map((media) => (
                     <CarouselItem key={media.id}>
                       <div className="relative min-h-[300px] h-[65vh] rounded-lg overflow-hidden">
                         <Image
-                          src={media?.url || "#"}
+                          src={media?.url || FallbackImage}
                           alt={media?.name || "Product Image"}
                           className="w-full object-contain"
                           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 40vw, 33vw"

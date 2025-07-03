@@ -32,6 +32,7 @@ yarn-error.log*
 
 # env files
 .env*
+ironclad-app-key.json
 
 # vercel
 .vercel

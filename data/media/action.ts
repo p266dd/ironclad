@@ -2,8 +2,9 @@
 
 import prisma from "@/lib/prisma";
 import { verifyUserSession, verifyAdminSession } from "@/lib/session";
-import { ref, deleteObject, uploadBytes, getDownloadURL } from "firebase/storage";
 import { storage } from "@/lib/firebase";
+import { writeFile } from "fs/promises";
+import path from "path";
 
 // Types
 import { Media } from "@/lib/generated/prisma";
@@ -25,16 +26,32 @@ export async function addMedia({
 
   try {
     const mediaName = `${name}-${Date.now()}.jpeg`;
-    const docRef = ref(storage, `media/${mediaName}`);
-    const snapshot = await uploadBytes(docRef, blob);
+
+    // Save to temporary location
+    const buffer = Buffer.from(await blob.arrayBuffer());
+    const tempFilePath = path.join("/tmp", mediaName);
+    await writeFile(tempFilePath, buffer);
+
+    const bucket = storage.bucket();
+    const destination = `media/${mediaName}`;
+
+    const uploaded = await bucket.upload(tempFilePath, {
+      destination,
+      metadata: {
+        contentType: "image/jpeg",
+      },
+    });
 
     // Get download reference.
-    const downloadURL = await getDownloadURL(snapshot.ref);
+    const publicUrl = await uploaded[0].getSignedUrl({
+      action: "read",
+      expires: "03-09-2491",
+    });
 
     const created = await prisma.media.create({
       data: {
         name: mediaName ?? "media",
-        url: downloadURL,
+        url: publicUrl[0],
         product: productId
           ? {
               connect: {
@@ -64,8 +81,10 @@ export async function deleteMedia({ id }: { id: string }) {
     });
 
     // Delete image from storage.
-    const docRef = ref(storage, `media/${deleted.name}`);
-    await deleteObject(docRef);
+    const bucket = storage.bucket();
+    const docRef = bucket.file(`media/${deleted.name}`);
+
+    await docRef.delete();
 
     revalidatePath("/dashboard/products/" + deleted.productId);
     revalidatePath("/products/" + deleted.productId);

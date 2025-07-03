@@ -179,7 +179,7 @@ export default function SingleCartProduct({
       >
         <AccordionTrigger className="flex items-center">
           <div className="flex items-center gap-2">
-            <div className="relative max-h-[200px] h-[200px] w-1/4 lg:w-[120px] lg:mr-4">
+            <div className="relative max-h-[200px] h-[200px] min-w-[120px] lg:w-[120px] lg:mr-4">
               <Image
                 src={productThumbnail || FallbackImage}
                 alt={product.product?.name || "Product Thumbnail"}

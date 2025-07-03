@@ -1,28 +1,17 @@
-import { initializeApp, getApps, FirebaseApp } from "firebase/app";
-import { getStorage, FirebaseStorage } from "firebase/storage";
+import { initializeApp, cert, getApps, getApp, App } from "firebase-admin/app";
+import { getStorage, Storage } from "firebase-admin/storage";
 
-// Interface for firebaseConfig
-interface FirebaseConfig {
-  apiKey: string | undefined;
-  authDomain: string | undefined;
-  projectId: string | undefined;
-  storageBucket: string | undefined;
-  messagingSenderId: string | undefined;
-  appId: string | undefined;
-  measurementId?: string | undefined;
-}
-
-const firebaseConfig: FirebaseConfig = {
-  apiKey: process.env.FIREBASE_API_KEY,
-  authDomain: process.env.FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.FIREBASE_PROJECT_ID,
+const firebaseConfig = {
+  credential: cert({
+    projectId: process.env.FIREBASE_PROJECT_ID,
+    clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+    privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
+  }),
   storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.FIREBASE_MESSAGING_SENDERID,
-  appId: process.env.FIREBASE_APP_ID,
 };
 
-let firebaseInstance: FirebaseApp;
-let storage: FirebaseStorage;
+let firebaseInstance: App;
+let storage: Storage;
 
 // Prevent re-initialization
 if (!getApps().length) {
@@ -31,7 +20,7 @@ if (!getApps().length) {
 } else {
   // If an app is already initialized, retrieve it to avoid errors
   // Important if using hot-reloading or server-side rendering
-  firebaseInstance = getApps()[0];
+  firebaseInstance = getApp();
   storage = getStorage(firebaseInstance);
 }
 
