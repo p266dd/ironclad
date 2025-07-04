@@ -328,6 +328,30 @@ export async function getProductsPreview(searchTerm: string) {
   }
 }
 
+export async function getProducts() {
+  verifyAdminSession();
+
+  try {
+    const products = await prisma.product.findMany({
+      include: {
+        sizes: true,
+      },
+      orderBy: {
+        name: "asc",
+      },
+    });
+
+    if (products.length === 0) {
+      return null;
+    }
+    return products;
+  } catch (error) {
+    const errorMessage = await generatePrismaErrorMessage(error, "product", "findMany");
+    console.error(errorMessage);
+    return null;
+  }
+}
+
 export async function fetchProducts({
   searchQuery,
   page,

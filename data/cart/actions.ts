@@ -187,6 +187,8 @@ export async function updateProductFromCart(
       };
     }
 
+    // console.log(validatedData.details);
+
     const updatedCart = await prisma.cartProduct.update({
       where: {
         id: cartProductId.id,
@@ -277,6 +279,8 @@ export async function addToCart(
     if (!cartId) {
       return { success: false, message: "Failed to initialize cart.", fieldErrors: {} };
     }
+
+    // console.log(validatedData.details);
 
     const updatedCart = await prisma.cart.update({
       where: {

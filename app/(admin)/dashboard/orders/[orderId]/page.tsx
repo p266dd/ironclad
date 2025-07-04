@@ -92,9 +92,11 @@ export default async function AdminSingleOrder({
               nameAtOrder: string;
             }[];
             return (
-              <div key={product.product?.id} className="flex flex-col gap-4">
+              <div key={product.product?.id} className="flex flex-col gap-4 mb-8">
                 <div className="flex flex-col gap-2">
-                  <h3 className="font-medium text-2xl">{product.product?.name}</h3>
+                  <h3 className="font-medium text-2xl capitalize">
+                    {product.product?.name}
+                  </h3>
                   <div className="text-slate-800 leading-relaxed">
                     <p>
                       <strong>Brand:</strong> {product.product?.brand}

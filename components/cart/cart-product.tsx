@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useState } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
+import CartProductDetailRow from "./cart-product-detail-row";
 import FallbackImage from "@/assets/product-fallback.webp";
 
 //Shadcn
@@ -16,7 +17,6 @@ import {
 import {
   Table,
   TableBody,
-  TableCell,
   TableHead,
   TableHeader,
   TableRow,
@@ -30,8 +30,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CheckCheckIcon, PencilIcon, SaveIcon, Trash2Icon } from "lucide-react";
+import { SaveIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -61,7 +60,6 @@ export default function SingleCartProduct({
   } | null>(null);
   const [otherEngraving, setOtherEngraving] = useState(false);
   const [otherHandle, setOtherHandle] = useState(false);
-  const [popoverOpen, setPopoverOpen] = useState(false);
 
   const productThumbnail = product.product?.thumbnail?.url;
   const productDetail = product?.details as { sizeId: number; quantity: number }[];
@@ -80,7 +78,7 @@ export default function SingleCartProduct({
     }
 
     toast.success("Product in cart updated!");
-    setPopoverOpen(false);
+
     setUnsavedChanges(null);
     setSave(false);
     setLoading(false);
@@ -114,7 +112,7 @@ export default function SingleCartProduct({
     }
 
     toast.success("Quantity updated!");
-    setPopoverOpen(false);
+
     setLoading(false);
     return;
   };
@@ -159,14 +157,14 @@ export default function SingleCartProduct({
 
     const updatedQuantity = await updateOrderProductQuantity(validateData);
 
-    if (updatedQuantity.success && "message" in updatedQuantity) {
+    if (updatedQuantity.success === false && "message" in updatedQuantity) {
       toast.error(updatedQuantity.message);
       setLoading(false);
       return;
     }
 
     toast.success("Quantity updated!");
-    setPopoverOpen(false);
+
     setLoading(false);
     return updatedQuantity;
   };
@@ -235,71 +233,13 @@ export default function SingleCartProduct({
                   if (!matchingProduct) return null;
 
                   return (
-                    <TableRow key={matchingProduct?.id}>
-                      <TableCell>
-                        <h4 className="text-lg leading-tight">{matchingProduct?.name}</h4>
-                        <p className="text-sm">{matchingProduct?.size}</p>
-                      </TableCell>
-                      <TableCell>
-                        <h4 className="text-lg font-semibold">
-                          {matchingProduct?.stock}
-                        </h4>
-                      </TableCell>
-                      <TableCell>
-                        <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
-                          <PopoverTrigger>
-                            <h4 className="text-lg font-semibold flex items-center gap-2">
-                              {detail?.quantity} <PencilIcon size={14} />
-                            </h4>
-                          </PopoverTrigger>
-                          <PopoverContent align="start" side="top">
-                            <div className="flex items-center">
-                              <div>
-                                <span className="text-sm text-slate-500">
-                                  Update quantity
-                                </span>
-                                <form onSubmit={handleChangeQuantity}>
-                                  <div className="flex items-center gap-1">
-                                    <Input
-                                      type="hidden"
-                                      name="cartProductId"
-                                      value={product?.id}
-                                      readOnly
-                                    />
-                                    <Input
-                                      type="hidden"
-                                      name="sizeId"
-                                      value={detail?.sizeId}
-                                      readOnly
-                                    />
-                                    <Input
-                                      name="newQuantity"
-                                      type="number"
-                                      defaultValue={detail?.quantity}
-                                    />
-                                    <Button type="submit" variant="default">
-                                      <CheckCheckIcon />
-                                    </Button>
-                                    <Button
-                                      type="button"
-                                      onClick={() =>
-                                        handleDeleteQuantity({
-                                          cartProductId: product?.id,
-                                          sizeId: detail?.sizeId,
-                                        })
-                                      }
-                                      variant="destructive"
-                                    >
-                                      <Trash2Icon />
-                                    </Button>
-                                  </div>
-                                </form>
-                              </div>
-                            </div>
-                          </PopoverContent>
-                        </Popover>
-                      </TableCell>
-                    </TableRow>
+                    <CartProductDetailRow
+                      key={detail.sizeId}
+                      detail={detail}
+                      product={product}
+                      handleChangeQuantity={handleChangeQuantity}
+                      handleDeleteQuantity={handleDeleteQuantity}
+                    />
                   );
                 })}
               </TableBody>

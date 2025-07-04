@@ -86,6 +86,8 @@ export default function ProductPageForm({
     return <h4 className="text-lg text-slate-500">Product not found!</h4>;
   }
 
+  console.log(details);
+
   return (
     <form
       action={actionForm}
@@ -164,26 +166,28 @@ export default function ProductPageForm({
                           const value = parseInt(e.target.value);
                           if (isNaN(value)) return;
 
-                          setDetails((prev) => {
-                            if (prev.length === 0)
-                              return [
-                                { sizeId: size.id, quantity: value },
-                              ] as Prisma.JsonArray;
-                            return prev.map((item) => {
-                              const itemDetail = item as {
-                                sizeId: number;
-                                quantity: number;
-                              };
+                          setDetails((prevDetails) => {
+                            const updatedDetails = [...prevDetails]; // clone the array
+                            const index = updatedDetails.findIndex((detail) => {
+                              const item = detail as { sizeId: number; quantity: number };
+                              return item.sizeId === size.id;
+                            });
 
-                              if (itemDetail.sizeId === size.id) {
-                                return {
-                                  sizeId: size.id,
-                                  quantity: value,
-                                } as Prisma.JsonValue;
-                              }
+                            if (index !== -1) {
+                              // Update existing item.
+                              updatedDetails[index] = {
+                                sizeId: size.id,
+                                quantity: value,
+                              } as Prisma.JsonValue;
+                            } else {
+                              // Append new item.
+                              updatedDetails.push({
+                                sizeId: size.id,
+                                quantity: value,
+                              } as Prisma.JsonValue);
+                            }
 
-                              return item;
-                            }) as Prisma.JsonArray;
+                            return updatedDetails as Prisma.JsonArray;
                           });
                         }}
                       />

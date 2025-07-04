@@ -354,8 +354,8 @@ export default function AdminProductTable() {
 
             {data &&
               data?.data !== null &&
-              data.data.length > 0 &&
-              data.data.map((product) => (
+              data?.data?.length > 0 &&
+              data?.data.map((product) => (
                 <TableRow key={product.id}>
                   <TableCell
                     className="cursor-pointer w-[100px]"

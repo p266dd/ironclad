@@ -35,7 +35,7 @@ const companyDetails = {
   name: "Ironclad Knives",
   address: "〒 720-2122 Hiroshima, Fukuyama",
   email: "staff@ironcladknives.com",
-  website: "www.iconcladknives.com",
+  website: "https://ironclad.co.jp/",
 };
 
 export default function PrintOrderPage() {
@@ -161,7 +161,7 @@ export default function PrintOrderPage() {
                   <td>
                     {item.product?.name} <br />
                     <hr className="my-2" />
-                    <div className="mb-2">
+                    <div className="mb-1">
                       <h5 className="font-semibold">Sizes</h5>
                     </div>
                     <div className="flex flex-col mb-4">
@@ -169,22 +169,23 @@ export default function PrintOrderPage() {
                         productDetails.map((detail, index) => {
                           if (!detail.id || !detail.quantity || detail.quantity === 0)
                             return null;
+                          const sizeObject = item.product?.sizes.find(
+                            (p) => p.id === Number(detail.id)
+                          );
+
                           return (
                             <div
                               key={index}
                               className="flex gap-9 py-1 px-2 even:bg-gray-100 border-b border-gray-200"
                             >
+                              <div>{sizeObject && sizeObject.name}</div>
                               <div>
-                                {item.product &&
-                                  item.product.sizes.find(
-                                    (p) => p.id === Number(detail.id)
-                                  )?.name}
-                              </div>
-                              <div>
-                                {item.product &&
-                                  item.product.sizes.find(
-                                    (p) => p.id === Number(detail.id)
-                                  )?.size}
+                                {sizeObject &&
+                                  (sizeObject.size !== 0
+                                    ? sizeObject.size + " mm"
+                                    : sizeObject.dimension !== "0mm"
+                                    ? sizeObject.dimension
+                                    : "No Size")}
                               </div>
                               <div>Ordered: {detail.quantity}</div>
                             </div>
@@ -192,8 +193,10 @@ export default function PrintOrderPage() {
                         })}
                     </div>
                     <div>
-                      <h5 className="font-semibold mb-2">Special Request</h5>
-                      <p>{item.request || "No special request."}</p>
+                      <p>
+                        <strong className="font-semibold mr-3">Special Request</strong>
+                        {item.request || "No special request."}
+                      </p>
                     </div>
                   </td>
                   <td>{item.brand}</td>

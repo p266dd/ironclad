@@ -81,8 +81,12 @@ export function NewOrderEmailClient({
         orderProduct.product.sizes.find((size) => size.id === sizeDetail.id);
 
       if (sizeInfo) {
-        textBody += `Size: ${sizeInfo.name} ${sizeInfo.size} ---- Ordered: ${sizeDetail.quantity}\n`;
-        htmlBody += `Size: ${sizeInfo.name} ${sizeInfo.size} ---- Ordered: ${sizeDetail.quantity}<br />`;
+        textBody += `Size: ${sizeInfo.name} ${
+          sizeInfo.size !== 0 ? sizeInfo.size + " mm" : sizeInfo.dimension
+        } ---- Ordered: ${sizeDetail.quantity}\n`;
+        htmlBody += `Size: ${sizeInfo.name} ${
+          sizeInfo.size !== 0 ? sizeInfo.size + " mm" : sizeInfo.dimension
+        } ---- Ordered: ${sizeDetail.quantity}<br />`;
       }
     }
 
