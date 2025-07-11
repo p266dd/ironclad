@@ -118,7 +118,7 @@ export default function AdminOrdersTable() {
       setLoadingAction("");
       return;
     }
-    toast.success("Order was deleted.");
+    toast.success("注文が削除されました");
     mutate("getOrders");
     mutate("getNewOrders");
     setLoadingAction("");
@@ -229,7 +229,7 @@ export default function AdminOrdersTable() {
           <div className="flex-2/3">
             <Input
               name="searchTerm"
-              placeholder="Search"
+              placeholder="検索"
               autoComplete="off"
               value={searchReference?.searchTerm || ""}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -267,7 +267,7 @@ export default function AdminOrdersTable() {
             ) : (
               <SearchIcon />
             )}
-            Search
+            検索
           </Button>
 
           <Button
@@ -276,7 +276,7 @@ export default function AdminOrdersTable() {
             className="bg-gray-100 shrink md:shrink-0 md:flex-1/4 cursor-pointer"
             onClick={handleClearSearch}
           >
-            Clear
+            解除
           </Button>
         </div>
       </div>
@@ -285,10 +285,10 @@ export default function AdminOrdersTable() {
         <Table className="w-full max-w-3xl">
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[110px]">Date</TableHead>
-              <TableHead className="w-[110px]">Code</TableHead>
-              <TableHead>Client</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead className="w-[110px]">日付</TableHead>
+              <TableHead className="w-[110px]">コード</TableHead>
+              <TableHead>顧客</TableHead>
+              <TableHead className="text-right">操作</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -306,7 +306,7 @@ export default function AdminOrdersTable() {
               (error && (
                 <TableRow>
                   <TableCell>
-                    <div className="flex items-center gap-3">Error loading data.</div>
+                    <div className="flex items-center gap-3">読み込みに失敗しました</div>
                   </TableCell>
                 </TableRow>
               ))}
@@ -367,7 +367,7 @@ export default function AdminOrdersTable() {
                           }}
                           className="text-right cursor-pointer"
                         >
-                          <PrinterIcon /> Print Order
+                          <PrinterIcon /> 注文を印刷
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           className="cursor-pointer"
@@ -381,7 +381,7 @@ export default function AdminOrdersTable() {
                           ) : (
                             <Trash2Icon />
                           )}
-                          Delete
+                          注文を削除
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>

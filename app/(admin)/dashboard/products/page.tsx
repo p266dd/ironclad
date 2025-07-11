@@ -14,14 +14,14 @@ export default async function AdminProductsPage() {
         <BackButton />
       </div>
 
-      <PageTitle title="Product List" subtitle="Manage all your products in one place." />
+      <PageTitle title="商品一覧" subtitle="すべての商品を一か所で管理できます。" />
 
       <div className="flex tems-center justify-between my-6">
         <div>
           <Button asChild variant="default" size="lg">
             <Link href="/dashboard/products/add">
               <LoadingIndicator />
-              <PlusCircleIcon /> Add Product
+              <PlusCircleIcon /> 新商品
             </Link>
           </Button>
         </div>

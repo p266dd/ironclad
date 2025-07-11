@@ -28,7 +28,7 @@ export default function DeleteProductIcon({ productId }: { productId: string }) 
       ) : (
         <TrashIcon color="red" />
       )}{" "}
-      Delete Product
+      商品を削除
     </Button>
   );
 }

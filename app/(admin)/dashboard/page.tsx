@@ -6,12 +6,12 @@ import { ListIcon, LucideShoppingBag } from "lucide-react";
 export default async function DashboardPage() {
   return (
     <div>
-      <PageTitle title="Dashboard" />
+      <PageTitle title="ダッシュボード" />
 
       <div className="mb-16">
         <h2 className="flex items-center gap-3 text-2xl font-semibold mb-8">
           <LucideShoppingBag />
-          New Orders
+          新規注文
         </h2>
         <div>
           <AdminNewOrdersTable />
@@ -21,7 +21,7 @@ export default async function DashboardPage() {
       <div>
         <h2 className="flex items-center gap-3 text-2xl font-semibold mb-8">
           <ListIcon />
-          Order History
+          注文履歴
         </h2>
         <div>
           <AdminOrdersTable />

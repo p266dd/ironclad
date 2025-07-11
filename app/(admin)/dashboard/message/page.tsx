@@ -103,11 +103,11 @@ export default function AdminMessagesPage() {
       });
 
       if (result === null) {
-        toast.error("Error adding message.");
+        toast.error("メッセージの追加に失敗しました。");
         return;
       }
 
-      toast.success("Message added successfully!");
+      toast.success("メッセージが正常に追加されました！");
       setShowForm(false);
       setIsEditing(false);
       setFormData({
@@ -119,7 +119,7 @@ export default function AdminMessagesPage() {
       });
     } catch (error) {
       console.error(error);
-      toast.error("Failed to add message.");
+      toast.error("メッセージの追加に失敗しました。");
     } finally {
       mutate("getMessages");
       setActionLoading(false);
@@ -139,11 +139,11 @@ export default function AdminMessagesPage() {
       });
 
       if (result === null) {
-        toast.error("Error updating message.");
+        toast.error("メッセージの更新に失敗しました。");
         return;
       }
 
-      toast.success("Message updated successfully!");
+      toast.success("メッセージが正常に更新されました！");
       setShowForm(false);
       setIsEditing(false);
       setFormData({
@@ -155,7 +155,7 @@ export default function AdminMessagesPage() {
       });
     } catch (error) {
       console.error(error);
-      toast.error("Failed to update message.");
+      toast.error("メッセージの更新に失敗しました。");
     } finally {
       mutate("getMessages");
       setActionLoading(false);
@@ -169,11 +169,11 @@ export default function AdminMessagesPage() {
       const result = await deleteMessage({ id: messageId });
 
       if (result === null) {
-        toast.error("Error deleting message.");
+        toast.error("メッセージの削除に失敗しました。");
         return;
       }
 
-      toast.success("Message deleted successfully!");
+      toast.success("メッセージが正常に削除されました！");
       setShowForm(false);
       setIsEditing(false);
       setFormData({
@@ -185,7 +185,7 @@ export default function AdminMessagesPage() {
       });
     } catch (error) {
       console.error(error);
-      toast.error("Failed to delete message.");
+      toast.error("メッセージの削除に失敗しました。");
     } finally {
       mutate("getMessages");
       setActionLoading(false);
@@ -198,14 +198,14 @@ export default function AdminMessagesPage() {
       const result = await makeActiveMessage({ id: messageId });
 
       if (result === null) {
-        toast.error("Error selecting message.");
+        toast.error("メッセージの選択に失敗しました。");
         return;
       }
 
-      toast.success("Message is now active!");
+      toast.success("メッセージが有効になりました！");
     } catch (error) {
       console.error(error);
-      toast.error("Failed to select message.");
+      toast.error("Fメッセージの選択に失敗しました。");
     } finally {
       mutate("getMessages");
       setActionLoading(false);
@@ -228,14 +228,14 @@ export default function AdminMessagesPage() {
       </div>
 
       <PageTitle
-        title="Application Message"
-        subtitle="Show a message on every session."
+        title="アプリメッセージ"
+        subtitle="新しいセッションごとにメッセージを表示する。"
       />
 
       <div className="flex tems-center justify-between my-6">
         <div>
           <Button variant="default" size="lg" onClick={() => setShowForm(true)}>
-            <PlusCircleIcon /> New Message
+            <PlusCircleIcon /> 新しいメッセージ
           </Button>
         </div>
       </div>
@@ -244,10 +244,10 @@ export default function AdminMessagesPage() {
         <div className="max-w-4xl mb-8">
           <form className="max-w-md flex flex-col gap-4 p-6 border rounded-lg bg-gray-50">
             <div className="mb-3">
-              <h4 className="font-medium text-xl">New Application Message</h4>
+              <h4 className="font-medium text-xl">新しいメッセージ</h4>
             </div>
             <div className="grid w-full max-w-sm items-center gap-3">
-              <Label htmlFor="title">Message Title</Label>
+              <Label htmlFor="title">メッセージタイトル</Label>
               <Input
                 type="text"
                 name="title"
@@ -263,7 +263,7 @@ export default function AdminMessagesPage() {
             </div>
 
             <div className="grid w-full max-w-sm items-center gap-3">
-              <Label htmlFor="content">Message Content</Label>
+              <Label htmlFor="content">メッセージタイトル</Label>
               <Textarea
                 name="content"
                 required
@@ -278,14 +278,14 @@ export default function AdminMessagesPage() {
             </div>
 
             <div className="grid w-full max-w-sm items-center gap-3">
-              <Label htmlFor="linkTitle">Link</Label>
+              <Label htmlFor="linkTitle">リンク</Label>
               <div className="flex items-center gap-3">
                 <Input
                   type="text"
                   name="linkTitle"
                   id="linkTitle"
                   className="bg-white"
-                  placeholder="Link title..."
+                  placeholder="リンクタイトル"
                   value={formData?.linkTitle || ""}
                   onChange={(e) =>
                     setFormData({ ...formData, linkTitle: e.target.value })
@@ -296,7 +296,7 @@ export default function AdminMessagesPage() {
                   name="linkUrl"
                   id="linkUrl"
                   className="bg-white"
-                  placeholder="Link address..."
+                  placeholder="リンク先アドレス"
                   value={formData?.linkUrl || ""}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                     setFormData((prev) => ({ ...prev, linkUrl: e.target.value }))
@@ -314,7 +314,7 @@ export default function AdminMessagesPage() {
                     onClick={() => setFormData((prev) => ({ ...prev, image: null }))}
                     className="absolute top-2 right-2"
                   >
-                    <TrashIcon color="red" /> Remove
+                    <TrashIcon color="red" /> 削除
                   </Button>
                   <img
                     src={formData.image}
@@ -340,7 +340,7 @@ export default function AdminMessagesPage() {
                 variant="default"
                 onClick={() => (isEditing ? handleUpdateMessage() : handleSaveMessage())}
               >
-                {isEditing ? "Update Message" : "Save Message"}
+                {isEditing ? "メッセージを更新" : "メッセージを保存"}
               </Button>
               <Button
                 type="button"
@@ -357,13 +357,13 @@ export default function AdminMessagesPage() {
                   });
                 }}
               >
-                Cancel
+                キャンセル
               </Button>
 
               <Dialog>
                 <DialogTrigger className="flex-grow" asChild>
                   <Button type="button" variant="secondary">
-                    <PresentationIcon /> Open Preview
+                    <PresentationIcon /> プレビューを開く
                   </Button>
                 </DialogTrigger>
                 <DialogContent
@@ -384,12 +384,12 @@ export default function AdminMessagesPage() {
                     <div className="flex flex-col gap-4">
                       <DialogTitle className="md:text-2xl">
                         {formData.title || (
-                          <span className="text-gray-400">Missing title.</span>
+                          <span className="text-gray-400">タイトルがありません</span>
                         )}
                       </DialogTitle>
                       <DialogDescription className="md:text-base">
                         {formData.content || (
-                          <span className="text-gray-400">Missing content.</span>
+                          <span className="text-gray-400">内容がありません</span>
                         )}
                       </DialogDescription>
                     </div>
@@ -402,7 +402,9 @@ export default function AdminMessagesPage() {
                       <Button asChild type="button">
                         <Link href="#" target="_blank">
                           {formData.linkTitle || (
-                            <span className="text-sm text-gray-400">Missing Link</span>
+                            <span className="text-sm text-gray-400">
+                              リンクがありません
+                            </span>
                           )}
                         </Link>
                       </Button>
@@ -420,9 +422,9 @@ export default function AdminMessagesPage() {
           <Table className="w-full max-w-3xl">
             <TableHeader>
               <TableRow>
-                <TableHead colSpan={2}>Message</TableHead>
-                <TableHead>Active</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead colSpan={2}>メッセージ</TableHead>
+                <TableHead>有効</TableHead>
+                <TableHead className="text-right">操作</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -485,7 +487,7 @@ export default function AdminMessagesPage() {
                             onClick={() => makeMessageActive(message.id)}
                           >
                             <CircleCheckIcon />
-                            Make Active
+                            有効化
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             className="cursor-pointer"
@@ -503,7 +505,7 @@ export default function AdminMessagesPage() {
                             }}
                           >
                             <PencilIcon />
-                            Edit
+                            編集
                           </DropdownMenuItem>
 
                           <DropdownMenuItem
@@ -511,7 +513,7 @@ export default function AdminMessagesPage() {
                             onClick={() => handleDeleteMessage(message.id)}
                           >
                             <Trash2Icon />
-                            Delete
+                            削除
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -532,12 +534,12 @@ export default function AdminMessagesPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-3">
                 <AlertCircleIcon />
-                No message found.
+                メッセージが見つかりませんでした。
               </CardTitle>
-              <CardDescription>There are no messages to display.</CardDescription>
+              <CardDescription>表示するメッセージはありません。</CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-slate-500">Let&apos;s add a message.</p>
+              <p className="text-sm text-slate-500">新しいメッセージを作成しましょう。</p>
             </CardContent>
           </Card>
         </div>

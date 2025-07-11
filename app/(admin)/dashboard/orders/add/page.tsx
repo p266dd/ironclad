@@ -9,7 +9,7 @@ export default async function AdminNewOrderPage() {
         <BackButton />
       </div>
 
-      <PageTitle title="Create Order" subtitle="Create a new order for a client." />
+      <PageTitle title="新規注文" subtitle="顧客の新規注文を作成してください。" />
 
       <div>
         <AdminOrderForm />

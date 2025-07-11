@@ -54,7 +54,7 @@ export default function AdminSingleOrderPopover({
       <PopoverContent align="start" side="top">
         <div className="flex items-center">
           <div>
-            <span className="text-sm text-slate-500">Update quantity</span>
+            <span className="text-sm text-slate-500">数量を更新</span>
             <form onSubmit={saveSize}>
               <div className="flex items-center gap-1">
                 <Input

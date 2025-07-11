@@ -33,9 +33,9 @@ export default function OrderSizeTable({
     <Table className="bg-slate-50 rounded-lg">
       <TableHeader>
         <TableRow className="bg-slate-100">
-          <TableHead>Name</TableHead>
-          <TableHead>Size</TableHead>
-          <TableHead>Ordered</TableHead>
+          <TableHead>サイズ名</TableHead>
+          <TableHead>サイズの長さ</TableHead>
+          <TableHead>注文</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>

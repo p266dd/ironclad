@@ -34,7 +34,7 @@ export default async function AdminSingleProductPage({
         <BackButton />
       </div>
 
-      <PageTitle title={product?.name || "Product Details"} subtitle="Product Name" />
+      <PageTitle title={product?.name || "商品"} subtitle="商品名" />
 
       <div className="flex tems-center gap-4 my-6">
         <div>
@@ -42,7 +42,7 @@ export default async function AdminSingleProductPage({
             <Button asChild variant="outline">
               <Link href={`/dashboard/products/add?starter=${product?.id}`}>
                 <LoadingIndicator />
-                <PlusCircleIcon /> Create a Copy
+                <PlusCircleIcon /> コピーを作成
               </Link>
             </Button>
           )}
@@ -57,16 +57,14 @@ export default async function AdminSingleProductPage({
               <CardHeader>
                 <CardTitle className="flex items-center gap-3">
                   <AnnoyedIcon />
-                  Error
+                  エラー
                 </CardTitle>
-                <CardDescription>
-                  There was an error while loading this product.
-                </CardDescription>
+                <CardDescription>読み込みに失敗しました</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="flex items-center gap-3">
                   <Button asChild variant="default">
-                    <Link href="/dashboard/products">Go Back</Link>
+                    <Link href="/dashboard/products">戻る</Link>
                   </Button>
                 </div>
               </CardContent>
@@ -80,16 +78,14 @@ export default async function AdminSingleProductPage({
               <CardHeader>
                 <CardTitle className="flex items-center gap-3">
                   <AnnoyedIcon />
-                  Product Not Found
+                  商品が見つかりません
                 </CardTitle>
-                <CardDescription>
-                  We could not find the product you are looking for.
-                </CardDescription>
+                <CardDescription>お探しの商品が見つかりませんでした。</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="flex items-center gap-3">
                   <Button asChild variant="default">
-                    <Link href="/dashboard/products">Go Back</Link>
+                    <Link href="/dashboard/products">戻る</Link>
                   </Button>
                 </div>
               </CardContent>

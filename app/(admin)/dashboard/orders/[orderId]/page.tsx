@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { format } from "date-fns";
+import { ja } from "date-fns/locale";
 import BackButton from "@/components/back-button";
 import PageTitle from "@/components/page-title";
 
@@ -34,22 +35,24 @@ export default async function AdminSingleOrder({
       </div>
 
       <PageTitle
-        title="Order Details"
-        subtitle={"Received: " + format(order.createdAt, "EEEE, MMMM do yyyy")}
+        title="注文詳細"
+        subtitle={
+          "受取日時： " + format(order.createdAt, "EEEE, MMMM do yyyy", { locale: ja })
+        }
       />
 
       <div className="mt-4 mb-8 flex items-center gap-4">
         <Button asChild variant="default">
           <Link href={"/dashboard/orders/" + order.id + "/print"}>
             <PrinterIcon />
-            Print Order
+            注文を印刷
           </Link>
         </Button>
 
         <Button asChild variant="outline">
           <Link href={"/dashboard/orders/" + order.id + "/edit"}>
             <PenIcon />
-            Edit Order
+            注文を編集
           </Link>
         </Button>
       </div>
@@ -57,29 +60,31 @@ export default async function AdminSingleOrder({
       <div className="max-w-[800px] mb-8">
         <div className="flex flex-col md:flex-row gap-4 gap-x-12 mb-8">
           <div>
-            <h5 className="text-slate-500">Order Reference</h5>
+            <h5 className="text-slate-500">注文番号</h5>
             <h3 className="font-medium text-2xl">{order.code.split("-")[1]}</h3>
           </div>
           <div>
-            <h5 className="text-slate-500">Client</h5>
+            <h5 className="text-slate-500">顧客</h5>
             <h3 className="font-medium text-2xl">{order.client.businessName}</h3>
           </div>
           <div>
-            <h5 className="text-slate-500">Ordered By</h5>
+            <h5 className="text-slate-500">注文者</h5>
             <h3 className="font-medium text-2xl">{order.client.name}</h3>
           </div>
           {order.completedAt !== null && (
             <div>
-              <h5 className="text-slate-500">Completed</h5>
+              <h5 className="text-slate-500">完了日時</h5>
               <h3 className="font-medium text-2xl">
-                {order?.completedAt ? format(order.completedAt, "MMMM do yyyy") : null}
+                {order?.completedAt
+                  ? format(order.completedAt, "MMMM do yyyy", { locale: ja })
+                  : null}
               </h3>
             </div>
           )}
         </div>
 
         <div>
-          <h4 className="text-slate-500 mb-4">List Of Products</h4>
+          <h4 className="text-slate-500 mb-4">商品一覧</h4>
           <Separator className="my-3" />
           {order.orderProduct.map((product) => {
             if (!product || !product.product) {

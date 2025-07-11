@@ -42,7 +42,7 @@ export default function AdminUserForm({
   const generatePassword = () => {
     const generatedPassword = generateRandomString("password");
     setGeneratedPassword(generatedPassword);
-    toast("Password generated.");
+    toast("パスワードが生成されました。");
   };
 
   const generateBusinessCode = async () => {
@@ -52,7 +52,7 @@ export default function AdminUserForm({
     if (!isValid) return;
 
     setGeneratedBusinessCode(generatedBusinessCode);
-    toast("Business code generated.");
+    toast("ビジネスコードが生成されました。");
   };
 
   const validateBusinessCode = async (code: string) => {
@@ -105,13 +105,13 @@ export default function AdminUserForm({
         toast.error(result.error);
       }
 
-      toast.success("User updated successfully!");
+      toast.success("ユーザーが正常に更新されました。");
       if (isNew) {
         router.push("/dashboard/users/");
       }
     } catch (error) {
       console.error(error);
-      toast.error("Failed to update user.");
+      toast.error("ユーザーの更新に失敗しました。");
     } finally {
       setLoading(false);
     }
@@ -122,7 +122,7 @@ export default function AdminUserForm({
       <form onSubmit={handleSaveUser}>
         <div className="flex flex-col gap-6">
           <div className="grid w-full items-center gap-3">
-            <Label htmlFor="name">Client Name</Label>
+            <Label htmlFor="name">顧客名</Label>
             <Input
               type="text"
               name="name"
@@ -136,7 +136,7 @@ export default function AdminUserForm({
           </div>
 
           <div className="grid w-full items-center gap-3">
-            <Label htmlFor="email">Client Email</Label>
+            <Label htmlFor="email">顧客メール</Label>
             <Input
               type="text"
               name="email"
@@ -150,7 +150,7 @@ export default function AdminUserForm({
 
           {isNew ? (
             <div className="grid w-full items-center gap-3">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">パスワード</Label>
               {generatedPassword ? (
                 <Input
                   type="text"
@@ -170,7 +170,7 @@ export default function AdminUserForm({
                   onClick={() => generatePassword()}
                 >
                   <KeyIcon />
-                  Generate Password
+                  パスワードを生成
                 </Button>
               )}
             </div>
@@ -179,13 +179,13 @@ export default function AdminUserForm({
               <Label htmlFor="name">Password</Label>
               <Button type="button" variant="secondary">
                 <KeyIcon />
-                Private
+                個人情報
               </Button>
             </div>
           )}
 
           <div className="grid w-full items-center gap-3">
-            <Label htmlFor="businessName">Business Name</Label>
+            <Label htmlFor="businessName">会社名</Label>
             <Input
               type="text"
               name="businessName"
@@ -199,7 +199,7 @@ export default function AdminUserForm({
           </div>
 
           <div className="relative grid w-full items-center gap-3">
-            <Label htmlFor="businessCode">Business Code</Label>
+            <Label htmlFor="businessCode">ビジネスコード </Label>
             <Input
               type="text"
               name="businessCode"
@@ -220,7 +220,7 @@ export default function AdminUserForm({
                 className="cursor-pointer"
                 onClick={() => generateBusinessCode()}
               >
-                Generate
+                コードを生成
               </Badge>
             </span>
           </div>
@@ -244,9 +244,9 @@ export default function AdminUserForm({
                     </div>
                     <div className="text-base">
                       <CardTitle className="flex items-center gap-2">
-                        <User2Icon /> User
+                        <User2Icon /> ユーザー
                       </CardTitle>
-                      <CardDescription className="sr-only">Role: User</CardDescription>
+                      <CardDescription className="sr-only">ユーザー権限</CardDescription>
                     </div>
                   </div>
                 </CardHeader>
@@ -266,9 +266,9 @@ export default function AdminUserForm({
                     </div>
                     <div className="text-base">
                       <CardTitle className="flex items-center gap-2">
-                        <UserCheck2Icon /> Admin
+                        <UserCheck2Icon /> 管理者
                       </CardTitle>
-                      <CardDescription className="sr-only">User: Admin</CardDescription>
+                      <CardDescription className="sr-only">管理者権限</CardDescription>
                     </div>
                   </div>
                 </CardHeader>
@@ -282,12 +282,12 @@ export default function AdminUserForm({
               id="isActive"
               defaultChecked={user?.isActive || false}
             />
-            <span>Is this user active?</span>
+            <span>このユーザーは有効ですか？</span>
           </Label>
 
           <Button type="submit" variant="default" disabled={loading}>
             {loading ? <LoaderCircleIcon className="animate-spin" /> : <SaveIcon />}
-            {loading ? "Saving..." : isNew ? "Add User" : "Save Changes"}
+            {loading ? "保存中..." : isNew ? "追加" : "変更を保存"}
           </Button>
         </div>
       </form>

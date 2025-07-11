@@ -34,14 +34,14 @@ export default async function AdminAddProductPage({
         <BackButton />
       </div>
 
-      <PageTitle title="Add New Product" subtitle="" />
+      <PageTitle title="新しい商品を追加する" subtitle="" />
 
       {starter !== null && starter !== undefined && (
         <div>
           <Alert variant="default" className="bg-yellow-50">
             <CopyCheckIcon />
-            <AlertTitle>Creating a copy!</AlertTitle>
-            <AlertDescription>You are creating a copy of a product.</AlertDescription>
+            <AlertTitle>コピーを作成中！</AlertTitle>
+            <AlertDescription>商品をコピーしています。</AlertDescription>
           </Alert>
         </div>
       )}
@@ -53,16 +53,16 @@ export default async function AdminAddProductPage({
               <CardHeader>
                 <CardTitle className="flex items-center gap-3">
                   <AnnoyedIcon />
-                  Error
+                  エラー
                 </CardTitle>
                 <CardDescription>
-                  There was an error while loading this product.
+                  この商品の読み込み中にエラーが発生しました。
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="flex items-center gap-3">
                   <Button asChild variant="default">
-                    <Link href="/dashboard/products">Go Back</Link>
+                    <Link href="/dashboard/products">戻る</Link>
                   </Button>
                 </div>
               </CardContent>
@@ -76,16 +76,14 @@ export default async function AdminAddProductPage({
               <CardHeader>
                 <CardTitle className="flex items-center gap-3">
                   <AnnoyedIcon />
-                  Product Not Found
+                  商品が見つかりません
                 </CardTitle>
-                <CardDescription>
-                  We could not find the product you are looking for.
-                </CardDescription>
+                <CardDescription>お探しの商品が見つかりませんでした。</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="flex items-center gap-3">
                   <Button asChild variant="default">
-                    <Link href="/dashboard/products">Go Back</Link>
+                    <Link href="/dashboard/products">戻る</Link>
                   </Button>
                 </div>
               </CardContent>

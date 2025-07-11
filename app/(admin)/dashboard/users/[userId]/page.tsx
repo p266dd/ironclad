@@ -33,7 +33,7 @@ export default async function AdminSingleUserPage({
         <BackButton />
       </div>
 
-      <PageTitle title={user?.name || "Full Name"} subtitle="Editing this user." />
+      <PageTitle title={user?.name || "氏名"} subtitle="このユーザーを編集しています。" />
 
       {result.error && (
         <div className="max-w-[400px]">
@@ -41,16 +41,16 @@ export default async function AdminSingleUserPage({
             <CardHeader>
               <CardTitle className="flex items-center gap-3">
                 <AnnoyedIcon />
-                Error
+                エラー
               </CardTitle>
               <CardDescription>
-                There was an error while loading this user.
+                このユーザーの読み込み中にエラーが発生しました。
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex items-center gap-3">
                 <Button asChild variant="default">
-                  <Link href="/dashboard/users">Go Back</Link>
+                  <Link href="/dashboard/users">戻る</Link>
                 </Button>
               </div>
             </CardContent>
@@ -64,16 +64,14 @@ export default async function AdminSingleUserPage({
             <CardHeader>
               <CardTitle className="flex items-center gap-3">
                 <AnnoyedIcon />
-                User Not Found
+                ユーザーが見つかりません。
               </CardTitle>
-              <CardDescription>
-                We could not find the user you are looking for.
-              </CardDescription>
+              <CardDescription>お探しのユーザーが見つかりませんでした。</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex items-center gap-3">
                 <Button asChild variant="default">
-                  <Link href="/dashboard/users">Go Back</Link>
+                  <Link href="/dashboard/users">戻る</Link>
                 </Button>
               </div>
             </CardContent>

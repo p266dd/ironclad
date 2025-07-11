@@ -14,14 +14,14 @@ export default async function AdminProductsPage() {
         <BackButton />
       </div>
 
-      <PageTitle title="Client List" subtitle="Manage your clients." />
+      <PageTitle title="顧客一覧" subtitle="顧客を管理しましょう。" />
 
       <div className="flex tems-center justify-between my-6">
         <div>
           <Button asChild variant="default" size="lg">
             <Link href="/dashboard/users/add">
               <LoadingIndicator />
-              <PlusCircleIcon /> New Client
+              <PlusCircleIcon /> 新規顧客
             </Link>
           </Button>
         </div>

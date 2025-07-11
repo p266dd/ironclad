@@ -11,7 +11,7 @@ export default function BackButton() {
   return (
     <Button variant="ghost" size="lg" onClick={() => router.back()}>
       <ArrowLeftIcon />
-      Back
+      戻る
     </Button>
   );
 }

@@ -88,8 +88,8 @@ export default function AdminImageUploader({
           <CardHeader className="flex items-center gap-3">
             <UploadIcon />
             <div>
-              <CardTitle>Choose an Image</CardTitle>
-              <CardDescription>Choose an image from your device.</CardDescription>
+              <CardTitle>画像を選択</CardTitle>
+              <CardDescription>お使いの端末から画像を選んでください。</CardDescription>
             </div>
           </CardHeader>
         </Card>
@@ -127,7 +127,7 @@ export default function AdminImageUploader({
       {imageSrc && (
         <div className="flex items-center gap-3">
           <Button type="button" onClick={handlePreview}>
-            <SaveIcon /> Crop and Save
+            <SaveIcon /> トリミングして保存
           </Button>
           <Button
             type="button"
@@ -139,7 +139,7 @@ export default function AdminImageUploader({
               if (inputRef.current !== null) inputRef.current.defaultValue = "";
             }}
           >
-            <MinusCircleIcon /> Cancel
+            <MinusCircleIcon /> キャンセル
           </Button>
         </div>
       )}

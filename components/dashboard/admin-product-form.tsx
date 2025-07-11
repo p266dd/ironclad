@@ -124,13 +124,13 @@ export default function AdminProductForm({
       });
 
       if (!result) {
-        toast.error("Error adding media.");
+        toast.error("メディアの追加中にエラーが発生しました。");
       }
 
-      toast.success("Media added successfully!");
+      toast.success("メディアが正常に追加されました！");
     } catch (error) {
       console.error(error);
-      toast.error("Failed to save media.");
+      toast.error("メディアの削除中にエラーが発生しました。");
     } finally {
       mutate("fetchProducts");
       setLoadingSaveMedia(false);
@@ -143,13 +143,13 @@ export default function AdminProductForm({
       const result = await deleteMedia({ id: mediaId });
 
       if (!result) {
-        toast.error("Error deleting media.");
+        toast.error("メディアの削除中にエラーが発生しました。");
       }
 
-      toast.success("Media deleted successfully!");
+      toast.success("メディアが正常に削除されました！");
     } catch (error) {
       console.error(error);
-      toast.error("Failed to delete media.");
+      toast.error("メディアの削除中にエラーが発生しました。");
     } finally {
       mutate("fetchProducts");
       setDeletingMedia(null);
@@ -213,13 +213,13 @@ export default function AdminProductForm({
         return;
       }
 
-      toast.success("Product updated successfully!");
+      toast.success("商品が正常に更新されました！");
       if (isNew) {
         router.push("/dashboard/products/" + result.data?.id);
       }
     } catch (error) {
       console.error(error);
-      toast.error("Failed to update product.");
+      toast.error("商品の更新に失敗しました。");
     } finally {
       mutate("fetchProducts");
       setLoading(false);
@@ -237,10 +237,10 @@ export default function AdminProductForm({
         toast.error(result.error);
         return;
       }
-      toast.success("Product updated successfully!");
+      toast.success("商品が正常に更新されました！");
     } catch (error) {
       console.error(error);
-      toast.error("Failed save thumbnail.");
+      toast.error("サムネイルの保存に失敗しました。");
     } finally {
       mutate("fetchProducts");
       setLoadingSetThumbnail(false);
@@ -263,13 +263,13 @@ export default function AdminProductForm({
         },
       });
       if (result.error !== null) {
-        toast.error("Failed save filter.");
+        toast.error("フィルターの保存に失敗しました。");
         return;
       }
-      toast.success("Filter updated successfully!");
+      toast.success("フィルターに更新されました！");
     } catch (error) {
       console.error(error);
-      toast.error("Failed save filter.");
+      toast.error("フィルターの保存に失敗しました。");
     } finally {
       mutate("fetchFilters");
       setLoadingSaveFilter(false);
@@ -282,13 +282,13 @@ export default function AdminProductForm({
     try {
       const result = await deleteFilter(filterId);
       if (result.error !== null) {
-        toast.error("Failed delete filter.");
+        toast.error("フィルターの削除に失敗しました。");
         return;
       }
-      toast.success("Filter deleted successfully!");
+      toast.success("フィルターに削除されました！");
     } catch (error) {
       console.error(error);
-      toast.error("Failed to delete filter.");
+      toast.error("フィルターの削除に失敗しました。");
     } finally {
       mutate("fetchFilters");
       setLoadingDeleteFilter(false);
@@ -315,8 +315,8 @@ export default function AdminProductForm({
                       <RadioGroupItem value="knife" id="typeKnife" />
                     </div>
                     <div className="text-base">
-                      <CardTitle>Knife</CardTitle>
-                      <CardDescription className="sr-only">Knife Product</CardDescription>
+                      <CardTitle>包丁</CardTitle>
+                      <CardDescription className="sr-only">包丁</CardDescription>
                     </div>
                   </div>
                 </CardHeader>
@@ -333,10 +333,8 @@ export default function AdminProductForm({
                       <RadioGroupItem value="other" id="typeOther" />
                     </div>
                     <div className="text-base">
-                      <CardTitle>Other</CardTitle>
-                      <CardDescription className="sr-only">
-                        Other Type Product
-                      </CardDescription>
+                      <CardTitle>その他</CardTitle>
+                      <CardDescription className="sr-only">その他</CardDescription>
                     </div>
                   </div>
                 </CardHeader>
@@ -346,7 +344,7 @@ export default function AdminProductForm({
 
           <div>
             <div className="grid w-full items-center gap-3">
-              <Label htmlFor="name">Product Name</Label>
+              <Label htmlFor="name">商品名</Label>
               <Input
                 type="text"
                 name="name"
@@ -367,7 +365,7 @@ export default function AdminProductForm({
 
           <div>
             <div className="grid w-full gap-3">
-              <Label htmlFor="description">Add More Information</Label>
+              <Label htmlFor="description">詳細情報を追加してください。</Label>
               <Textarea
                 placeholder=""
                 name="description"
@@ -380,7 +378,7 @@ export default function AdminProductForm({
           <div className="flex flex-wrap items-start gap-y-6">
             <div className="grid w-full sm:w-1/2 gap-3 pr-3">
               <Label asChild>
-                <p>Brand</p>
+                <p>ブランド</p>
               </Label>
               <div className="flex items-center gap-2">
                 <Select
@@ -391,7 +389,9 @@ export default function AdminProductForm({
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue
-                      placeholder={loadingBrands ? "Loading brands..." : "Select Brand"}
+                      placeholder={
+                        loadingBrands ? "ブランドを読み込み中..." : "ブランドを選択"
+                      }
                     />
                   </SelectTrigger>
                   <SelectContent>
@@ -417,7 +417,7 @@ export default function AdminProductForm({
 
             <div className="grid w-full sm:w-1/2 gap-3 pr-3">
               <Label asChild>
-                <p>Style</p>
+                <p>スタイル</p>
               </Label>
               <Select defaultValue={product?.style || undefined} name="style" required>
                 <SelectTrigger className="w-full">
@@ -426,14 +426,14 @@ export default function AdminProductForm({
                 <SelectContent>
                   <SelectItem value="western">Western</SelectItem>
                   <SelectItem value="japanese">Japanese</SelectItem>
-                  <SelectItem value="No Style">No Style</SelectItem>
+                  <SelectItem value="No Style">None</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div className="grid w-full sm:w-1/2 gap-3 pr-3">
               <Label asChild>
-                <p>Material</p>
+                <p>素材</p>
               </Label>
               <div className="flex items-center gap-2">
                 <Select
@@ -444,7 +444,7 @@ export default function AdminProductForm({
                   <SelectTrigger className="w-full">
                     <SelectValue
                       placeholder={
-                        loadingMaterials ? "Loading materials..." : "Select Material"
+                        loadingMaterials ? "素材を読み込み中..." : "素材を選択"
                       }
                     />
                   </SelectTrigger>
@@ -466,7 +466,7 @@ export default function AdminProductForm({
 
             <div className="grid w-full sm:w-1/2 gap-3 pr-3">
               <Label asChild>
-                <p>Handle</p>
+                <p>ハンドル</p>
               </Label>
               <div className="flex flex-col gap-4">
                 <div className="flex items-center gap-2">
@@ -478,7 +478,7 @@ export default function AdminProductForm({
                     <SelectTrigger className="w-full">
                       <SelectValue
                         placeholder={
-                          loadingHandles ? "Loading handles..." : "Select Handle"
+                          loadingHandles ? "ハンドルを読み込み中..." : "ハンドルを選択"
                         }
                       />
                     </SelectTrigger>
@@ -503,7 +503,7 @@ export default function AdminProductForm({
                     id="canChangeHandle"
                     defaultChecked={product?.canChangeHandle || false}
                   />
-                  <span>Can change handle?</span>
+                  <span>ハンドルの変更は可能ですか？</span>
                 </Label>
               </div>
             </div>
@@ -518,7 +518,7 @@ export default function AdminProductForm({
             ) : (
               <SaveIcon />
             )}
-            {loading ? "Saving..." : isNew ? "Create Product" : "Save Changes"}
+            {loading ? "保存中..." : isNew ? "商品を作成" : "変更を保存"}
           </Button>
         </div>
       </form>
@@ -526,7 +526,7 @@ export default function AdminProductForm({
         <div className="flex flex-col gap-6 mt-6">
           <div className="my-6">
             <Label asChild className="text-lg">
-              <p>Upload Image</p>
+              <p>画像をアップロード</p>
             </Label>
             <div>
               {loadingSaveMedia ? (
@@ -536,8 +536,8 @@ export default function AdminProductForm({
                       <LoaderCircleIcon className="animate-spin" />
                     </div>
                     <div className="flex flex-col gap-2">
-                      <CardTitle>Saving Your Image.</CardTitle>
-                      <CardDescription>Please wait.</CardDescription>
+                      <CardTitle>画像を保存中です。</CardTitle>
+                      <CardDescription>しばらくお待ちください。</CardDescription>
                     </div>
                   </CardHeader>
                 </Card>
@@ -547,7 +547,7 @@ export default function AdminProductForm({
 
               <div>
                 <Label asChild className="text-lg mb-4">
-                  <p>Current Images</p>
+                  <p>現在の画像</p>
                 </Label>
                 <RadioGroup
                   className="w-full flex flex-wrap items-start gap-3"
@@ -577,7 +577,7 @@ export default function AdminProductForm({
                               <TrashIcon />
                             )}
 
-                            <span className="hidden group-hover:block">Delete</span>
+                            <span className="hidden group-hover:block">削除</span>
                           </Button>
                         </div>
 
@@ -602,7 +602,7 @@ export default function AdminProductForm({
 
           <div>
             <Label asChild className="text-lg">
-              <p>Product Sizes</p>
+              <p>商品サイズ</p>
             </Label>
             <div>
               <ProductSizesTableForm sizes={product?.sizes} productType={product?.type} />
@@ -611,7 +611,7 @@ export default function AdminProductForm({
 
           <div>
             <Label asChild className="text-lg">
-              <p>Custom Filters</p>
+              <p>カスタムフィルター</p>
             </Label>
 
             <div>
@@ -619,7 +619,7 @@ export default function AdminProductForm({
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button variant="secondary" type="button">
-                      <PlusIcon /> New Filter
+                      <PlusIcon /> 新しいフィルター
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent align="start">
@@ -627,7 +627,7 @@ export default function AdminProductForm({
                       <Input
                         type="text"
                         name="name"
-                        placeholder="Filter name..."
+                        placeholder="フィルター..."
                         autoComplete="off"
                       />
                       <Button
@@ -738,7 +738,9 @@ export default function AdminProductForm({
                     ) : (
                       <AlertCircleIcon size={18} />
                     )}
-                    {loadingFilters ? "Loading filters..." : "No registered filters."}
+                    {loadingFilters
+                      ? "フィルターを読み込み中... "
+                      : "登録されたフィルターはありません。"}
                   </div>
                 )}
               </div>

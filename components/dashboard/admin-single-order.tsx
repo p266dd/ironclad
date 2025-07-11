@@ -90,9 +90,9 @@ export default function AdminSingleOrder({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-6/12">Size</TableHead>
-                <TableHead className="w-3/12">Available</TableHead>
-                <TableHead className="w-3/12">Order</TableHead>
+                <TableHead className="w-6/12">サイズ</TableHead>
+                <TableHead className="w-3/12">在庫</TableHead>
+                <TableHead className="w-3/12">注文</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -132,7 +132,7 @@ export default function AdminSingleOrder({
             <input type="hidden" name="productId" value={fullProduct.id} readOnly />
             <div className="mt-4 md:px-4">
               <div className="flex flex-col gap-2 mb-4">
-                <p className="text-sm text-slate-500">Engraving</p>
+                <p className="text-sm text-slate-500">ブランド</p>
                 <Select
                   disabled={false}
                   name="brand"
@@ -149,21 +149,21 @@ export default function AdminSingleOrder({
                   <SelectTrigger className="w-full py-6">
                     <SelectValue
                       className="capitalize"
-                      placeholder="Choose engraving brand."
+                      placeholder="彫刻ブランドを選択してください。"
                     />
                   </SelectTrigger>
                   <SelectContent>
                     {orderProduct?.brand &&
                       orderProduct?.brand !== fullProduct?.brand && (
                         <SelectGroup>
-                          <SelectLabel>Current In Order</SelectLabel>
+                          <SelectLabel>現在の注文内</SelectLabel>
                           <SelectItem value={orderProduct.brand} className="capitalize">
                             {orderProduct?.brand}
                           </SelectItem>
                         </SelectGroup>
                       )}
                     <SelectGroup>
-                      <SelectLabel>Default</SelectLabel>
+                      <SelectLabel>デフォルト</SelectLabel>
                       <SelectItem value={fullProduct?.brand} className="capitalize">
                         {fullProduct?.brand}
                       </SelectItem>
@@ -171,9 +171,9 @@ export default function AdminSingleOrder({
 
                     {fullProduct?.brand === "OEM" && (
                       <SelectGroup>
-                        <SelectLabel>Write Your Own</SelectLabel>
+                        <SelectLabel>自分で入力</SelectLabel>
                         <SelectItem value="other" className="capitalize">
-                          Other
+                          その他
                         </SelectItem>
                       </SelectGroup>
                     )}
@@ -185,7 +185,7 @@ export default function AdminSingleOrder({
                     type="text"
                     name="brandOther"
                     autoComplete="off"
-                    placeholder="What do you want engraved?"
+                    placeholder="何を彫刻しますか？"
                     className="py-6"
                     defaultValue={otherEngraving ? orderProduct?.brand : ""}
                     onChange={() => setSave(true)}
@@ -194,7 +194,7 @@ export default function AdminSingleOrder({
               </div>
 
               <div className="flex flex-col gap-2 mb-4">
-                <p className="text-sm text-slate-500">Handle</p>
+                <p className="text-sm text-slate-500">ハンドル</p>
                 <Select
                   disabled={false}
                   name="handle"
@@ -215,7 +215,7 @@ export default function AdminSingleOrder({
                     {orderProduct?.handle &&
                       orderProduct?.handle !== fullProduct?.handle && (
                         <SelectGroup>
-                          <SelectLabel>Current In Cart</SelectLabel>
+                          <SelectLabel>現在の注文内</SelectLabel>
                           <SelectItem value={orderProduct?.handle} className="capitalize">
                             {orderProduct?.handle}
                           </SelectItem>
@@ -223,7 +223,7 @@ export default function AdminSingleOrder({
                       )}
 
                     <SelectGroup>
-                      <SelectLabel>Default</SelectLabel>
+                      <SelectLabel>デフォルト</SelectLabel>
                       <SelectItem value={fullProduct?.handle} className="capitalize">
                         {fullProduct?.handle}
                       </SelectItem>
@@ -231,9 +231,9 @@ export default function AdminSingleOrder({
 
                     {fullProduct?.canChangeHandle && (
                       <SelectGroup>
-                        <SelectLabel>Custom</SelectLabel>
+                        <SelectLabel>自分で入力</SelectLabel>
                         <SelectItem value="other" className="capitalize">
-                          Other
+                          その他
                         </SelectItem>
                       </SelectGroup>
                     )}
@@ -245,7 +245,7 @@ export default function AdminSingleOrder({
                     type="text"
                     name="handleOther"
                     autoComplete="off"
-                    placeholder="What handle would you like?"
+                    placeholder="自分で入力"
                     className="py-6"
                     defaultValue={otherHandle ? orderProduct?.handle : ""}
                     onChange={() => setSave(true)}
@@ -254,10 +254,10 @@ export default function AdminSingleOrder({
               </div>
 
               <div className="flex flex-col gap-2">
-                <p className="text-sm text-slate-500">Specific Request</p>
+                <p className="text-sm text-slate-500">特別なご要望</p>
                 <Textarea
                   name="request"
-                  placeholder="Type your message here."
+                  placeholder="ここにメッセージを入力してください。"
                   defaultValue={orderProduct?.request ?? ""}
                   disabled={false}
                   onChange={() => setSave(true)}
@@ -266,7 +266,7 @@ export default function AdminSingleOrder({
             </div>
             <div className="my-6 ml-4">
               <Button type="submit" variant="default" disabled={!save}>
-                Save Changes
+                変更を保存
               </Button>
             </div>
           </form>

@@ -231,7 +231,7 @@ export default function AdminProductTable() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="min-w-0">
-              <DropdownMenuLabel>Display</DropdownMenuLabel>
+              <DropdownMenuLabel>表示</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => handlePerPageChange(10)}>
                 <HashIcon /> 10
@@ -264,7 +264,7 @@ export default function AdminProductTable() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Filter</DropdownMenuLabel>
+              <DropdownMenuLabel>フィルター</DropdownMenuLabel>
               <DropdownMenuSeparator />
 
               {searchQuery?.filter ? (
@@ -276,10 +276,10 @@ export default function AdminProductTable() {
               ) : null}
 
               <DropdownMenuItem onClick={() => handleFilterChange("knife")}>
-                Knife
+                包丁
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => handleFilterChange("other")}>
-                Other
+                その他
               </DropdownMenuItem>
 
               {filtersData &&
@@ -307,7 +307,7 @@ export default function AdminProductTable() {
               ref={inputRef}
               name="searchTerm"
               autoComplete="off"
-              placeholder="Search"
+              placeholder="検索"
             />
             <Button
               variant={searchQuery?.input ? "default" : "outline"}
@@ -347,7 +347,7 @@ export default function AdminProductTable() {
               (error && (
                 <TableRow>
                   <TableCell>
-                    <div className="flex items-center gap-3">Error loading data.</div>
+                    <div className="flex items-center gap-3">読み込みに失敗しました</div>
                   </TableCell>
                 </TableRow>
               ))}

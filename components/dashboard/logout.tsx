@@ -17,7 +17,7 @@ export default function DashboardLogout() {
     <Card className="text-primary-foreground border-0 bg-transparent shadow-none">
       <CardHeader>
         <CardTitle></CardTitle>
-        <CardDescription>Logged In</CardDescription>
+        <CardDescription>ログイン中</CardDescription>
       </CardHeader>
       <CardContent>
         <Button
@@ -26,7 +26,7 @@ export default function DashboardLogout() {
           size="sm"
           onClick={async () => await logout()}
         >
-          <Power /> Logout
+          <Power /> ログアウト
         </Button>
       </CardContent>
     </Card>

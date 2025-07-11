@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import useSWR from "swr";
 import { useState } from "react";
@@ -70,7 +70,7 @@ export default function AdminOrderForm() {
     setLoading(true);
 
     if (!order.clientId || order.orderProduct.length === 0) {
-      toast.error("Please select a client and at least one product.");
+      toast.error("顧客と少なくとも1つの商品を選択してください。");
       return;
     }
 
@@ -89,7 +89,7 @@ export default function AdminOrderForm() {
       orderProduct: [],
     });
 
-    toast.success("Order created successfully.");
+    toast.success("注文が正常に作成されました。");
     setCurrentSelectedProduct("");
     setLoading(false);
 
@@ -98,14 +98,14 @@ export default function AdminOrderForm() {
 
   const addSelectedToOrder = () => {
     if (!currentSelectedProduct || !products) {
-      toast.error("No product selected.");
+      toast.error("商品が選択されていません。");
       return;
     }
 
     const productToAdd = products.find((p) => p.id === currentSelectedProduct);
 
     if (!productToAdd) {
-      toast.error("No product found.");
+      toast.error("商品が見つかりませんでした。");
       return;
     }
 
@@ -128,7 +128,7 @@ export default function AdminOrderForm() {
       orderProduct: [...prev.orderProduct, newProduct],
     }));
 
-    toast.success("Product added to order.");
+    toast.success("商品が注文に追加されました。");
     setCurrentSelectedProduct("");
   };
 
@@ -142,7 +142,7 @@ export default function AdminOrderForm() {
     const sizeId = Number(formObject.sizeId);
 
     if (!cartProductId || !sizeId || !newQuantity) {
-      toast.error("Invalid form data.");
+      toast.error("フォームの入力内容が正しくありません。");
       return;
     }
 
@@ -176,7 +176,7 @@ export default function AdminOrderForm() {
       orderProduct: updatedOrderProduct,
     }));
 
-    toast.success("Quantity saved.");
+    toast.success("数量が保存されました。");
   };
 
   const saveDetails = (e: React.FormEvent<HTMLFormElement>) => {
@@ -187,7 +187,7 @@ export default function AdminOrderForm() {
     console.log(formData);
 
     if (!formObject.productId) {
-      toast.error("Invalid form data.");
+      toast.error("フォームの入力内容が正しくありません。");
       return;
     }
 
@@ -218,13 +218,13 @@ export default function AdminOrderForm() {
       orderProduct: updatedOrderProduct,
     }));
 
-    toast.success("Details saved.");
+    toast.success("詳細が保存されました。");
   };
 
   return (
     <div className="flex flex-col gap-6 max-w-4xl">
       <div>
-        <h4 className="text-2xl font-medium mb-2">Select Client</h4>
+        <h4 className="text-2xl font-medium mb-2">顧客を選択してください。</h4>
         <div>
           <Popover open={clientOpen} onOpenChange={setClientOpen}>
             <PopoverTrigger asChild>
@@ -237,20 +237,21 @@ export default function AdminOrderForm() {
                 {clients
                   ? order.clientId
                     ? clients.find((client) => client.id === order.clientId)?.businessName
-                    : "Select a client..."
+                    : "顧客を選択してください。"
                   : loadingClients
-                  ? "Loading clients"
-                  : "No user."}
+                  ? "顧客を読み込み中..."
+                  : "顧客がいません"}
                 <ChevronsUpDown className="opacity-50" />
               </Button>
             </PopoverTrigger>
             <PopoverContent align="start" className="w-full max-w-[600px] p-0">
               <Command>
-                <CommandInput placeholder="Search client..." className="h-9" />
+                <CommandInput placeholder="顧客を検索" className="h-9" />
                 <CommandList>
-                  <CommandEmpty>No client found.</CommandEmpty>
+                  <CommandEmpty>顧客がいません</CommandEmpty>
                   <CommandGroup>
                     {clients &&
+                      clients?.length > 0 &&
                       clients.map((client) => (
                         <CommandItem
                           key={client.id}
@@ -281,7 +282,7 @@ export default function AdminOrderForm() {
       </div>
 
       <div className="mb-9">
-        <h4 className="text-2xl mb-2">Select a Product</h4>
+        <h4 className="text-2xl mb-2">商品を選択してください。</h4>
         <div className="mb-2">
           <Popover open={productOpen} onOpenChange={setProductOpen}>
             <PopoverTrigger asChild>
@@ -295,18 +296,18 @@ export default function AdminOrderForm() {
                   ? currentSelectedProduct
                     ? products.find((product) => product.id === currentSelectedProduct)
                         ?.name
-                    : "Select a product..."
+                    : "商品を選択してください。"
                   : loadingProducts
-                  ? "Loading products"
-                  : "No product."}
+                  ? "商品を読み込み中..."
+                  : "商品がいません"}
                 <ChevronsUpDown className="opacity-50" />
               </Button>
             </PopoverTrigger>
             <PopoverContent align="start" className="w-full max-w-[600px] p-0">
               <Command>
-                <CommandInput placeholder="Search product..." className="h-9" />
+                <CommandInput placeholder="商品を検索" className="h-9" />
                 <CommandList>
-                  <CommandEmpty>No product found.</CommandEmpty>
+                  <CommandEmpty>商品がいません</CommandEmpty>
                   <CommandGroup>
                     {products &&
                       products.length > 0 &&
@@ -337,12 +338,12 @@ export default function AdminOrderForm() {
           </Popover>
         </div>
         <Button type="button" onClick={addSelectedToOrder}>
-          <PlusCircleIcon /> Add to Order
+          <PlusCircleIcon /> 注文に追加
         </Button>
       </div>
 
       <div>
-        <h4 className="text-2xl font-medium mb-5">Products in this order.</h4>
+        <h4 className="text-2xl font-medium mb-5">この注文の商品</h4>
         <div>
           {order && order.orderProduct.length > 0 ? (
             order.orderProduct.map((product) => {
@@ -364,7 +365,7 @@ export default function AdminOrderForm() {
             })
           ) : (
             <div className="flex items-center gap-2 text-slate-500">
-              <AlertCircleIcon /> No products seleted yet.
+              <AlertCircleIcon /> まだ商品が選択されていません。
             </div>
           )}
         </div>
@@ -378,7 +379,7 @@ export default function AdminOrderForm() {
             disabled={loading}
           >
             {loading ? <LoaderCircleIcon className="animate-spin" /> : <PlusCircleIcon />}
-            {loading ? "Creating order..." : "Create Order"}
+            {loading ? "注文を作成中..." : "注文を作成"}
           </Button>
           <Button
             type="button"
@@ -386,7 +387,7 @@ export default function AdminOrderForm() {
             variant="outline"
             disabled={loading}
           >
-            <TrashIcon /> Clear Order
+            <TrashIcon /> 注文をクリア
           </Button>
         </div>
       ) : null}

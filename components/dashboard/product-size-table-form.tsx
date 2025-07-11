@@ -80,14 +80,14 @@ export default function ProductSizesTableForm({
         productId: productId || undefined,
       });
       if (!addedSize) {
-        toast.error("Failed to save size.");
+        toast.error("サイズの保存に失敗しました。");
         return;
       }
 
-      toast.success("Size saved successfully!");
+      toast.success("サイズが正常に保存されました！");
     } catch (error) {
       console.error(error);
-      toast.error("Failed to save size.");
+      toast.error("サイズの保存に失敗しました。");
     } finally {
       setLoading(false);
       setShowForm(false);
@@ -104,13 +104,13 @@ export default function ProductSizesTableForm({
         productId: productId,
       });
       if (!deletedSize) {
-        toast.error("Failed to delete size.");
+        toast.error("サイズの削除に失敗しました。");
         return;
       }
-      toast.success("Size deleted successfully!");
+      toast.success("サイズが正常に削除されました！");
     } catch (error) {
       console.error(error);
-      toast.error("Failed to delete size.");
+      toast.error("サイズの削除に失敗しました。");
     } finally {
       setLoadingDelete(false);
       setDeletingId(null);
@@ -125,7 +125,7 @@ export default function ProductSizesTableForm({
             <div className="flex flex-col md:flex-row md:items-center gap-2 gap-y-4 mb-4 md:mb-0">
               <div className="flex-1 md:flex-1/2">
                 <div className="grid w-full items-center gap-3">
-                  <Label htmlFor="sizeName">Size Name</Label>
+                  <Label htmlFor="sizeName">サイズ名</Label>
                   {edit && (
                     <input type="hidden" name="id" value={editObject?.id} readOnly />
                   )}
@@ -144,7 +144,7 @@ export default function ProductSizesTableForm({
               {productType === "knife" && (
                 <div className="flex-1 md:flex-1/2">
                   <div className="relative grid w-full items-center gap-3">
-                    <Label htmlFor="size">Size</Label>
+                    <Label htmlFor="size">サイズの長さ</Label>
                     <Input
                       type="number"
                       name="size"
@@ -164,7 +164,7 @@ export default function ProductSizesTableForm({
               {productType === "other" && (
                 <div className="flex-1 md:flex-1/2">
                   <div className="relative grid w-full items-center gap-3">
-                    <Label htmlFor="dimension">Dimension</Label>
+                    <Label htmlFor="dimension">寸法</Label>
                     <Input
                       type="text"
                       name="dimension"
@@ -185,7 +185,7 @@ export default function ProductSizesTableForm({
             <div className="flex items-center gap-2">
               <div className="flex-1/2">
                 <div className="relative grid w-full items-center gap-3">
-                  <Label htmlFor="price">Price</Label>
+                  <Label htmlFor="price">価格</Label>
                   <Input
                     type="string"
                     name="price"
@@ -219,7 +219,7 @@ export default function ProductSizesTableForm({
               </div>
               <div className="flex-1/2">
                 <div className="relative grid w-full items-center gap-3">
-                  <Label htmlFor="stock">Stock</Label>
+                  <Label htmlFor="stock">在庫</Label>
                   <Input
                     type="text"
                     name="stock"
@@ -244,18 +244,18 @@ export default function ProductSizesTableForm({
               disabled={loading}
             >
               {loading ? <LoaderCircleIcon className="animate-spin" /> : <PlusIcon />}
-              {edit ? "Save Changes" : "Add Now"}
+              {edit ? "変更を保存 " : "今すぐ追加"}
             </Button>
 
             <Button type="button" variant="outline" onClick={() => setShowForm(false)}>
-              Cancel
+              キャンセル
             </Button>
           </div>
         </form>
       ) : (
         <div className="my-6">
           <Button variant="secondary" type="button" onClick={() => setShowForm(true)}>
-            <PlusIcon /> New Size
+            <PlusIcon /> 新しい
           </Button>
         </div>
       )}
@@ -265,9 +265,9 @@ export default function ProductSizesTableForm({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Size</TableHead>
-                <TableHead>Price</TableHead>
-                <TableHead>Stock</TableHead>
+                <TableHead>サイズ名</TableHead>
+                <TableHead>価格</TableHead>
+                <TableHead>在庫</TableHead>
                 <TableHead className="text-right w-[50px]"></TableHead>
               </TableRow>
             </TableHeader>
@@ -295,7 +295,7 @@ export default function ProductSizesTableForm({
                           <EllipsisIcon />
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                          <DropdownMenuLabel>操作</DropdownMenuLabel>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem
                             onClick={() => {
@@ -304,10 +304,10 @@ export default function ProductSizesTableForm({
                               setEditObject(size);
                             }}
                           >
-                            <PencilIcon /> Edit
+                            <PencilIcon /> 顧客
                           </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => handleDeleteSize(size?.id)}>
-                            <TrashIcon /> Delete
+                            <TrashIcon /> 注文
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -321,7 +321,7 @@ export default function ProductSizesTableForm({
       ) : (
         <div className="flex items-center gap-2 text-slate-500 font-medium">
           <AlertCircleIcon size={18} />
-          No registered sizes.
+          登録されたサイズはありません。
         </div>
       )}
     </div>

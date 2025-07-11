@@ -1,7 +1,8 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { format } from "date-fns";
+import { format, setDefaultOptions } from "date-fns";
+import { ja } from "date-fns/locale";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -15,6 +16,9 @@ import {
 } from "@/components/ui/dialog";
 import { Calendar } from "@/components/ui/calendar";
 import { CalendarIcon, XIcon } from "lucide-react";
+
+// Set default date locale to jp.
+setDefaultOptions({ locale: ja });
 
 type SearchDate =
   | {
@@ -48,13 +52,14 @@ export default function DateRangePicker({
             {range && range.startDate && range.endDate ? (
               range?.startDate ? (
                 <>
-                  {format(range.startDate, "MM/dd")} - {format(range?.endDate, "MM/dd")}
+                  {format(range.startDate, "MMMM/do", { locale: ja })} -{" "}
+                  {format(range?.endDate, "MMMM/do", { locale: ja })}
                 </>
               ) : (
-                format(range.startDate, "MM/dd")
+                format(range.startDate, "MM/dd", { locale: ja })
               )
             ) : (
-              <span>Pick a date</span>
+              <span>日付範囲</span>
             )}
           </Button>
         </DialogTrigger>
@@ -63,10 +68,11 @@ export default function DateRangePicker({
             <XIcon />
           </DialogClose>
           <DialogHeader className="sr-only">
-            <DialogTitle>Date Range</DialogTitle>
-            <DialogDescription>Select a date range.</DialogDescription>
+            <DialogTitle>日付範囲</DialogTitle>
+            <DialogDescription>日付範囲を選択</DialogDescription>
           </DialogHeader>
           <Calendar
+            locale={ja}
             className="w-full"
             autoFocus
             mode="range"

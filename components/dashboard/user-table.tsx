@@ -110,7 +110,7 @@ export default function AdminUsersTable() {
     await deleteUser({
       userId,
     });
-    toast.success("User was deleted.");
+    toast.success("ユーザーが削除されました。");
     mutate("getUsers");
     setLoadingAction("");
   };
@@ -220,7 +220,7 @@ export default function AdminUsersTable() {
           <div className="flex-2/3">
             <Input
               name="searchTerm"
-              placeholder="Search"
+              placeholder="検索"
               autoComplete="off"
               value={searchReference?.searchTerm || ""}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -253,7 +253,7 @@ export default function AdminUsersTable() {
             className="bg-gray-100 shrink md:shrink-0 md:flex-1/4 cursor-pointer"
             onClick={handleClearSearch}
           >
-            Clear
+            解除
           </Button>
         </div>
       </div>
@@ -262,9 +262,9 @@ export default function AdminUsersTable() {
         <Table className="w-full max-w-3xl">
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[110px]">Business</TableHead>
-              <TableHead className="w-[110px]">Name</TableHead>
-              <TableHead>Active</TableHead>
+              <TableHead className="w-[110px]">会社名</TableHead>
+              <TableHead className="w-[110px]">名前</TableHead>
+              <TableHead>アクティブ</TableHead>
               <TableHead className="text-right"></TableHead>
             </TableRow>
           </TableHeader>
@@ -283,14 +283,14 @@ export default function AdminUsersTable() {
               (error && (
                 <TableRow>
                   <TableCell>
-                    <div className="flex items-center gap-3">Error loading data.</div>
+                    <div className="flex items-center gap-3">読み込みに失敗しました</div>
                   </TableCell>
                 </TableRow>
               ))}
 
             {data &&
               data?.data !== null &&
-              data.data.length > 0 &&
+              data.data?.length > 0 &&
               data.data.map((user) => (
                 <TableRow key={user.id}>
                   <TableCell
@@ -321,7 +321,7 @@ export default function AdminUsersTable() {
                       router.push("/dashboard/users/" + user.id);
                     }}
                   >
-                    {user?.isActive ? "Yes" : "No"}
+                    {user?.isActive ? "はい" : "いいえ"}
                   </TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
@@ -333,7 +333,7 @@ export default function AdminUsersTable() {
                         )}
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                        <DropdownMenuLabel>操作</DropdownMenuLabel>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                           className="cursor-pointer"
@@ -343,7 +343,7 @@ export default function AdminUsersTable() {
                           }}
                         >
                           <PencilIcon />
-                          Edit
+                          顧客を編集
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           className="cursor-pointer"
@@ -354,7 +354,7 @@ export default function AdminUsersTable() {
                           ) : (
                             <Trash2Icon />
                           )}
-                          Delete
+                          顧客を削除
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>

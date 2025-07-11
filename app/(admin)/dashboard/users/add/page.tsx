@@ -9,7 +9,7 @@ export default async function AdminAddUserPage() {
         <BackButton />
       </div>
 
-      <PageTitle title="Add New Client" subtitle="" />
+      <PageTitle title="新規顧客" subtitle="" />
 
       <div className="my-6">
         <AdminUserForm user={null} isNew={true} />

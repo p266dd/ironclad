@@ -30,27 +30,27 @@ import LoadingIndicator from "../loading-indicator";
 
 const items = [
   {
-    title: "Home",
+    title: "ホーム",
     url: "/",
     icon: Home,
   },
   {
-    title: "Orders",
+    title: "注文",
     url: "/dashboard",
     icon: ShoppingBag,
   },
   {
-    title: "Products",
+    title: "商品",
     url: "/dashboard/products",
     icon: Box,
   },
   {
-    title: "Users",
+    title: "ユーザー",
     url: "/dashboard/users",
     icon: UserCheck,
   },
   {
-    title: "Message",
+    title: "メッセージ",
     url: "/dashboard/message",
     icon: MessageSquareText,
   },
@@ -68,7 +68,7 @@ export function DashboardSidebar() {
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Application</SidebarGroupLabel>
+          <SidebarGroupLabel>アプリ</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu className="gap-4">
               {items.map((item) => (
@@ -93,7 +93,7 @@ export function DashboardSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-        <SidebarGroupLabel>Quick Links</SidebarGroupLabel>
+        <SidebarGroupLabel>ショートカット</SidebarGroupLabel>
         <SidebarGroupContent>
           <SidebarMenu className="gap-4">
             <SidebarMenuItem>
@@ -101,7 +101,7 @@ export function DashboardSidebar() {
                 <Link href="/dashboard/products/add">
                   <LoadingIndicator />
                   <PlusCircleIcon />
-                  <span>New Product</span>
+                  <span>新商品</span>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
@@ -111,7 +111,7 @@ export function DashboardSidebar() {
                 <Link href="/dashboard/users/add">
                   <LoadingIndicator />
                   <PlusCircleIcon />
-                  <span>New Client</span>
+                  <span>新規顧客</span>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
@@ -121,7 +121,7 @@ export function DashboardSidebar() {
                 <Link href="/dashboard/orders/add">
                   <LoadingIndicator />
                   <PlusCircleIcon />
-                  <span>New Order</span>
+                  <span>新規注文 </span>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>

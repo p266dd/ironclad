@@ -64,11 +64,11 @@ export default function ModelPopover({
         if (id !== null && id !== "") {
           result = await updateBrand({ id, name, oldName, productId });
           mutate("fetchBrands");
-          toast.success("Brand updated successfully!");
+          toast.success("ブランドが正常に更新されました");
         } else {
           result = await addBrand({ name, productId });
           mutate("fetchBrands");
-          toast.success("Brand added successfully!");
+          toast.success("ブランドが正常に追加されました");
         }
         setOpen(false);
         break;
@@ -77,11 +77,11 @@ export default function ModelPopover({
         if (id !== null && id !== "") {
           result = await updateHandle({ id, name, oldName, productId });
           mutate("fetchHandles");
-          toast.success("Handle updated successfully!");
+          toast.success("Handleが正常に更新されました");
         } else {
           result = await addHandle({ name, productId });
           mutate("fetchHandles");
-          toast.success("Handle added successfully!");
+          toast.success("Handleが正常に追加されました");
         }
         setOpen(false);
         break;
@@ -90,11 +90,11 @@ export default function ModelPopover({
         if (id !== null && id !== "") {
           result = await updateMaterial({ id, name, oldName, productId });
           mutate("fetchMaterials");
-          toast.success("Material updated successfully!");
+          toast.success("Materialが正常に更新されました");
         } else {
           result = await addMaterial({ name, productId });
           mutate("fetchMaterials");
-          toast.success("Material added successfully!");
+          toast.success("Materialが正常に追加されました");
         }
         setOpen(false);
         break;
@@ -104,7 +104,7 @@ export default function ModelPopover({
     }
 
     if (result === null) {
-      toast.error("Something went wrong!");
+      toast.error("何か問題が発生しました。");
     }
     setLoadingSave(false);
   };
@@ -119,20 +119,20 @@ export default function ModelPopover({
         result = await deleteBrand({ id, productId });
         if (typeof result === "string") mutate("fetchBrands");
         setOpen(false);
-        toast.success("Brand deleted successfully!");
+        toast.success("ブランドが正常に削除されました");
         break;
 
       case "handle":
         result = await deleteHandle({ id, productId });
         if (typeof result === "string") mutate("fetchHandles");
         setOpen(false);
-        toast.success("Handle deleted successfully!");
+        toast.success("ハンドルが正常に削除されました");
         break;
       case "material":
         result = await deleteMaterial({ id, productId });
         if (typeof result === "string") mutate("fetchMaterials");
         setOpen(false);
-        toast.success("Material deleted successfully!");
+        toast.success("素材が正常に削除されました");
         break;
 
       default:
@@ -153,15 +153,15 @@ export default function ModelPopover({
       </DialogTrigger>
       <DialogContent showCloseButton={false} className="max-h-[80vh] overflow-y-auto">
         <DialogHeader className="text-left">
-          <DialogTitle className="capitalize">Manage {model}s</DialogTitle>
-          <DialogDescription>You can add, edit or delete {model}s.</DialogDescription>
+          <DialogTitle className="capitalize">管理 {model}s</DialogTitle>
+          <DialogDescription>{model}s 追加、編集、削除ができます。</DialogDescription>
         </DialogHeader>
         <div>
           <div className="mb-3">
             <Popover>
               <PopoverTrigger asChild>
                 <Button variant="default" size="sm" type="button">
-                  <PlusIcon /> Add New
+                  <PlusIcon /> 新しい
                 </Button>
               </PopoverTrigger>
               <PopoverContent align="start">

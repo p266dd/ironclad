@@ -62,7 +62,7 @@ export default function AdminNewOrdersTable() {
       setLoadingAction("");
       return;
     }
-    toast.success("Order was marked as completed.");
+    toast.success("注文が完了済みになりました");
     mutate("getOrders");
     mutate("getNewOrders");
     setLoadingAction("");
@@ -78,7 +78,7 @@ export default function AdminNewOrdersTable() {
       setLoadingAction("");
       return;
     }
-    toast.success("Order was deleted.");
+    toast.success("注文が削除されました");
     mutate("getOrders");
     mutate("getNewOrders");
     setLoadingAction("");
@@ -102,10 +102,10 @@ export default function AdminNewOrdersTable() {
     <Table className="w-full max-w-3xl">
       <TableHeader>
         <TableRow>
-          <TableHead className="w-[90px]">Date</TableHead>
-          <TableHead className="w-[150px]">Code</TableHead>
-          <TableHead>Client</TableHead>
-          <TableHead className="text-right">Actions</TableHead>
+          <TableHead className="w-[90px]">日付</TableHead>
+          <TableHead className="w-[150px]">コード</TableHead>
+          <TableHead>顧客</TableHead>
+          <TableHead className="text-right">操作</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -169,14 +169,14 @@ export default function AdminNewOrdersTable() {
                     )}
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                    <DropdownMenuLabel>操作</DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
                       className="cursor-pointer"
                       onClick={() => handleComplete(order.id)}
                     >
                       <CircleCheckIcon />
-                      Mark Completed
+                      完了としてマーク
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       className="cursor-pointer"
@@ -186,7 +186,7 @@ export default function AdminNewOrdersTable() {
                       }}
                     >
                       <PrinterIcon />
-                      Print Order
+                      注文を印刷
                     </DropdownMenuItem>
 
                     <DropdownMenuItem
@@ -194,7 +194,7 @@ export default function AdminNewOrdersTable() {
                       onClick={() => handleDelete(order.id)}
                     >
                       <Trash2Icon />
-                      Delete
+                      削除
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>

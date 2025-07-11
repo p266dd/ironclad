@@ -66,10 +66,10 @@ export default function PrintOrderPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-3">
                 <AnnoyedIcon />
-                Error!
+                エラー
               </CardTitle>
               <CardDescription>
-                There was an error while loading the product.
+                この商品の読み込み中にエラーが発生しました。
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -78,7 +78,7 @@ export default function PrintOrderPage() {
                   <RefreshCcwIcon /> Retry
                 </Button>
                 <Button onClick={() => router.back()} variant="secondary">
-                  Go Back
+                  戻る
                 </Button>
               </div>
             </CardContent>
@@ -101,13 +101,13 @@ export default function PrintOrderPage() {
 
         <Button variant="default" onClick={() => window.print()}>
           <PrinterIcon />
-          Print
+          印刷する
         </Button>
 
         {!product.isCompleted && (
           <Button variant="default" onClick={handleComplete}>
             <CheckCircleIcon />
-            Complete Order
+            注文を完了
           </Button>
         )}
       </div>
@@ -122,19 +122,19 @@ export default function PrintOrderPage() {
             {companyDetails.website && <p>Website: {companyDetails.website}</p>}
           </div>
           <div className={styles.invoiceInfo}>
-            <h2>Order Summary</h2>
+            <h2>注文概要</h2>
             <p>
-              <strong>Order ID:</strong> {product.code.split("-")[1]}
+              <strong>コード:</strong> {product.code.split("-")[1]}
             </p>
             <p>
-              <strong>Date:</strong> {new Date(product.createdAt).toLocaleDateString()}
+              <strong>日付:</strong> {new Date(product.createdAt).toLocaleDateString()}
             </p>
           </div>
         </header>
 
         <section className={styles.customerInfo}>
           <div className={styles.billingAddress}>
-            <h3>Ordered By:</h3>
+            <h3>注文者:</h3>
             <p>
               <strong>{product.client.businessName}</strong>
               <br />
@@ -147,9 +147,9 @@ export default function PrintOrderPage() {
           <thead>
             <tr>
               <th style={{ width: "5%" }}>#</th>
-              <th style={{ width: "65%" }}>Item</th>
-              <th style={{ width: "15%" }}>Brand</th>
-              <th style={{ width: "15%" }}>Handle</th>
+              <th style={{ width: "65%" }}>商品</th>
+              <th style={{ width: "15%" }}>ブランド</th>
+              <th style={{ width: "15%" }}>ハンドル</th>
             </tr>
           </thead>
           <tbody>
@@ -162,7 +162,7 @@ export default function PrintOrderPage() {
                     {item.product?.name} <br />
                     <hr className="my-2" />
                     <div className="mb-1">
-                      <h5 className="font-semibold">Sizes</h5>
+                      <h5 className="font-semibold">サイズ</h5>
                     </div>
                     <div className="flex flex-col mb-4">
                       {productDetails &&
@@ -281,8 +281,9 @@ export default function PrintOrderPage() {
             paddingTop: "10px",
           }}
         >
-          Thank you for your business! If you have any questions, please contact us at{" "}
-          {companyDetails.email}.
+          ご利用いただきありがとうございます!ご不明な点がございましたら、{" "}
+          {companyDetails.email}
+          までお気軽にお問い合わせください。
         </div>
       </div>
     </div>
