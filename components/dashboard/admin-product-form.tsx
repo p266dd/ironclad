@@ -17,6 +17,7 @@ import {
   updateProductDetails,
   saveThumbnail,
   addNewProduct,
+  updateProductStatus,
 } from "@/data/product/action";
 import { saveFilter, deleteFilter, toggleFilter } from "@/data/filter/action";
 import { addMedia, deleteMedia } from "@/data/media/action";
@@ -52,6 +53,7 @@ import {
 // Types
 import { Prisma } from "@/lib/generated/prisma";
 import { Product } from "@/lib/generated/prisma";
+import { Switch } from "../ui/switch";
 
 export default function AdminProductForm({
   product,
@@ -217,6 +219,35 @@ export default function AdminProductForm({
       if (isNew) {
         router.push("/dashboard/products/" + result.data?.id);
       }
+    } catch (error) {
+      console.error(error);
+      toast.error("商品の更新に失敗しました。");
+    } finally {
+      mutate("fetchProducts");
+      setLoading(false);
+    }
+  };
+
+  const handleStatusUpdate = async (status: boolean) => {
+    setLoading(true);
+
+    let result: {
+      data: Product | null;
+      error: string | null;
+    } | null = null;
+
+    try {
+      result = await updateProductStatus({
+        newStatus: status,
+        productId: product?.id || "",
+      });
+
+      if (result.error !== null) {
+        toast.error(result.error);
+        return;
+      }
+
+      toast.success("商品が正常に更新されました！");
     } catch (error) {
       console.error(error);
       toast.error("商品の更新に失敗しました。");
@@ -509,8 +540,8 @@ export default function AdminProductForm({
             </div>
           </div>
         </div>
-        <div className="my-6">
-          <Button type="submit" variant="default" disabled={loading}>
+        <div className="my-6 flex items-center gap-4">
+          <Button type="submit" variant="default" size="lg" disabled={loading}>
             {loading ? (
               <LoaderCircleIcon className="animate-spin" />
             ) : isNew ? (
@@ -520,6 +551,20 @@ export default function AdminProductForm({
             )}
             {loading ? "保存中..." : isNew ? "商品を作成" : "変更を保存"}
           </Button>
+          {!isNew && (
+            <Label
+              htmlFor="isProductActive"
+              className="flex items-center gap-3 border rounded-md px-3 py-2"
+            >
+              <span className="text-gray-500">Active</span>
+              <Switch
+                defaultChecked={product ? product?.active : true}
+                name="isProductActive"
+                id="isProductActive"
+                onCheckedChange={(status) => handleStatusUpdate(status)}
+              />
+            </Label>
+          )}
         </div>
       </form>
       {product && !isNew && (

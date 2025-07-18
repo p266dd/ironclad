@@ -507,6 +507,35 @@ export async function updateProductDetails({
   }
 }
 
+export async function updateProductStatus({
+  newStatus,
+  productId,
+}: {
+  newStatus: boolean;
+  productId: string;
+}) {
+  await verifyAdminSession();
+
+  try {
+    const product = await prisma.product.update({
+      where: {
+        id: productId,
+      },
+      data: {
+        active: newStatus,
+      },
+    });
+
+    revalidatePath("/admin/products");
+    revalidatePath("/admin/products/" + productId);
+
+    return { error: null, data: product };
+  } catch (error) {
+    console.error(error);
+    return { error: "Failed to update product.", data: null };
+  }
+}
+
 export async function addNewProduct({
   productData,
 }: {
