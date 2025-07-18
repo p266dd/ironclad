@@ -7,7 +7,7 @@ import "react-image-crop/dist/ReactCrop.css";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { MinusCircleIcon, SaveIcon, UploadIcon } from "lucide-react";
+import { CameraIcon, MinusCircleIcon, SaveIcon, UploadIcon } from "lucide-react";
 
 export default function AdminImageUploader({
   aspectRatio,
@@ -51,22 +51,34 @@ export default function AdminImageUploader({
     const scaleX = image.naturalWidth / image.width;
     const scaleY = image.naturalHeight / image.height;
 
+    const cropWidth = completedCrop.width! * scaleX;
+    const cropHeight = completedCrop.height! * scaleY;
+
+    let targetWidth = cropWidth;
+    let targetHeight = cropHeight;
+
+    if (cropWidth < 1000) {
+      const scaleUpFactor = 1000 / cropWidth;
+      targetWidth = 1000;
+      targetHeight = cropHeight * scaleUpFactor;
+    }
+
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    canvas.width = completedCrop.width!;
-    canvas.height = completedCrop.height!;
+    canvas.width = targetWidth;
+    canvas.height = targetHeight;
 
     ctx.drawImage(
       image,
       completedCrop.x! * scaleX,
       completedCrop.y! * scaleY,
-      completedCrop.width! * scaleX,
-      completedCrop.height! * scaleY,
+      cropWidth,
+      cropHeight,
       0,
       0,
-      canvas.width,
-      canvas.height
+      targetWidth,
+      targetHeight
     );
 
     return new Promise<Blob | null>((resolve) => {
@@ -97,6 +109,20 @@ export default function AdminImageUploader({
           ref={inputRef}
           type="file"
           id="uploadFile"
+          accept="image/*"
+          onChange={handleFileChange}
+          className="hidden"
+        />
+      </Label>
+
+      <Label htmlFor="pictureFile" className="my-4 md:hidden">
+        <div className="flex items-center gap-4 pl-6 my-6">
+          <CameraIcon /> <span>Take a Pic</span>
+        </div>
+        <input
+          type="file"
+          id="pictureFile"
+          capture="environment"
           accept="image/*"
           onChange={handleFileChange}
           className="hidden"

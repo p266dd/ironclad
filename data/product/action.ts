@@ -240,8 +240,6 @@ export async function getProductsInfineScroll(keys: {
       },
     });
 
-    console.log(products);
-
     return products;
   } catch (error) {
     const errorMessage = await generatePrismaErrorMessage(error, "product", "findMany");
