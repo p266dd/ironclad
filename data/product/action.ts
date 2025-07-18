@@ -146,6 +146,9 @@ export async function getProductsInfineScroll(keys: {
       skip: PAGE_INDEX * PER_PAGE,
       where: filterTag
         ? {
+            active: {
+              equals: true,
+            },
             filters: {
               some: {
                 name: {
@@ -158,6 +161,11 @@ export async function getProductsInfineScroll(keys: {
         : searchFilters
         ? {
             AND: [
+              {
+                active: {
+                  equals: true,
+                },
+              },
               { type: searchFilters?.type === "all" ? undefined : typeFilter },
               {
                 style: searchFilters?.style === "all" ? undefined : styleFilter,
@@ -217,7 +225,11 @@ export async function getProductsInfineScroll(keys: {
               },
             ],
           }
-        : undefined,
+        : {
+            active: {
+              equals: true,
+            },
+          },
       include: {
         filters: true,
         media: true,
@@ -227,6 +239,8 @@ export async function getProductsInfineScroll(keys: {
         createdAt: "desc",
       },
     });
+
+    console.log(products);
 
     return products;
   } catch (error) {

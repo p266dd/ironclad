@@ -1,3 +1,4 @@
+import { notFound } from "next/navigation";
 import { getProduct } from "@/data/product/action";
 import { getUserPreferences } from "@/data/user/actions";
 import { getProductFromCart } from "@/data/cart/actions";
@@ -24,6 +25,10 @@ export default async function SingleProductPage({
   const getCurrentProductFromcart = product && (await getProductFromCart(product.id));
 
   const media = product ? [...product.media] : null;
+
+  if (product?.active === false) {
+    notFound();
+  }
 
   return (
     <div className="lg:h-full pt-16 pb-48 px-3 sm:pt-4 md:pb-12 lg:px-12">

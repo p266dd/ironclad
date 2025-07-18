@@ -356,7 +356,10 @@ export default function AdminProductTable() {
               data?.data !== null &&
               data?.data?.length > 0 &&
               data?.data.map((product) => (
-                <TableRow key={product.id}>
+                <TableRow
+                  key={product.id}
+                  className={`${product.active ? "" : "bg-gray-50 border"}`}
+                >
                   <TableCell
                     className="cursor-pointer w-[100px]"
                     onClick={() => {

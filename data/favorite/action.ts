@@ -51,6 +51,13 @@ export async function getFavorites() {
     const favorites = await prisma.favorite.findUnique({
       where: {
         clientId: userId,
+        products: {
+          some: {
+            product: {
+              active: true,
+            },
+          },
+        },
       },
       include: {
         client: true,
