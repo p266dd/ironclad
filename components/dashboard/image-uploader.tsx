@@ -1,13 +1,27 @@
 "use client";
 
 import { useState, useRef } from "react";
-import ReactCrop, { type Crop, centerCrop, makeAspectCrop } from "react-image-crop";
+import ReactCrop, {
+  type Crop,
+  centerCrop,
+  makeAspectCrop,
+} from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 
-import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { CameraIcon, MinusCircleIcon, SaveIcon, UploadIcon } from "lucide-react";
+import {
+  CameraIcon,
+  MinusCircleIcon,
+  SaveIcon,
+  UploadIcon,
+} from "lucide-react";
 
 export default function AdminImageUploader({
   aspectRatio,
@@ -82,7 +96,7 @@ export default function AdminImageUploader({
     );
 
     return new Promise<Blob | null>((resolve) => {
-      canvas.toBlob((blob) => resolve(blob), "image/jpeg", 1.0);
+      canvas.toBlob((blob) => resolve(blob), "image/jpeg", 0.7);
     });
   };
 
@@ -101,7 +115,9 @@ export default function AdminImageUploader({
             <UploadIcon />
             <div>
               <CardTitle>画像を選択</CardTitle>
-              <CardDescription>お使いの端末から画像を選んでください。</CardDescription>
+              <CardDescription>
+                お使いの端末から画像を選んでください。6MBの制限
+              </CardDescription>
             </div>
           </CardHeader>
         </Card>
@@ -117,7 +133,7 @@ export default function AdminImageUploader({
 
       <Label htmlFor="pictureFile" className="my-4 md:hidden">
         <div className="flex items-center gap-4 pl-6 my-6">
-          <CameraIcon /> <span>Take a Pic</span>
+          <CameraIcon /> <span>写真を撮る. 6MBの制限</span>
         </div>
         <input
           type="file"
