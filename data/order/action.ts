@@ -8,13 +8,20 @@ import { revalidatePath } from "next/cache";
 
 import { sendEmail } from "@/lib/nodemailer";
 import { verifyUserSession, verifyAdminSession } from "@/lib/session";
-import { NewOrderEmailClient, NewOrderEmailStaff } from "@/lib/emails/new-order";
+import {
+  NewOrderEmailClient,
+  NewOrderEmailStaff,
+} from "@/lib/emails/new-order";
 
 import { getCart } from "@/data/cart/actions";
 
 // Types
 import { Prisma } from "@/lib/generated/prisma";
-import { TCreateOrderProduct, TProductDetails, TProductStockUpdate } from "@/lib/types";
+import {
+  TCreateOrderProduct,
+  TProductDetails,
+  TProductStockUpdate,
+} from "@/lib/types";
 
 // Error Utility
 // import { generatePrismaErrorMessage } from "@/prisma/error-handling";
@@ -37,11 +44,32 @@ export const getOwnOrders = cache(
     const session = await verifyUserSession();
     const userId = session.id;
 
+    // Get connected account IDs
+    const connectedResult = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { connections: true },
+    });
+
+    const connectedAccounts = connectedResult?.connections
+      ? (connectedResult?.connections as {
+          connectionId: string;
+        }[])
+      : null;
+
+    const whereAccountConditions =
+      connectedAccounts !== null && connectedAccounts.length > 0
+        ? {
+            clientId: {
+              in: [userId, ...connectedAccounts.map((acc) => acc.connectionId)],
+            },
+          }
+        : { clientId: userId };
+
     const whereANDConditions: Prisma.OrderWhereInput[] = [
-      {
-        clientId: userId,
-      },
+      whereAccountConditions,
     ];
+
+    console.log("Conditions", whereAccountConditions);
 
     if (searchQuery) {
       // Add conditions for searchQuery.input if it exists.
@@ -95,11 +123,15 @@ export const getOwnOrders = cache(
     try {
       const [totalCount, orders] = await prisma.$transaction([
         prisma.order.count({
-          where: { AND: whereANDConditions.length > 0 ? whereANDConditions : undefined },
+          where: {
+            AND: whereANDConditions.length > 0 ? whereANDConditions : undefined,
+          },
         }),
 
         prisma.order.findMany({
-          where: { AND: whereANDConditions.length > 0 ? whereANDConditions : undefined },
+          where: {
+            AND: whereANDConditions.length > 0 ? whereANDConditions : undefined,
+          },
           skip: (page - 1) * perPage,
           orderBy: {
             createdAt: "desc",
@@ -210,7 +242,10 @@ export async function createOrder() {
   const stockUpdateOperations: TProductStockUpdate[] = [];
 
   for (const cartProduct of cart.products) {
-    if (cartProduct.product === undefined || cartProduct.product.sizes === undefined) {
+    if (
+      cartProduct.product === undefined ||
+      cartProduct.product.sizes === undefined
+    ) {
       return { error: "Invalid product in your cart." };
     }
 
@@ -227,7 +262,9 @@ export async function createOrder() {
         continue; // Skip items with no valid quantity.
       }
 
-      const sizeInfo = cartProduct.product?.sizes.find((s) => s.id === Number(sizeId));
+      const sizeInfo = cartProduct.product?.sizes.find(
+        (s) => s.id === Number(sizeId)
+      );
 
       if (!sizeInfo) {
         return { error: "Product size is missing." };
@@ -351,8 +388,10 @@ export async function createOrder() {
     await sendEmail({
       to: "staff@ironcladknives.com",
       subject: "New Order From " + session.name,
-      html: NewOrderEmailStaff({ client: session.name, orderId: newOrder.id }).html,
-      text: NewOrderEmailStaff({ client: session.name, orderId: newOrder.id }).text,
+      html: NewOrderEmailStaff({ client: session.name, orderId: newOrder.id })
+        .html,
+      text: NewOrderEmailStaff({ client: session.name, orderId: newOrder.id })
+        .text,
       attachments: [
         {
           filename: "logo.png",
@@ -404,7 +443,10 @@ export async function createAdminOrder({
   const stockUpdateOperations: TProductStockUpdate[] = [];
 
   for (const cartProduct of orderProduct) {
-    if (cartProduct.productId === undefined || cartProduct.details === undefined) {
+    if (
+      cartProduct.productId === undefined ||
+      cartProduct.details === undefined
+    ) {
       return { error: "Invalid product data." };
     }
 
@@ -427,7 +469,9 @@ export async function createAdminOrder({
       });
 
       const sizeInfo =
-        productSizes && "sizes" in productSizes && Array.isArray(productSizes.sizes)
+        productSizes &&
+        "sizes" in productSizes &&
+        Array.isArray(productSizes.sizes)
           ? productSizes.sizes.find((s) => s.id === Number(sizeId))
           : undefined;
 
@@ -530,10 +574,14 @@ export async function createAdminOrder({
     await sendEmail({
       to: newOrder.client.email,
       subject: "Order Confirmation",
-      html: NewOrderEmailClient({ name: newOrder.client.businessName, order: newOrder })
-        .html,
-      text: NewOrderEmailClient({ name: newOrder.client.businessName, order: newOrder })
-        .text,
+      html: NewOrderEmailClient({
+        name: newOrder.client.businessName,
+        order: newOrder,
+      }).html,
+      text: NewOrderEmailClient({
+        name: newOrder.client.businessName,
+        order: newOrder,
+      }).text,
       attachments: [
         {
           filename: "logo.png",
