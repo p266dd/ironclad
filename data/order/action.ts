@@ -69,8 +69,6 @@ export const getOwnOrders = cache(
       whereAccountConditions,
     ];
 
-    console.log("Conditions", whereAccountConditions);
-
     if (searchQuery) {
       // Add conditions for searchQuery.input if it exists.
       if (searchQuery.searchTerm) {
