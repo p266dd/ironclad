@@ -1,4 +1,5 @@
 import { Prisma } from "./generated/prisma";
+import { JsonValue } from "./generated/prisma/runtime/library";
 
 export interface ActionFormInitialState {
   success: boolean;
@@ -49,11 +50,15 @@ export type TProductItemResult = Prisma.ProductGetPayload<{
 // User / Account Types
 
 export type TAccountChange = {
+  id?: string;
   name?: string;
   email?: string;
   password?: string;
   businessName?: string;
   businessCode?: string | undefined | null;
+  canConnect?: boolean;
+  connections?: JsonValue;
+  pendingConnections?: JsonValue;
   engraving?: Prisma.JsonArray | null | undefined;
 } | null;
 

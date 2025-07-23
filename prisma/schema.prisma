@@ -12,22 +12,25 @@ datasource db {
 }
 
 model User {
-  id           String    @id @default(cuid())
-  name         String
-  email        String    @unique
-  password     String
-  businessCode String?
-  businessName String
-  role         String    @default("user")
-  engraving    Json?
-  orders       Order[]
-  cart         Cart?
-  favorites    Favorite?
-  token        String?   @unique
-  code         Int?
-  isActive     Boolean   @default(false)
-  createdAt    DateTime  @default(now()) @map("created_at")
-  updatedAt    DateTime?
+  id                 String    @id @default(cuid())
+  name               String
+  email              String    @unique
+  password           String
+  businessCode       String?
+  businessName       String
+  role               String    @default("user")
+  engraving          Json?
+  orders             Order[]
+  cart               Cart?
+  favorites          Favorite?
+  token              String?   @unique
+  code               Int?
+  isActive           Boolean   @default(false)
+  canConnect         Boolean   @default(false)
+  connections        Json?
+  pendingConnections Json?
+  createdAt          DateTime  @default(now()) @map("created_at")
+  updatedAt          DateTime?
 
   @@index([id, email(sort: Asc)])
   @@map("user")

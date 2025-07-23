@@ -35,7 +35,11 @@ export async function getUserForAuth(email: string) {
     });
     return { data: user, error: null };
   } catch (error) {
-    const errorMessage = await generatePrismaErrorMessage(error, "user", "findUnique");
+    const errorMessage = await generatePrismaErrorMessage(
+      error,
+      "user",
+      "findUnique"
+    );
     return { data: null, error: errorMessage };
   }
 }
@@ -56,7 +60,11 @@ export async function insertUserToken(token: string, userId: string) {
     });
     return { data: user, error: null };
   } catch (error) {
-    const errorMessage = await generatePrismaErrorMessage(error, "user", "update");
+    const errorMessage = await generatePrismaErrorMessage(
+      error,
+      "user",
+      "update"
+    );
     return { data: null, error: errorMessage };
   }
 }
@@ -83,12 +91,19 @@ export async function createUserForAuth(user: Prisma.UserCreateInput) {
     });
     return { data: createdUser, error: null };
   } catch (error) {
-    const errorMessage = await generatePrismaErrorMessage(error, "user", "create");
+    const errorMessage = await generatePrismaErrorMessage(
+      error,
+      "user",
+      "create"
+    );
     return { data: null, error: errorMessage };
   }
 }
 
-export async function updateUserPasswordForAuth(password: string, userId: string) {
+export async function updateUserPasswordForAuth(
+  password: string,
+  userId: string
+) {
   try {
     const user = await prisma.user.update({
       where: {
@@ -108,7 +123,11 @@ export async function updateUserPasswordForAuth(password: string, userId: string
     });
     return { data: user, error: null };
   } catch (error) {
-    const errorMessage = await generatePrismaErrorMessage(error, "user", "update");
+    const errorMessage = await generatePrismaErrorMessage(
+      error,
+      "user",
+      "update"
+    );
     return { data: null, error: errorMessage };
   }
 }
@@ -129,7 +148,11 @@ export async function getUserPreferences() {
     })) as { id: string; engraving: Prisma.JsonArray | null };
     return preferences;
   } catch (error) {
-    const errorMessage = await generatePrismaErrorMessage(error, "user", "findUnique");
+    const errorMessage = await generatePrismaErrorMessage(
+      error,
+      "user",
+      "findUnique"
+    );
     console.error(errorMessage);
     return null;
   }
@@ -150,12 +173,19 @@ export async function getOwnUserProfile() {
         email: true,
         businessName: true,
         businessCode: true,
+        canConnect: true,
+        connections: true,
+        pendingConnections: true,
       },
     });
     const preferences = await getUserPreferences();
     return { ...user, ...preferences };
   } catch (error) {
-    const errorMessage = await generatePrismaErrorMessage(error, "user", "findUnique");
+    const errorMessage = await generatePrismaErrorMessage(
+      error,
+      "user",
+      "findUnique"
+    );
     console.error(errorMessage);
     return null;
   }
@@ -264,7 +294,10 @@ export async function removeUserPreference(slug: string) {
   }
 
   const preferences = await getUserPreferences();
-  const oldPreferences = preferences?.engraving as Prisma.JsonArray | null | undefined;
+  const oldPreferences = preferences?.engraving as
+    | Prisma.JsonArray
+    | null
+    | undefined;
 
   if (!oldPreferences || oldPreferences === undefined) {
     return { error: "No preferences found." };
@@ -275,7 +308,9 @@ export async function removeUserPreference(slug: string) {
     name: string;
   }[];
 
-  const newPreferences = currentArray.filter((preference) => preference?.slug !== slug);
+  const newPreferences = currentArray.filter(
+    (preference) => preference?.slug !== slug
+  );
 
   const updatedPreferences = await prisma.user.update({
     where: {
@@ -322,8 +357,16 @@ export async function fetchUsers({
             ? {
                 OR: [
                   { name: { contains: searchQuery.searchTerm || undefined } },
-                  { businessName: { contains: searchQuery.searchTerm || undefined } },
-                  { businessCode: { contains: searchQuery.searchTerm || undefined } },
+                  {
+                    businessName: {
+                      contains: searchQuery.searchTerm || undefined,
+                    },
+                  },
+                  {
+                    businessCode: {
+                      contains: searchQuery.searchTerm || undefined,
+                    },
+                  },
                 ],
               }
             : [],
@@ -338,8 +381,16 @@ export async function fetchUsers({
             ? {
                 OR: [
                   { name: { contains: searchQuery.searchTerm || undefined } },
-                  { businessName: { contains: searchQuery.searchTerm || undefined } },
-                  { businessCode: { contains: searchQuery.searchTerm || undefined } },
+                  {
+                    businessName: {
+                      contains: searchQuery.searchTerm || undefined,
+                    },
+                  },
+                  {
+                    businessCode: {
+                      contains: searchQuery.searchTerm || undefined,
+                    },
+                  },
                 ],
               }
             : [],

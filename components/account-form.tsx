@@ -3,36 +3,58 @@
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
+import NewConnectionForm from "./new-connection-form";
 import LoadingIndicator from "./loading-indicator";
 import {
   updateUserPreferences,
   removeUserPreference,
   updateOwnUser,
+  verifyBusinessCode,
 } from "@/data/user/actions";
+import {
+  approveConnection,
+  deleteActiveConnection,
+  deleteConnection,
+  updateOwnUserConnection,
+} from "@/data/user/connections";
 
 import { generateRandomString } from "@/lib/generate-random-string";
-import { verifyBusinessCode } from "@/data/user/actions";
 
 // Shadcn
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Switch } from "@/components/ui/switch";
 import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  ArrowLeftCircleIcon,
+  ArrowRightCircleIcon,
+  CheckIcon,
   CircleCheckIcon,
   Eye,
   EyeOff,
+  ListOrderedIcon,
   LoaderCircleIcon,
+  PlusCircleIcon,
   ReceiptJapaneseYenIcon,
   SaveIcon,
   Trash2Icon,
+  TrashIcon,
 } from "lucide-react";
 
 // Types
 import { TAccountChange } from "@/lib/types";
 
-export default function AccountForm({ currentInfo }: { currentInfo: TAccountChange }) {
+export default function AccountForm({
+  currentInfo,
+}: {
+  currentInfo: TAccountChange;
+}) {
   const [save, setSave] = useState(false);
   const [savePreference, setSavePreference] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -112,7 +134,11 @@ export default function AccountForm({ currentInfo }: { currentInfo: TAccountChan
 
   const validateBusinessCode = async (code: string) => {
     const validUsers = await verifyBusinessCode(code);
-    if (validUsers === null || validUsers === undefined || validUsers?.length === 0) {
+    if (
+      validUsers === null ||
+      validUsers === undefined ||
+      validUsers?.length === 0
+    ) {
       return false;
     }
     return true;
@@ -128,6 +154,78 @@ export default function AccountForm({ currentInfo }: { currentInfo: TAccountChan
     toast("Business code generated.");
     setSave(true);
   };
+
+  const handleUpdateBusinessConnection = async (checked: boolean) => {
+    const updatedUser = await updateOwnUserConnection(checked);
+
+    if (updatedUser.error !== null) {
+      toast.error(updatedUser.error);
+    }
+
+    toast.success("Setting updated successfully!");
+  };
+
+  const handleDeleteConnection = async (
+    requestId: string,
+    receiveId: string,
+    active: string | null
+  ) => {
+    if (!requestId || !receiveId) {
+      return null;
+    }
+
+    const deletedConnection =
+      active !== null
+        ? await deleteActiveConnection(receiveId, requestId)
+        : await deleteConnection(receiveId, requestId);
+
+    if (deletedConnection.error) {
+      toast.error(deletedConnection.error);
+    }
+
+    toast.success(deletedConnection?.message ?? "Deleted successfully.");
+  };
+
+  const handleApproveConnection = async (
+    requestId: string,
+    receiveId: string,
+    businessName: string,
+    businessCode: string
+  ) => {
+    if (!requestId || !receiveId) {
+      return null;
+    }
+
+    const approvedConnection = await approveConnection(
+      receiveId,
+      requestId,
+      businessName,
+      businessCode
+    );
+
+    if (approvedConnection.error) {
+      toast.error(approvedConnection.error);
+    }
+
+    toast.success(approvedConnection?.message ?? "Deleted successfully.");
+  };
+
+  const pendingConnections = currentInfo?.pendingConnections as {
+    receiveId: string;
+    requestId: string;
+    businessName: string;
+    businessCode: string;
+    code: number;
+  }[];
+  const connections = currentInfo?.connections as {
+    receiveId: string;
+    requestId: string;
+    connectionId: string;
+    businessName: string;
+    businessCode: string;
+    name: string;
+    email: string;
+  }[];
 
   return (
     <div className="flex flex-col gap-8">
@@ -153,7 +251,10 @@ export default function AccountForm({ currentInfo }: { currentInfo: TAccountChan
                 value={unsavedChanges?.name ?? currentInfo?.name ?? ""}
                 onChange={(e) => {
                   setSave(true);
-                  setUnsavedChanges((prev) => ({ ...prev, name: e.target.value }));
+                  setUnsavedChanges((prev) => ({
+                    ...prev,
+                    name: e.target.value,
+                  }));
                 }}
                 placeholder=""
               />
@@ -170,7 +271,10 @@ export default function AccountForm({ currentInfo }: { currentInfo: TAccountChan
                 value={unsavedChanges?.email ?? currentInfo?.email ?? ""}
                 onChange={(e) => {
                   setSave(true);
-                  setUnsavedChanges((prev) => ({ ...prev, email: e.target.value }));
+                  setUnsavedChanges((prev) => ({
+                    ...prev,
+                    email: e.target.value,
+                  }));
                 }}
               />
             </div>
@@ -184,10 +288,15 @@ export default function AccountForm({ currentInfo }: { currentInfo: TAccountChan
                   name="password"
                   id="password"
                   placeholder=""
-                  value={unsavedChanges?.password ?? currentInfo?.password ?? ""}
+                  value={
+                    unsavedChanges?.password ?? currentInfo?.password ?? ""
+                  }
                   onChange={(e) => {
                     setSave(true);
-                    setUnsavedChanges((prev) => ({ ...prev, password: e.target.value }));
+                    setUnsavedChanges((prev) => ({
+                      ...prev,
+                      password: e.target.value,
+                    }));
                   }}
                 />
                 <span
@@ -210,7 +319,11 @@ export default function AccountForm({ currentInfo }: { currentInfo: TAccountChan
                 name="businessName"
                 id="businessName"
                 placeholder=""
-                value={unsavedChanges?.businessName ?? currentInfo?.businessName ?? ""}
+                value={
+                  unsavedChanges?.businessName ??
+                  currentInfo?.businessName ??
+                  ""
+                }
                 onChange={(e) => {
                   setSave(true);
                   setUnsavedChanges((prev) => ({
@@ -232,7 +345,9 @@ export default function AccountForm({ currentInfo }: { currentInfo: TAccountChan
                 value={
                   code
                     ? code
-                    : unsavedChanges?.businessCode ?? currentInfo?.businessCode ?? ""
+                    : unsavedChanges?.businessCode ??
+                      currentInfo?.businessCode ??
+                      ""
                 }
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                   setSave(true);
@@ -267,7 +382,12 @@ export default function AccountForm({ currentInfo }: { currentInfo: TAccountChan
         </div>
         {save && (
           <div className="flex items-center gap-6 my-5">
-            <Button type="submit" disabled={loading} variant="success" size="lg">
+            <Button
+              type="submit"
+              disabled={loading}
+              variant="success"
+              size="lg"
+            >
               <SaveIcon />
               {loading ? "Saving..." : "Save Changes"}
             </Button>
@@ -318,7 +438,11 @@ export default function AccountForm({ currentInfo }: { currentInfo: TAccountChan
                   disabled={loading}
                   className="flex-1 w-full"
                 >
-                  {loading ? <LoaderCircleIcon className="animate-spin" /> : <SaveIcon />}
+                  {loading ? (
+                    <LoaderCircleIcon className="animate-spin" />
+                  ) : (
+                    <SaveIcon />
+                  )}
                   {loading ? "Saving..." : "Save"}
                 </Button>
                 <Button
@@ -381,6 +505,156 @@ export default function AccountForm({ currentInfo }: { currentInfo: TAccountChan
               );
             })}
         </div>
+      </div>
+
+      <div className="relative flex flex-col gap-6">
+        <div className="flex items-center space-x-2">
+          <Switch
+            id="airplane-mode"
+            defaultChecked={currentInfo?.canConnect || false}
+            onCheckedChange={handleUpdateBusinessConnection}
+          />
+          <Label htmlFor="airplane-mode">Allow Connection</Label>
+        </div>
+
+        {currentInfo?.canConnect === true ? (
+          <div className="flex items-center justify-start gap-6">
+            <div>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button type="button" variant="default">
+                    Add New
+                    <PlusCircleIcon />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent align="start" side="top">
+                  <NewConnectionForm userId={currentInfo?.id ?? ""} />
+                </PopoverContent>
+              </Popover>
+            </div>
+
+            {(pendingConnections && pendingConnections.length > 0) ||
+            (connections && connections.length > 0) ? (
+              <div className="relative">
+                {pendingConnections && pendingConnections.length > 0 ? (
+                  <span className="absolute -top-1 -right-1 size-3 rounded-full bg-red-500"></span>
+                ) : null}
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button type="button" variant="outline">
+                      <ListOrderedIcon />
+                      Connections
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent
+                    align="start"
+                    side="top"
+                    className="flex flex-col gap-4"
+                  >
+                    {pendingConnections !== null &&
+                      pendingConnections.map((cn, i) => (
+                        <div
+                          key={i}
+                          className="bg-gray-100 rounded-lg p-3 mb-3"
+                        >
+                          <span className="flex items-center gap-2 text-xs font-bold p-2 mb-1 bg-white rounded-md">
+                            {cn.code === 1 ? (
+                              <>
+                                <ArrowLeftCircleIcon className="size-4" />{" "}
+                                Receiving Connection
+                              </>
+                            ) : (
+                              <>
+                                <ArrowRightCircleIcon className="size-4" />{" "}
+                                Requesting Connection
+                              </>
+                            )}
+                          </span>
+                          <div className="flex flex-col gap-3">
+                            <div className="flex items-center justify-between gap-3">
+                              <div className="flex flex-col mb-2">
+                                <span>{cn.businessName}</span>
+                                <span className="text-sm text-slate-500">
+                                  {cn.businessCode}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                {cn.code === 1 && (
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    className="cursor-pointer"
+                                    onClick={() =>
+                                      handleApproveConnection(
+                                        cn.requestId,
+                                        cn.receiveId,
+                                        cn.businessName,
+                                        cn.businessCode
+                                      )
+                                    }
+                                  >
+                                    <CheckIcon />
+                                  </Button>
+                                )}
+
+                                <Button
+                                  type="button"
+                                  variant="destructive"
+                                  className="cursor-pointer"
+                                  onClick={() =>
+                                    handleDeleteConnection(
+                                      cn.requestId,
+                                      cn.receiveId,
+                                      null
+                                    )
+                                  }
+                                >
+                                  <TrashIcon />
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+
+                    {connections !== null &&
+                      connections.map((cn, i) => (
+                        <div key={i} className="rounded-lg border p-3">
+                          <div className="flex flex-col gap-3">
+                            <div className="flex items-center justify-between gap-3">
+                              <div className="flex flex-col mb-2">
+                                <span>
+                                  {cn.name ? cn.name : cn.businessName}
+                                </span>
+                                <span className="text-sm text-slate-500">
+                                  {cn.name ? cn.email : cn.businessCode}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  onClick={() =>
+                                    handleDeleteConnection(
+                                      cn.requestId,
+                                      cn.receiveId,
+                                      "active"
+                                    )
+                                  }
+                                >
+                                  <TrashIcon className="text-red-600" />
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                  </PopoverContent>
+                </Popover>
+              </div>
+            ) : null}
+          </div>
+        ) : null}
       </div>
     </div>
   );
