@@ -86,8 +86,6 @@ export default function ProductPageForm({
     return <h4 className="text-lg text-slate-500">Product not found!</h4>;
   }
 
-  console.log(details);
-
   return (
     <form
       action={actionForm}
@@ -136,7 +134,9 @@ export default function ProductPageForm({
                         <span className="text-lg">{size?.name}</span>
                         <br />
                         <span className="text-sm">
-                          {product?.type === "knife" ? size?.size : size?.dimension}
+                          {product?.type === "knife"
+                            ? size?.size
+                            : size?.dimension}
                         </span>
                       </p>
                     </TableCell>
@@ -161,7 +161,9 @@ export default function ProductPageForm({
                         placeholder="0"
                         autoComplete="off"
                         className="px-1 text-center"
-                        defaultValue={(sizeQuantity && sizeQuantity) || undefined}
+                        defaultValue={
+                          (sizeQuantity && sizeQuantity) || undefined
+                        }
                         onChange={(e) => {
                           const value = parseInt(e.target.value);
                           if (isNaN(value)) return;
@@ -169,7 +171,10 @@ export default function ProductPageForm({
                           setDetails((prevDetails) => {
                             const updatedDetails = [...prevDetails]; // clone the array
                             const index = updatedDetails.findIndex((detail) => {
-                              const item = detail as { sizeId: number; quantity: number };
+                              const item = detail as {
+                                sizeId: number;
+                                quantity: number;
+                              };
                               return item.sizeId === size.id;
                             });
 
@@ -214,7 +219,9 @@ export default function ProductPageForm({
             name="brand"
             defaultValue={cart?.brand || product?.brand}
             onValueChange={(value) =>
-              value === "other" ? setOtherEngraving(true) : setOtherEngraving(false)
+              value === "other"
+                ? setOtherEngraving(true)
+                : setOtherEngraving(false)
             }
           >
             <SelectTrigger className="w-full py-6">
@@ -340,19 +347,34 @@ export default function ProductPageForm({
           )}
 
           {isLoading ? (
-            <Button className="w-full py-6" variant="outline" size="lg" disabled>
+            <Button
+              className="w-full py-6"
+              variant="outline"
+              size="lg"
+              disabled
+            >
               <Loader2Icon className="animate-spin" />
               Loading...
             </Button>
           ) : cart ? (
             <div className="flex flex-col gap-2">
-              <Button className="w-full py-6" type="submit" variant="default" size="lg">
+              <Button
+                className="w-full py-6"
+                type="submit"
+                variant="default"
+                size="lg"
+              >
                 <span className="flex gap-2">
                   <SaveIcon />
                   Save Changes
                 </span>
               </Button>
-              <Button asChild className="w-full py-5" variant="outline" size="sm">
+              <Button
+                asChild
+                className="w-full py-5"
+                variant="outline"
+                size="sm"
+              >
                 <Link href="/cart" className="flex gap-2">
                   <ArrowRightIcon />
                   See Cart
@@ -360,7 +382,12 @@ export default function ProductPageForm({
               </Button>
             </div>
           ) : (
-            <Button className="w-full py-6" type="submit" variant="default" size="lg">
+            <Button
+              className="w-full py-6"
+              type="submit"
+              variant="default"
+              size="lg"
+            >
               <span className="flex gap-2">
                 <ShoppingCartIcon />
                 Add to Cart
@@ -371,8 +398,9 @@ export default function ProductPageForm({
 
         <div>
           <p className="text-sm text-center text-slate-500">
-            ** Please note <strong>if you don&#39;t</strong> change engraving, handle or
-            add any specific request, we will proceed with the standard configuration.
+            ** Please note <strong>if you don&#39;t</strong> change engraving,
+            handle or add any specific request, we will proceed with the
+            standard configuration.
           </p>
         </div>
       </div>

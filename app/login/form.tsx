@@ -15,8 +15,12 @@ import { AlertTriangle, Eye, EyeOff, Info } from "lucide-react";
 
 // Types
 import { ActionFormInitialState } from "@/lib/types";
+import LoadingIndicator from "@/components/loading-indicator";
 
-export function LoginForm({ className, ...props }: React.ComponentProps<"form">) {
+export function LoginForm({
+  className,
+  ...props
+}: React.ComponentProps<"form">) {
   const router = useRouter();
   const passwordRef = useRef(null);
   const [showPassword, setShowPassword] = useState(false);
@@ -27,7 +31,10 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"form">)
     fieldErrors: undefined,
   };
 
-  const [state, formAction, pending] = useActionState(authenticateUser, initialState);
+  const [state, formAction, pending] = useActionState(
+    authenticateUser,
+    initialState
+  );
 
   useEffect(() => {
     if (state.success) {
@@ -37,7 +44,11 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"form">)
   }, [state, router]);
 
   return (
-    <form action={formAction} className={cn("flex flex-col gap-6", className)} {...props}>
+    <form
+      action={formAction}
+      className={cn("flex flex-col gap-6", className)}
+      {...props}
+    >
       <div className="flex flex-col items-center gap-2 text-center">
         <h1 className="text-2xl font-bold">Sign In</h1>
         <p className="text-muted-foreground text-sm text-balance">
@@ -74,8 +85,9 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"form">)
             <Label htmlFor="password">Password</Label>
             <Link
               href="/recover"
-              className="ml-auto text-sm underline-offset-4 hover:underline"
+              className="flex items-center ml-auto text-sm underline-offset-4 hover:underline"
             >
+              <LoadingIndicator />
               Forgot your password?
             </Link>
           </div>
@@ -110,7 +122,11 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"form">)
       </div>
       <div className="text-center text-sm">
         Don&apos;t have an account?{" "}
-        <Link href="/register" className="underline underline-offset-4">
+        <Link
+          href="/register"
+          className="flex items-center underline underline-offset-4"
+        >
+          <LoadingIndicator />
           Sign up
         </Link>
       </div>

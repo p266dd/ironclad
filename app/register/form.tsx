@@ -16,8 +16,12 @@ import { AlertTriangle, ArrowLeftIcon, Eye, EyeOff, Info } from "lucide-react";
 
 // Types
 import { ActionFormInitialState } from "@/lib/types";
+import LoadingIndicator from "@/components/loading-indicator";
 
-export function SignupForm({ className, ...props }: React.ComponentProps<"form">) {
+export function SignupForm({
+  className,
+  ...props
+}: React.ComponentProps<"form">) {
   const passwordRef = useRef(null);
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
@@ -38,7 +42,11 @@ export function SignupForm({ className, ...props }: React.ComponentProps<"form">
   }
 
   return (
-    <form action={formAction} className={cn("flex flex-col gap-6", className)} {...props}>
+    <form
+      action={formAction}
+      className={cn("flex flex-col gap-6", className)}
+      {...props}
+    >
       <div className="flex flex-col items-center gap-2 text-center">
         <h1 className="text-2xl font-bold">Create Account</h1>
         <p className="text-muted-foreground text-sm text-balance">
@@ -67,7 +75,12 @@ export function SignupForm({ className, ...props }: React.ComponentProps<"form">
 
         <div className="space-y-2">
           <Label htmlFor="email">Email</Label>
-          <Input id="email" name="email" type="email" placeholder="name@example.com" />
+          <Input
+            id="email"
+            name="email"
+            type="email"
+            placeholder="name@example.com"
+          />
           {state.fieldErrors?.email && (
             <Alert variant="destructive">
               <AlertTriangle size={18} />
@@ -137,7 +150,11 @@ export function SignupForm({ className, ...props }: React.ComponentProps<"form">
       </div>
       <div className="text-center text-sm">
         Already have an account?{" "}
-        <Link href="/login" className="underline underline-offset-4">
+        <Link
+          href="/login"
+          className="flex items-center underline underline-offset-4"
+        >
+          <LoadingIndicator />
           Log In
         </Link>
       </div>

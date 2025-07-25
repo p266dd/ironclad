@@ -13,8 +13,12 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertTriangle, ArrowLeftIcon, Info } from "lucide-react";
 
 import { ActionFormInitialState } from "@/lib/types";
+import LoadingIndicator from "@/components/loading-indicator";
 
-export function RecoverForm({ className, ...props }: React.ComponentProps<"form">) {
+export function RecoverForm({
+  className,
+  ...props
+}: React.ComponentProps<"form">) {
   const initialState: ActionFormInitialState = {
     success: false,
     message: undefined,
@@ -24,7 +28,11 @@ export function RecoverForm({ className, ...props }: React.ComponentProps<"form"
   const [state, formAction, pending] = useActionState(recover, initialState);
 
   return (
-    <form action={formAction} className={cn("flex flex-col gap-6", className)} {...props}>
+    <form
+      action={formAction}
+      className={cn("flex flex-col gap-6", className)}
+      {...props}
+    >
       <div className="flex flex-col items-center gap-2 text-center">
         <h1 className="text-2xl font-bold">Recover Account</h1>
         <p className="text-muted-foreground text-sm text-balance">
@@ -72,7 +80,11 @@ export function RecoverForm({ className, ...props }: React.ComponentProps<"form"
       </div>
       <div className="text-center text-sm">
         Don&apos;t have an account?{" "}
-        <Link href="/register" className="underline underline-offset-4">
+        <Link
+          href="/register"
+          className="flex items-center underline underline-offset-4"
+        >
+          <LoadingIndicator />
           Sign up
         </Link>
       </div>
