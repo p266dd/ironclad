@@ -34,7 +34,7 @@ export default function NewConnectionForm({ user }: { user: Partial<User> }) {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("Form submitted!");
+    // console.log("Form submitted!");
   };
 
   const handleNextStep = async () => {

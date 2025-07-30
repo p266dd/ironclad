@@ -38,7 +38,7 @@ export function LoginForm({
 
   useEffect(() => {
     if (state.success) {
-      console.log("Login form action succeeded:", state.message);
+      // console.log("Login form action succeeded:", state.message);
       router.push("/");
     }
   }, [state, router]);

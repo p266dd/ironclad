@@ -5,14 +5,23 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
 import { generateRandomString } from "@/lib/generate-random-string";
-import { updateUser, addNewUser, verifyBusinessCode } from "@/data/user/actions";
+import {
+  updateUser,
+  addNewUser,
+  verifyBusinessCode,
+  updateUserStatus,
+} from "@/data/user/actions";
 
 // Shadcn
-import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
@@ -25,6 +34,7 @@ import {
 
 // Types
 import { User } from "@/lib/generated/prisma";
+import { Switch } from "../ui/switch";
 
 export default function AdminUserForm({
   user,
@@ -34,8 +44,12 @@ export default function AdminUserForm({
   isNew?: boolean;
 }) {
   const [loading, setLoading] = useState(false);
-  const [generatedPassword, setGeneratedPassword] = useState<string | null>(null);
-  const [generatedBusinessCode, setGeneratedBusinessCode] = useState<string | null>(null);
+  const [generatedPassword, setGeneratedPassword] = useState<string | null>(
+    null
+  );
+  const [generatedBusinessCode, setGeneratedBusinessCode] = useState<
+    string | null
+  >(null);
 
   const router = useRouter();
 
@@ -89,6 +103,7 @@ export default function AdminUserForm({
         result = await addNewUser({
           userData: {
             ...userFormData,
+            isActive: Boolean(userFormData.isActive),
             password: userFormData.password || "ResetPassword",
           },
         });
@@ -109,6 +124,30 @@ export default function AdminUserForm({
       if (isNew) {
         router.push("/dashboard/users/");
       }
+    } catch (error) {
+      console.error(error);
+      toast.error("ユーザーの更新に失敗しました。");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateActivationStatus = async (status: boolean) => {
+    setLoading(true);
+    try {
+      const result = await updateUserStatus({
+        status: status,
+        user: {
+          id: user?.id ?? "",
+          email: user?.email ?? "",
+        },
+      });
+
+      if (result.error !== null) {
+        toast.error(result.error);
+      }
+
+      toast.success("ユーザーが正常に更新されました。");
     } catch (error) {
       console.error(error);
       toast.error("ユーザーの更新に失敗しました。");
@@ -208,7 +247,9 @@ export default function AdminUserForm({
               max={6}
               min={6}
               defaultValue={
-                generatedBusinessCode ? generatedBusinessCode : user?.businessCode ?? ""
+                generatedBusinessCode
+                  ? generatedBusinessCode
+                  : user?.businessCode ?? ""
               }
               className="capitalize"
               placeholder=""
@@ -246,7 +287,9 @@ export default function AdminUserForm({
                       <CardTitle className="flex items-center gap-2">
                         <User2Icon /> ユーザー
                       </CardTitle>
-                      <CardDescription className="sr-only">ユーザー権限</CardDescription>
+                      <CardDescription className="sr-only">
+                        ユーザー権限
+                      </CardDescription>
                     </div>
                   </div>
                 </CardHeader>
@@ -268,7 +311,9 @@ export default function AdminUserForm({
                       <CardTitle className="flex items-center gap-2">
                         <UserCheck2Icon /> 管理者
                       </CardTitle>
-                      <CardDescription className="sr-only">管理者権限</CardDescription>
+                      <CardDescription className="sr-only">
+                        管理者権限
+                      </CardDescription>
                     </div>
                   </div>
                 </CardHeader>
@@ -276,17 +321,28 @@ export default function AdminUserForm({
             </Label>
           </RadioGroup>
 
-          <Label htmlFor="isActive" className="flex items-center gap-3">
-            <Checkbox
+          <div className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+            <div className="space-y-0.5">
+              <h5 className="font-semibold">
+                ユーザーアクティベーションステータス
+              </h5>
+              <p className="text-gray-500 text-sm">
+                このフィールドが更新されると、ユーザーにメールが届きます。
+              </p>
+            </div>
+            <Switch
               name="isActive"
-              id="isActive"
-              defaultChecked={user?.isActive || false}
+              checked={user?.isActive || false}
+              onCheckedChange={updateActivationStatus}
             />
-            <span>このユーザーは有効ですか？</span>
-          </Label>
+          </div>
 
           <Button type="submit" variant="default" disabled={loading}>
-            {loading ? <LoaderCircleIcon className="animate-spin" /> : <SaveIcon />}
+            {loading ? (
+              <LoaderCircleIcon className="animate-spin" />
+            ) : (
+              <SaveIcon />
+            )}
             {loading ? "保存中..." : isNew ? "追加" : "変更を保存"}
           </Button>
         </div>

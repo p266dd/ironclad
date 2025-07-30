@@ -16,7 +16,10 @@ import { AlertTriangle, Eye, EyeOff, Info } from "lucide-react";
 // Types
 import { ActionFormInitialState } from "@/lib/types";
 
-export function ResetForm({ className, ...props }: React.ComponentProps<"form">) {
+export function ResetForm({
+  className,
+  ...props
+}: React.ComponentProps<"form">) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [showPassword, setShowPassword] = useState(false);
@@ -27,17 +30,24 @@ export function ResetForm({ className, ...props }: React.ComponentProps<"form">)
     fieldErrors: undefined,
   };
 
-  const [state, formAction, pending] = useActionState(resetPassword, initialState);
+  const [state, formAction, pending] = useActionState(
+    resetPassword,
+    initialState
+  );
 
   useEffect(() => {
     if (state.success) {
-      console.log("Password successfully reset.");
+      // console.log("Password successfully reset.");
       router.push("/");
     }
   }, [state, router]);
 
   return (
-    <form action={formAction} className={cn("flex flex-col gap-6", className)} {...props}>
+    <form
+      action={formAction}
+      className={cn("flex flex-col gap-6", className)}
+      {...props}
+    >
       <div className="flex flex-col items-center gap-2 text-center">
         <h1 className="text-2xl font-bold">Reset Your Password</h1>
         <p className="text-muted-foreground text-sm text-balance">

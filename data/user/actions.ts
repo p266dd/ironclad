@@ -9,14 +9,16 @@ import {
   engravingValidation,
   passwordValidation,
 } from "@/prisma/schemas/user";
+import { userActivationEmail } from "@/lib/emails/user-active";
 
 // Types
-import { User } from "@/lib/generated/prisma";
 import { Prisma } from "@/lib/generated/prisma";
 
 // Error Utility
 import { generatePrismaErrorMessage } from "@/prisma/error-handling";
 import { revalidatePath } from "next/cache";
+import { sendEmail } from "@/lib/nodemailer";
+import path from "path";
 
 export async function getUserForAuth(email: string) {
   try {
@@ -438,7 +440,7 @@ export async function addNewUser({
     businessName: string;
     businessCode?: string;
     role: string;
-    isActive: string;
+    isActive: boolean;
   };
 }) {
   await verifyAdminSession();
@@ -447,7 +449,7 @@ export async function addNewUser({
     const user = await prisma.user.create({
       data: {
         ...userData,
-        isActive: userData.isActive === "on" ? true : false,
+        isActive: userData.isActive,
         id: undefined,
       },
     });
@@ -471,7 +473,6 @@ export async function updateUser({
     businessName: string;
     businessCode: string;
     role: string;
-    isActive: string;
   };
   userId: string;
 }) {
@@ -484,12 +485,65 @@ export async function updateUser({
       },
       data: {
         ...userData,
-        isActive: userData.isActive === "on" ? true : false,
       },
     });
 
     revalidatePath("/admin/users");
     revalidatePath("/admin/users/" + userId);
+
+    return { error: null, data: user };
+  } catch (error) {
+    console.error(error);
+    return { error: "Failed to update user.", data: null };
+  }
+}
+
+export async function updateUserStatus({
+  status,
+  user,
+}: {
+  status: boolean;
+  user: {
+    id: string;
+    email: string;
+  };
+}) {
+  await verifyAdminSession();
+
+  try {
+    const updated = await prisma.user.update({
+      where: {
+        id: user.id,
+      },
+      data: {
+        isActive: status,
+      },
+    });
+
+    revalidatePath("/admin/users");
+    revalidatePath("/admin/users/" + user.id);
+
+    if (status === true) {
+      const userEmail = userActivationEmail({
+        user: {
+          name: updated.name,
+          businessName: updated.businessName,
+        },
+      });
+      await sendEmail({
+        to: user.email,
+        subject: "Account Review - Ironclad Knives",
+        html: userEmail.html,
+        text: userEmail.text,
+        attachments: [
+          {
+            filename: "logo.png",
+            path: path.join(process.cwd(), "public", "logo.png"),
+            cid: "logo@ironclad",
+          },
+        ],
+      });
+    }
 
     return { error: null, data: user };
   } catch (error) {

@@ -22,7 +22,11 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { Button } from "@/components/ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   AlertCircleIcon,
   Check,
@@ -55,7 +59,10 @@ export default function AdminOrderForm() {
   });
 
   const [clientOpen, setClientOpen] = useState(false);
-  const { data: clients, isLoading: loadingClients } = useSWR("getUsers", getUserList);
+  const { data: clients, isLoading: loadingClients } = useSWR(
+    "getUsers",
+    getUserList
+  );
 
   const [productOpen, setProductOpen] = useState(false);
   const [currentSelectedProduct, setCurrentSelectedProduct] = useState("");
@@ -184,8 +191,6 @@ export default function AdminOrderForm() {
     const formData = new FormData(e.currentTarget);
     const formObject = Object.fromEntries(formData);
 
-    console.log(formData);
-
     if (!formObject.productId) {
       toast.error("フォームの入力内容が正しくありません。");
       return;
@@ -236,7 +241,8 @@ export default function AdminOrderForm() {
               >
                 {clients
                   ? order.clientId
-                    ? clients.find((client) => client.id === order.clientId)?.businessName
+                    ? clients.find((client) => client.id === order.clientId)
+                        ?.businessName
                     : "顧客を選択してください。"
                   : loadingClients
                   ? "顧客を読み込み中..."
@@ -259,7 +265,8 @@ export default function AdminOrderForm() {
                           onSelect={(selected) => {
                             setOrder((prev) => ({
                               ...prev,
-                              clientId: selected === order.clientId ? "" : selected,
+                              clientId:
+                                selected === order.clientId ? "" : selected,
                             }));
                             setClientOpen(false);
                           }}
@@ -268,7 +275,9 @@ export default function AdminOrderForm() {
                           <Check
                             className={cn(
                               "ml-auto",
-                              order.clientId === client.id ? "opacity-100" : "opacity-0"
+                              order.clientId === client.id
+                                ? "opacity-100"
+                                : "opacity-0"
                             )}
                           />
                         </CommandItem>
@@ -294,8 +303,9 @@ export default function AdminOrderForm() {
               >
                 {products
                   ? currentSelectedProduct
-                    ? products.find((product) => product.id === currentSelectedProduct)
-                        ?.name
+                    ? products.find(
+                        (product) => product.id === currentSelectedProduct
+                      )?.name
                     : "商品を選択してください。"
                   : loadingProducts
                   ? "商品を読み込み中..."
@@ -347,7 +357,9 @@ export default function AdminOrderForm() {
         <div>
           {order && order.orderProduct.length > 0 ? (
             order.orderProduct.map((product) => {
-              const fullProduct = products?.find((p) => p.id === product.productId);
+              const fullProduct = products?.find(
+                (p) => p.id === product.productId
+              );
               if (!fullProduct) return null;
               // const orderProductDetails = product?.details
               //   ? (JSON.parse(product.details) as { sizeId: number; quantity: number }[])
@@ -378,7 +390,11 @@ export default function AdminOrderForm() {
             variant="default"
             disabled={loading}
           >
-            {loading ? <LoaderCircleIcon className="animate-spin" /> : <PlusCircleIcon />}
+            {loading ? (
+              <LoaderCircleIcon className="animate-spin" />
+            ) : (
+              <PlusCircleIcon />
+            )}
             {loading ? "注文を作成中..." : "注文を作成"}
           </Button>
           <Button
