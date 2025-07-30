@@ -61,7 +61,7 @@ export function SignupForm({
       )}
       <div className="grid gap-6">
         <div className="space-y-2">
-          <Label htmlFor="name">Name</Label>
+          <Label htmlFor="name">Name *</Label>
           <Input id="name" name="name" type="text" placeholder="John Doe" />
           {state.fieldErrors?.name && (
             <Alert variant="destructive">
@@ -74,7 +74,7 @@ export function SignupForm({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="email">Email *</Label>
           <Input
             id="email"
             name="email"
@@ -92,7 +92,7 @@ export function SignupForm({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="password">Password</Label>
+          <Label htmlFor="password">Password *</Label>
           <div className="relative">
             <Input
               ref={passwordRef}
@@ -119,7 +119,7 @@ export function SignupForm({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="businessName">Business Name</Label>
+          <Label htmlFor="businessName">Business Name *</Label>
           <Input
             id="businessName"
             name="businessName"

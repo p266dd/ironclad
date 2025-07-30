@@ -216,6 +216,8 @@ export default function AccountForm({
     businessName: string;
     businessCode: string;
     code: number;
+    name: string;
+    email: string;
   }[];
   const connections = currentInfo?.connections as {
     receiveId: string;
@@ -528,7 +530,7 @@ export default function AccountForm({
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent align="start" side="top">
-                  <NewConnectionForm userId={currentInfo?.id ?? ""} />
+                  <NewConnectionForm user={currentInfo ?? ""} />
                 </PopoverContent>
               </Popover>
             </div>
@@ -576,6 +578,12 @@ export default function AccountForm({
                                 <span>{cn.businessName}</span>
                                 <span className="text-sm text-slate-500">
                                   {cn.businessCode}
+                                </span>
+                                <span className="text-sm text-slate-500">
+                                  {cn.name}
+                                </span>
+                                <span className="text-sm text-slate-500">
+                                  {cn.email}
                                 </span>
                               </div>
                               <div className="flex items-center gap-2">

@@ -112,6 +112,8 @@ export async function handleNewConnection(connectionObj: {
   requestId: string;
   businessName: string;
   businessCode: string;
+  name: string;
+  email: string;
 }) {
   const session = await verifyUserSession();
   const ownUserId = session.id;

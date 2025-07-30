@@ -16,7 +16,9 @@ import {
   LoaderCircleIcon,
 } from "lucide-react";
 
-export default function NewConnectionForm({ userId }: { userId: string }) {
+import { User } from "@/lib/generated/prisma";
+
+export default function NewConnectionForm({ user }: { user: Partial<User> }) {
   const [step, setStep] = useState(1);
   const [loading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -25,6 +27,8 @@ export default function NewConnectionForm({ userId }: { userId: string }) {
     businessName: string;
     businessCode: string;
     receiveId: string;
+    name: string;
+    email: string;
   } | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -56,6 +60,8 @@ export default function NewConnectionForm({ userId }: { userId: string }) {
     setBusiness({
       businessName: canConnect.data?.businessName ?? "No Name",
       businessCode: canConnect.data?.businessCode ?? "No Code",
+      name: user.name ?? "User",
+      email: user.email ?? "undefined",
       receiveId: canConnect.data?.id ?? "",
     });
 
@@ -70,9 +76,11 @@ export default function NewConnectionForm({ userId }: { userId: string }) {
     // Create the connection object
     const connectionObj = {
       receiveId: business?.receiveId ?? "",
-      requestId: userId,
+      requestId: user.id ?? "",
       businessName: business?.businessName ?? "",
       businessCode: business?.businessCode ?? "",
+      name: user.name ?? "User",
+      email: user.email ?? "undefined",
     };
 
     // Save connection in pendingConnections
