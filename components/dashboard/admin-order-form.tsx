@@ -35,27 +35,43 @@ import {
   PlusCircleIcon,
   TrashIcon,
 } from "lucide-react";
+import { Prisma } from "@/lib/generated/prisma";
 
 // Types
 type TOrder = {
-  clientId: string | undefined;
+  clientId: string | undefined | null;
   orderProduct: TOrderProduct[];
 };
 
 type TOrderProduct = {
-  productId: string | undefined;
-  details?: string | undefined;
-  brand?: string | undefined;
-  handle?: string | undefined;
-  request?: string | undefined;
+  productId: string | undefined | null;
+  details?: string | Prisma.JsonValue | undefined;
+  brand?: string | undefined | null;
+  handle?: string | undefined | null;
+  request?: string | undefined | null;
 };
 
-export default function AdminOrderForm() {
+export default function AdminOrderForm({
+  edit = false,
+  originalOrder,
+}: {
+  edit?: boolean;
+  originalOrder?: Prisma.OrderGetPayload<{
+    include: { orderProduct: true };
+  }> | null;
+}) {
   const [loading, setLoading] = useState(false);
 
   const [order, setOrder] = useState<TOrder>({
-    clientId: undefined,
-    orderProduct: [],
+    clientId:
+      originalOrder?.clientId !== undefined
+        ? originalOrder.clientId
+        : undefined,
+    orderProduct:
+      originalOrder?.orderProduct !== undefined &&
+      originalOrder?.orderProduct.length > 0
+        ? originalOrder.orderProduct
+        : [],
   });
 
   const [clientOpen, setClientOpen] = useState(false);
@@ -101,6 +117,10 @@ export default function AdminOrderForm() {
     setLoading(false);
 
     router.push("/dashboard/orders/" + createdOrder.data);
+  };
+
+  const handleUpdateOrder = async () => {
+    setLoading(true);
   };
 
   const addSelectedToOrder = () => {
@@ -154,15 +174,20 @@ export default function AdminOrderForm() {
     }
 
     const newSize = {
-      sizeId,
+      id: sizeId,
       quantity: newQuantity,
     };
 
     const updatedOrderProduct = order.orderProduct.map((product) => {
       if (product.productId === cartProductId) {
-        const details = product.details ? JSON.parse(product.details) : [];
+        const details =
+          product.details !== undefined
+            ? typeof product.details === "string"
+              ? JSON.parse(product.details)
+              : product.details
+            : [];
         const index = details.findIndex(
-          (d: { sizeId: number; quantity: number }) => d.sizeId === sizeId
+          (d: { id: number; quantity: number }) => d.id === sizeId
         );
         if (index === -1) {
           details.push(newSize);
@@ -386,16 +411,24 @@ export default function AdminOrderForm() {
         <div className="flex items-center gap-3 justify-center md:justify-start">
           <Button
             type="button"
-            onClick={handleCreateOrder}
+            onClick={edit === true ? handleUpdateOrder : handleCreateOrder}
             variant="default"
             disabled={loading}
           >
             {loading ? (
               <LoaderCircleIcon className="animate-spin" />
+            ) : edit === true ? (
+              ""
             ) : (
               <PlusCircleIcon />
             )}
-            {loading ? "注文を作成中..." : "注文を作成"}
+            {edit === true
+              ? loading
+                ? "Saving..."
+                : "Save Order"
+              : loading
+              ? "注文を作成中..."
+              : "注文を作成"}
           </Button>
           <Button
             type="button"

@@ -111,6 +111,7 @@ export default function AdminUserForm({
         result = await updateUser({
           userData: {
             ...userFormData,
+            isActive: Boolean(userFormData.isActive),
           },
           userId: user?.id || "",
         });
@@ -323,9 +324,7 @@ export default function AdminUserForm({
 
           <div className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
             <div className="space-y-0.5">
-              <h5 className="font-semibold">
-                ユーザーアクティベーションステータス
-              </h5>
+              <h5 className="font-semibold">ユーザーの使用を有効にする</h5>
               <p className="text-gray-500 text-sm">
                 このフィールドが更新されると、ユーザーにメールが届きます。
               </p>

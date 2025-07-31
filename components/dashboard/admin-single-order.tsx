@@ -33,17 +33,18 @@ import { Button } from "@/components/ui/button";
 import { Prisma } from "@/lib/generated/prisma";
 import AdminSingleOrderPopover from "./admin-single-order-popover";
 
+// Types
 type TOrder = {
-  clientId: string | undefined;
+  clientId: string | undefined | null;
   orderProduct: TOrderProduct[];
 };
 
 type TOrderProduct = {
-  productId: string | undefined;
-  details?: string | undefined;
-  brand?: string | undefined;
-  handle?: string | undefined;
-  request?: string | undefined;
+  productId: string | undefined | null;
+  details?: string | Prisma.JsonValue | undefined;
+  brand?: string | undefined | null;
+  handle?: string | undefined | null;
+  request?: string | undefined | null;
 };
 
 export default function AdminSingleOrder({
@@ -66,10 +67,17 @@ export default function AdminSingleOrder({
   );
 
   const orderProductDetails = orderProduct?.details
-    ? (JSON.parse(orderProduct.details) as {
-        sizeId: number;
-        quantity: number;
-      }[])
+    ? typeof orderProduct?.details === "string"
+      ? (JSON.parse(orderProduct.details) as {
+          id: number;
+          quantity: number;
+          priceAtOrder: number;
+        }[])
+      : (orderProduct?.details as {
+          id: number;
+          quantity: number;
+          priceAtOrder: number;
+        }[])
     : [];
 
   if (!fullProduct.id || fullProduct.sizes === undefined) {
@@ -102,7 +110,9 @@ export default function AdminSingleOrder({
                   <TableRow key={i}>
                     <TableCell>
                       <h4 className="text-lg leading-tight">{size?.name}</h4>
-                      {size?.size !== 0 && <p className="text-sm">{size?.size} mm</p>}
+                      {size?.size !== 0 && (
+                        <p className="text-sm">{size?.size} mm</p>
+                      )}
                       {size?.dimension !== "0mm" && (
                         <p className="text-sm">{size?.dimension}</p>
                       )}
@@ -129,7 +139,12 @@ export default function AdminSingleOrder({
               setSave(false);
             }}
           >
-            <input type="hidden" name="productId" value={fullProduct.id} readOnly />
+            <input
+              type="hidden"
+              name="productId"
+              value={fullProduct.id}
+              readOnly
+            />
             <div className="mt-4 md:px-4">
               <div className="flex flex-col gap-2 mb-4">
                 <p className="text-sm text-slate-500">ブランド</p>
@@ -137,7 +152,9 @@ export default function AdminSingleOrder({
                   disabled={false}
                   name="brand"
                   value={
-                    otherEngraving ? "other" : orderProduct?.brand || fullProduct?.brand
+                    otherEngraving
+                      ? "other"
+                      : orderProduct?.brand || fullProduct?.brand
                   }
                   onValueChange={(value) => {
                     if (value === "other") {
@@ -157,14 +174,20 @@ export default function AdminSingleOrder({
                       orderProduct?.brand !== fullProduct?.brand && (
                         <SelectGroup>
                           <SelectLabel>現在の注文内</SelectLabel>
-                          <SelectItem value={orderProduct.brand} className="capitalize">
+                          <SelectItem
+                            value={orderProduct.brand}
+                            className="capitalize"
+                          >
                             {orderProduct?.brand}
                           </SelectItem>
                         </SelectGroup>
                       )}
                     <SelectGroup>
                       <SelectLabel>デフォルト</SelectLabel>
-                      <SelectItem value={fullProduct?.brand} className="capitalize">
+                      <SelectItem
+                        value={fullProduct?.brand}
+                        className="capitalize"
+                      >
                         {fullProduct?.brand}
                       </SelectItem>
                     </SelectGroup>
@@ -187,7 +210,13 @@ export default function AdminSingleOrder({
                     autoComplete="off"
                     placeholder="何を彫刻しますか？"
                     className="py-6"
-                    defaultValue={otherEngraving ? orderProduct?.brand : ""}
+                    defaultValue={
+                      otherEngraving
+                        ? orderProduct?.brand
+                          ? orderProduct?.brand
+                          : ""
+                        : ""
+                    }
                     onChange={() => setSave(true)}
                   />
                 )}
@@ -199,7 +228,9 @@ export default function AdminSingleOrder({
                   disabled={false}
                   name="handle"
                   value={
-                    otherHandle ? "other" : orderProduct?.handle || fullProduct?.handle
+                    otherHandle
+                      ? "other"
+                      : orderProduct?.handle || fullProduct?.handle
                   }
                   onValueChange={(value) => {
                     if (value === "other") {
@@ -216,7 +247,10 @@ export default function AdminSingleOrder({
                       orderProduct?.handle !== fullProduct?.handle && (
                         <SelectGroup>
                           <SelectLabel>現在の注文内</SelectLabel>
-                          <SelectItem value={orderProduct?.handle} className="capitalize">
+                          <SelectItem
+                            value={orderProduct?.handle}
+                            className="capitalize"
+                          >
                             {orderProduct?.handle}
                           </SelectItem>
                         </SelectGroup>
@@ -224,7 +258,10 @@ export default function AdminSingleOrder({
 
                     <SelectGroup>
                       <SelectLabel>デフォルト</SelectLabel>
-                      <SelectItem value={fullProduct?.handle} className="capitalize">
+                      <SelectItem
+                        value={fullProduct?.handle}
+                        className="capitalize"
+                      >
                         {fullProduct?.handle}
                       </SelectItem>
                     </SelectGroup>
@@ -247,7 +284,13 @@ export default function AdminSingleOrder({
                     autoComplete="off"
                     placeholder="自分で入力"
                     className="py-6"
-                    defaultValue={otherHandle ? orderProduct?.handle : ""}
+                    defaultValue={
+                      otherHandle
+                        ? orderProduct?.handle
+                          ? orderProduct?.handle
+                          : ""
+                        : ""
+                    }
                     onChange={() => setSave(true)}
                   />
                 )}

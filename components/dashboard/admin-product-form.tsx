@@ -23,7 +23,12 @@ import { saveFilter, deleteFilter, toggleFilter } from "@/data/filter/action";
 import { addMedia, deleteMedia } from "@/data/media/action";
 
 // Shadcn
-import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -37,7 +42,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   AlertCircleIcon,
   LoaderCircleIcon,
@@ -74,9 +83,18 @@ export default function AdminProductForm({
   const router = useRouter();
 
   // Fetch data
-  const { data: filters, isLoading: loadingFilters } = useSWR("fetchFilters", getFilters);
-  const { data: brands, isLoading: loadingBrands } = useSWR("fetchBrands", getBrands);
-  const { data: handles, isLoading: loadingHandles } = useSWR("fetchHandles", getHandles);
+  const { data: filters, isLoading: loadingFilters } = useSWR(
+    "fetchFilters",
+    getFilters
+  );
+  const { data: brands, isLoading: loadingBrands } = useSWR(
+    "fetchBrands",
+    getBrands
+  );
+  const { data: handles, isLoading: loadingHandles } = useSWR(
+    "fetchHandles",
+    getHandles
+  );
   const { data: materials, isLoading: loadingMaterials } = useSWR(
     "fetchMaterials",
     getMaterials
@@ -189,7 +207,8 @@ export default function AdminProductForm({
             description: productFormData.description,
             brand: productFormData.brand,
             handle: productFormData.handle,
-            canChangeHandle: productFormData.canChangeHandle === "on" ? true : false,
+            canChangeHandle:
+              productFormData.canChangeHandle === "on" ? true : false,
             material: productFormData.material,
             style: productFormData.style,
           },
@@ -202,7 +221,8 @@ export default function AdminProductForm({
             description: productFormData.description,
             brand: productFormData.brand,
             handle: productFormData.handle,
-            canChangeHandle: productFormData.canChangeHandle === "on" ? true : false,
+            canChangeHandle:
+              productFormData.canChangeHandle === "on" ? true : false,
             material: productFormData.material,
             style: productFormData.style,
           },
@@ -338,7 +358,9 @@ export default function AdminProductForm({
           >
             <Label htmlFor="typeKnife" className="flex-1">
               <Card
-                className={product?.type === "knife" ? "w-full bg-gray-50" : "w-full"}
+                className={
+                  product?.type === "knife" ? "w-full bg-gray-50" : "w-full"
+                }
               >
                 <CardHeader>
                   <div className="flex items-start gap-2">
@@ -347,7 +369,9 @@ export default function AdminProductForm({
                     </div>
                     <div className="text-base">
                       <CardTitle>包丁</CardTitle>
-                      <CardDescription className="sr-only">包丁</CardDescription>
+                      <CardDescription className="sr-only">
+                        包丁
+                      </CardDescription>
                     </div>
                   </div>
                 </CardHeader>
@@ -356,7 +380,9 @@ export default function AdminProductForm({
 
             <Label htmlFor="typeOther" className="flex-1">
               <Card
-                className={product?.type === "other" ? "w-full bg-gray-50" : "w-full"}
+                className={
+                  product?.type === "other" ? "w-full bg-gray-50" : "w-full"
+                }
               >
                 <CardHeader>
                   <div className="flex items-start gap-2">
@@ -365,7 +391,9 @@ export default function AdminProductForm({
                     </div>
                     <div className="text-base">
                       <CardTitle>その他</CardTitle>
-                      <CardDescription className="sr-only">その他</CardDescription>
+                      <CardDescription className="sr-only">
+                        その他
+                      </CardDescription>
                     </div>
                   </div>
                 </CardHeader>
@@ -421,7 +449,9 @@ export default function AdminProductForm({
                   <SelectTrigger className="w-full">
                     <SelectValue
                       placeholder={
-                        loadingBrands ? "ブランドを読み込み中..." : "ブランドを選択"
+                        loadingBrands
+                          ? "ブランドを読み込み中..."
+                          : "ブランドを選択"
                       }
                     />
                   </SelectTrigger>
@@ -450,7 +480,11 @@ export default function AdminProductForm({
               <Label asChild>
                 <p>スタイル</p>
               </Label>
-              <Select defaultValue={product?.style || undefined} name="style" required>
+              <Select
+                defaultValue={product?.style || undefined}
+                name="style"
+                required
+              >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select style" />
                 </SelectTrigger>
@@ -509,7 +543,9 @@ export default function AdminProductForm({
                     <SelectTrigger className="w-full">
                       <SelectValue
                         placeholder={
-                          loadingHandles ? "ハンドルを読み込み中..." : "ハンドルを選択"
+                          loadingHandles
+                            ? "ハンドルを読み込み中..."
+                            : "ハンドルを選択"
                         }
                       />
                     </SelectTrigger>
@@ -528,7 +564,10 @@ export default function AdminProductForm({
                   </div>
                 </div>
 
-                <Label htmlFor="canChangeHandle" className="flex items-center gap-3">
+                <Label
+                  htmlFor="canChangeHandle"
+                  className="flex items-center gap-3"
+                >
                   <Checkbox
                     name="canChangeHandle"
                     id="canChangeHandle"
@@ -582,12 +621,17 @@ export default function AdminProductForm({
                     </div>
                     <div className="flex flex-col gap-2">
                       <CardTitle>画像を保存中です。</CardTitle>
-                      <CardDescription>しばらくお待ちください。</CardDescription>
+                      <CardDescription>
+                        しばらくお待ちください。
+                      </CardDescription>
                     </div>
                   </CardHeader>
                 </Card>
               ) : (
-                <AdminImageUploader aspectRatio={[3, 5]} onSave={handleSaveMedia} />
+                <AdminImageUploader
+                  aspectRatio={[3, 5]}
+                  onSave={handleSaveMedia}
+                />
               )}
 
               <div>
@@ -622,7 +666,9 @@ export default function AdminProductForm({
                               <TrashIcon />
                             )}
 
-                            <span className="hidden group-hover:block">削除</span>
+                            <span className="hidden group-hover:block">
+                              削除
+                            </span>
                           </Button>
                         </div>
 
@@ -631,7 +677,10 @@ export default function AdminProductForm({
                           className="flex items-center justify-center gap-3"
                         >
                           {loadingSetThumbnail ? (
-                            <LoaderCircleIcon size={16} className="animate-spin" />
+                            <LoaderCircleIcon
+                              size={16}
+                              className="animate-spin"
+                            />
                           ) : (
                             <RadioGroupItem value={media.id} id={media.id} />
                           )}
@@ -650,7 +699,10 @@ export default function AdminProductForm({
               <p>商品サイズ</p>
             </Label>
             <div>
-              <ProductSizesTableForm sizes={product?.sizes} productType={product?.type} />
+              <ProductSizesTableForm
+                sizes={product?.sizes}
+                productType={product?.type}
+              />
             </div>
           </div>
 
@@ -664,11 +716,14 @@ export default function AdminProductForm({
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button variant="secondary" type="button">
-                      <PlusIcon /> 新しいフィルター
+                      <PlusIcon /> フィルタータブの作成
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent align="start">
-                    <form className="flex items-center gap-1" onSubmit={handleSaveFilter}>
+                    <form
+                      className="flex items-center gap-1"
+                      onSubmit={handleSaveFilter}
+                    >
                       <Input
                         type="text"
                         name="name"
@@ -694,7 +749,9 @@ export default function AdminProductForm({
               <div className="flex flex-wrap items-start gap-3">
                 {filters && filters.length > 0 ? (
                   filters.map((filter) => {
-                    const isActive = product.filters.find((f) => f.name === filter.name);
+                    const isActive = product.filters.find(
+                      (f) => f.name === filter.name
+                    );
                     return (
                       <Button
                         asChild

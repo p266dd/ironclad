@@ -5,6 +5,11 @@ import "./globals.css";
 import InstallPrompt from "@/components/install-prompt";
 import { Toaster } from "@/components/ui/sonner";
 
+import { TourProvider } from "@/lib/tour/tour-context";
+import Tour from "@/lib/tour/tour";
+import { CustomCard } from "@/lib/tour/custom-card";
+import { Tour as TourInterface } from "@/lib/tour/types";
+
 const openSans = Open_Sans({
   subsets: ["latin"],
   variable: "--font-open-sans",
@@ -24,7 +29,31 @@ export const viewport = {
   userScalable: true,
 };
 
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
+const tours: TourInterface[] = [
+  {
+    tour: "open-product-preview",
+    steps: [
+      {
+        icon: null,
+        title: "Open Preview",
+        content: <>First tour, first step</>,
+        selector: "#open-product-preview",
+        side: "bottom",
+        showControls: true,
+        pointerPadding: 10,
+        pointerRadius: 10,
+        // nextRoute: "/foo",
+        // prevRoute: "/bar",
+      },
+    ],
+  },
+];
+
+export default async function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const cookieStore = await cookies();
   const doNotDisplayPrompt = cookieStore.get("doNotDisplayPrompt");
 
@@ -37,7 +66,17 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       </head>
       <body className={`${openSans.variable} antialiased`}>
         {!doNotDisplayPrompt && <InstallPrompt />}
-        {children}
+        <TourProvider>
+          <Tour
+            tours={tours}
+            showTour={true}
+            shadowRgb="55,48,163"
+            shadowOpacity="0.8"
+            cardComponent={CustomCard}
+          >
+            {children}
+          </Tour>
+        </TourProvider>
         <Toaster position="top-center" richColors={true} />
       </body>
     </html>

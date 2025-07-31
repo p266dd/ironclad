@@ -16,7 +16,7 @@ export default function ProductGridError() {
   const router = useRouter();
 
   return (
-    <div className="max-w-[400px]">
+    <div className="max-w-[400px] px-4">
       <Card className="w-full max-w-sm">
         <CardHeader>
           <CardTitle className="flex items-center gap-3">

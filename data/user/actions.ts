@@ -473,6 +473,7 @@ export async function updateUser({
     businessName: string;
     businessCode: string;
     role: string;
+    isActive: boolean;
   };
   userId: string;
 }) {

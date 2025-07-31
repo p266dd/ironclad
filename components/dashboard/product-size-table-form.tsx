@@ -32,6 +32,7 @@ import {
   PencilIcon,
   PlusIcon,
   RulerIcon,
+  SaveIcon,
   TrashIcon,
 } from "lucide-react";
 
@@ -120,14 +121,22 @@ export default function ProductSizesTableForm({
   return (
     <div className="my-4">
       {showForm ? (
-        <form onSubmit={handleSaveNewSize} className="mb-8 p-3 bg-gray-50 rounded-lg">
+        <form
+          onSubmit={handleSaveNewSize}
+          className="mb-8 p-3 bg-gray-50 rounded-lg"
+        >
           <div className="md:flex gap-2 mb-4">
             <div className="flex flex-col md:flex-row md:items-center gap-2 gap-y-4 mb-4 md:mb-0">
               <div className="flex-1 md:flex-1/2">
                 <div className="grid w-full items-center gap-3">
                   <Label htmlFor="sizeName">サイズ名</Label>
                   {edit && (
-                    <input type="hidden" name="id" value={editObject?.id} readOnly />
+                    <input
+                      type="hidden"
+                      name="id"
+                      value={editObject?.id}
+                      readOnly
+                    />
                   )}
                   <Input
                     type="text"
@@ -193,7 +202,9 @@ export default function ProductSizesTableForm({
                     required
                     className="bg-white"
                     autoComplete="off"
-                    defaultValue={edit ? editObject?.price?.toLocaleString("ja-JP") : ""}
+                    defaultValue={
+                      edit ? editObject?.price?.toLocaleString("ja-JP") : ""
+                    }
                     placeholder=""
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                       const inputValue = e.target.value;
@@ -243,19 +254,33 @@ export default function ProductSizesTableForm({
               variant={edit ? "success" : "default"}
               disabled={loading}
             >
-              {loading ? <LoaderCircleIcon className="animate-spin" /> : <PlusIcon />}
+              {loading ? (
+                <LoaderCircleIcon className="animate-spin" />
+              ) : edit ? (
+                <SaveIcon />
+              ) : (
+                <PlusIcon />
+              )}
               {edit ? "変更を保存 " : "今すぐ追加"}
             </Button>
 
-            <Button type="button" variant="outline" onClick={() => setShowForm(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setShowForm(false)}
+            >
               キャンセル
             </Button>
           </div>
         </form>
       ) : (
         <div className="my-6">
-          <Button variant="secondary" type="button" onClick={() => setShowForm(true)}>
-            <PlusIcon /> 新しい
+          <Button
+            variant="secondary"
+            type="button"
+            onClick={() => setShowForm(true)}
+          >
+            <PlusIcon /> 追加
           </Button>
         </div>
       )}
@@ -278,13 +303,19 @@ export default function ProductSizesTableForm({
                     <h5 className="font-medium text-lg">{size?.name}</h5>
                     {productType ? (
                       productType === "knife" ? (
-                        <p className="text-sm text-slate-500">{size?.size} mm</p>
+                        <p className="text-sm text-slate-500">
+                          {size?.size} mm
+                        </p>
                       ) : productType === "other" ? (
-                        <p className="text-sm text-slate-500">{size?.dimension}</p>
+                        <p className="text-sm text-slate-500">
+                          {size?.dimension}
+                        </p>
                       ) : null
                     ) : null}
                   </TableCell>
-                  <TableCell>¥ {size?.price?.toLocaleString("ja-JP")}</TableCell>
+                  <TableCell>
+                    ¥ {size?.price?.toLocaleString("ja-JP")}
+                  </TableCell>
                   <TableCell>{size?.stock}</TableCell>
                   <TableCell className="text-right">
                     {loadingDelete && deletingId === size?.id ? (
@@ -304,10 +335,12 @@ export default function ProductSizesTableForm({
                               setEditObject(size);
                             }}
                           >
-                            <PencilIcon /> 顧客
+                            <PencilIcon /> 編集
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleDeleteSize(size?.id)}>
-                            <TrashIcon /> 注文
+                          <DropdownMenuItem
+                            onClick={() => handleDeleteSize(size?.id)}
+                          >
+                            <TrashIcon /> 削除
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>

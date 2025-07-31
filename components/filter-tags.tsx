@@ -26,7 +26,11 @@ export default function FilterTags({
       variant={isActive ? "default" : "outline"}
       size="lg"
     >
-      {isActive ? <TagIcon /> : <MousePointerClickIcon color="#ccc" size={16} />}
+      {isActive ? (
+        <TagIcon />
+      ) : (
+        <MousePointerClickIcon color="#ccc" size={16} />
+      )}
       {filter}
     </Button>
   );

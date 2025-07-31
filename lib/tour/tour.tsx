@@ -40,7 +40,7 @@ const Tour: React.FC<TourProps> = ({
 
   // - -
   // Initialisze
-  const previousElementRef = useRef<Element | null>(null);
+  // const previousElementRef = useRef<Element | null>(null);
 
   useEffect(() => {
     if (isTourVisible && currentTourSteps) {
@@ -475,7 +475,7 @@ const Tour: React.FC<TourProps> = ({
   const pointerRadius = currentTourSteps?.[currentStep]?.pointerRadius ?? 28;
 
   return (
-    <div data-name="Tour-wrapper" className="relative w-full" data-Tour="dev">
+    <div data-name="Tour-wrapper" className="relative w-full" data-tour="dev">
       {/* Container for the Website content */}
       <div data-name="Tour-site" className="block w-full">
         {children}

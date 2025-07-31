@@ -420,11 +420,11 @@ export async function createOrder() {
 }
 
 type TOrderProduct = {
-  productId: string | undefined;
-  details?: string | undefined;
-  brand?: string | undefined;
-  handle?: string | undefined;
-  request?: string | undefined;
+  productId: string | undefined | null;
+  details?: string | Prisma.JsonValue | undefined;
+  brand?: string | undefined | null;
+  handle?: string | undefined | null;
+  request?: string | undefined | null;
 };
 
 export async function createAdminOrder({
@@ -443,12 +443,16 @@ export async function createAdminOrder({
   for (const cartProduct of orderProduct) {
     if (
       cartProduct.productId === undefined ||
+      cartProduct.productId === null ||
       cartProduct.details === undefined
     ) {
       return { error: "Invalid product data." };
     }
 
-    const parsedDetails = JSON.parse(cartProduct?.details) as TProductDetails[];
+    const parsedDetails =
+      typeof cartProduct?.details === "string"
+        ? (JSON.parse(cartProduct?.details) as TProductDetails[])
+        : (cartProduct?.details as TProductDetails[]);
 
     const validItemsForThisOrder = [];
 

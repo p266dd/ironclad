@@ -45,9 +45,13 @@ export default function OrderSizeTable({
 
           return (
             <TableRow key={matchingProduct.id + "_SizeTable"}>
-              <TableCell className="font-medium">{matchingProduct?.name}</TableCell>
+              <TableCell className="font-medium">
+                {matchingProduct?.name}
+              </TableCell>
               <TableCell>
-                {matchingProduct?.size !== 0
+                {matchingProduct?.size === 0
+                  ? "No Size"
+                  : matchingProduct?.size !== 0
                   ? matchingProduct?.size + " mm"
                   : matchingProduct?.dimension !== "0mm"
                   ? matchingProduct?.dimension

@@ -168,7 +168,10 @@ export default function AdminOrdersTable() {
 
       // Show pages around the current page.
       let start = Math.max(2, (data?.currentPage || 1) - 1);
-      let end = Math.min((data?.totalPages || 1) - 1, (data?.currentPage || 1) + 1);
+      let end = Math.min(
+        (data?.totalPages || 1) - 1,
+        (data?.currentPage || 1) + 1
+      );
 
       if ((data?.currentPage || 1) === 1) {
         // Adjust range if current page is 1.
@@ -286,7 +289,7 @@ export default function AdminOrdersTable() {
           <TableHeader>
             <TableRow>
               <TableHead className="w-[110px]">日付</TableHead>
-              <TableHead className="w-[110px]">コード</TableHead>
+              <TableHead className="w-[110px]">注文番号</TableHead>
               <TableHead>顧客</TableHead>
               <TableHead className="text-right">操作</TableHead>
             </TableRow>
@@ -306,7 +309,9 @@ export default function AdminOrdersTable() {
               (error && (
                 <TableRow>
                   <TableCell>
-                    <div className="flex items-center gap-3">読み込みに失敗しました</div>
+                    <div className="flex items-center gap-3">
+                      読み込みに失敗しました
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
@@ -323,7 +328,8 @@ export default function AdminOrdersTable() {
                       router.push("/dashboard/orders/" + order.id);
                     }}
                   >
-                    {loadingNavigation === order.id || loadingAction === order.id ? (
+                    {loadingNavigation === order.id ||
+                    loadingAction === order.id ? (
                       <LoaderCircleIcon className="animate-spin" />
                     ) : null}{" "}
                     {format(order.createdAt, "MM/dd")}
@@ -363,7 +369,9 @@ export default function AdminOrdersTable() {
                           onClick={(e: React.MouseEvent<HTMLDivElement>) => {
                             e.preventDefault();
                             setLoadingNavigation(order.id);
-                            router.push("/dashboard/orders/" + order.id + "/print");
+                            router.push(
+                              "/dashboard/orders/" + order.id + "/print"
+                            );
                           }}
                           className="text-right cursor-pointer"
                         >
@@ -403,7 +411,9 @@ export default function AdminOrdersTable() {
                   aria-disabled={data?.currentPage === 1}
                   tabIndex={data?.currentPage === 1 ? -1 : undefined}
                   className={
-                    data?.currentPage === 1 ? "pointer-events-none opacity-50" : undefined
+                    data?.currentPage === 1
+                      ? "pointer-events-none opacity-50"
+                      : undefined
                   }
                 />
               </PaginationItem>
@@ -413,7 +423,9 @@ export default function AdminOrdersTable() {
                   href="#"
                   onClick={() => handlePageChange((data?.currentPage || 1) + 1)}
                   aria-disabled={data?.currentPage === data?.totalPages}
-                  tabIndex={data?.currentPage === data?.totalPages ? -1 : undefined}
+                  tabIndex={
+                    data?.currentPage === data?.totalPages ? -1 : undefined
+                  }
                   className={
                     data?.currentPage === data?.totalPages
                       ? "pointer-events-none opacity-50"

@@ -60,7 +60,7 @@ export function DashboardSidebar() {
   const path = usePathname();
 
   return (
-    <Sidebar>
+    <Sidebar className="print:hidden">
       <SidebarHeader className="py-10 px-6">
         <div className="w-[200px]">
           <Image src={Logo} alt="Irenclad Logo" className="invert" />

@@ -124,10 +124,11 @@ export default function PrintOrderPage() {
           <div className={styles.invoiceInfo}>
             <h2>注文概要</h2>
             <p>
-              <strong>コード:</strong> {product.code.split("-")[1]}
+              <strong>注文番号:</strong> {product.code.split("-")[1]}
             </p>
             <p>
-              <strong>日付:</strong> {new Date(product.createdAt).toLocaleDateString()}
+              <strong>日付:</strong>{" "}
+              {new Date(product.createdAt).toLocaleDateString()}
             </p>
           </div>
         </header>
@@ -167,7 +168,11 @@ export default function PrintOrderPage() {
                     <div className="flex flex-col mb-4">
                       {productDetails &&
                         productDetails.map((detail, index) => {
-                          if (!detail.id || !detail.quantity || detail.quantity === 0)
+                          if (
+                            !detail.id ||
+                            !detail.quantity ||
+                            detail.quantity === 0
+                          )
                             return null;
                           const sizeObject = item.product?.sizes.find(
                             (p) => p.id === Number(detail.id)
@@ -194,7 +199,9 @@ export default function PrintOrderPage() {
                     </div>
                     <div>
                       <p>
-                        <strong className="font-semibold mr-3">Special Request</strong>
+                        <strong className="font-semibold mr-3">
+                          Special Request
+                        </strong>
                         {item.request || "No special request."}
                       </p>
                     </div>

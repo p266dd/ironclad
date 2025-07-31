@@ -89,7 +89,9 @@ export default function AdminMessagesPage() {
     linkUrl: "",
   });
 
-  const { data, isLoading: loadingMessages } = useSWR("getMessages", () => getMessages());
+  const { data, isLoading: loadingMessages } = useSWR("getMessages", () =>
+    getMessages()
+  );
   const messages = data?.data;
 
   const handleSaveMessage = async () => {
@@ -229,13 +231,13 @@ export default function AdminMessagesPage() {
 
       <PageTitle
         title="アプリメッセージ"
-        subtitle="新しいセッションごとにメッセージを表示する。"
+        subtitle="TOPページに表示するメッセージを編集する。"
       />
 
       <div className="flex tems-center justify-between my-6">
         <div>
           <Button variant="default" size="lg" onClick={() => setShowForm(true)}>
-            <PlusCircleIcon /> 新しいメッセージ
+            <PlusCircleIcon /> 新規作成
           </Button>
         </div>
       </div>
@@ -279,7 +281,7 @@ export default function AdminMessagesPage() {
 
             <div className="grid w-full max-w-sm items-center gap-3">
               <Label htmlFor="linkTitle">リンク</Label>
-              <div className="flex items-center gap-3">
+              <div className="flex flex-col items-center gap-3">
                 <Input
                   type="text"
                   name="linkTitle"
@@ -296,13 +298,17 @@ export default function AdminMessagesPage() {
                   name="linkUrl"
                   id="linkUrl"
                   className="bg-white"
-                  placeholder="リンク先アドレス"
+                  placeholder="リンク先アドレス - 顧客ページのリンクを引用すること"
                   value={formData?.linkUrl || ""}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    setFormData((prev) => ({ ...prev, linkUrl: e.target.value }))
+                    setFormData((prev) => ({
+                      ...prev,
+                      linkUrl: e.target.value,
+                    }))
                   }
                 />
               </div>
+              <span className="text-right text-sm"></span>
             </div>
 
             <div>
@@ -311,7 +317,9 @@ export default function AdminMessagesPage() {
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={() => setFormData((prev) => ({ ...prev, image: null }))}
+                    onClick={() =>
+                      setFormData((prev) => ({ ...prev, image: null }))
+                    }
                     className="absolute top-2 right-2"
                   >
                     <TrashIcon color="red" /> 削除
@@ -338,7 +346,9 @@ export default function AdminMessagesPage() {
                 className="flex-grow"
                 type="button"
                 variant="default"
-                onClick={() => (isEditing ? handleUpdateMessage() : handleSaveMessage())}
+                onClick={() =>
+                  isEditing ? handleUpdateMessage() : handleSaveMessage()
+                }
               >
                 {isEditing ? "メッセージを更新" : "メッセージを保存"}
               </Button>
@@ -384,12 +394,16 @@ export default function AdminMessagesPage() {
                     <div className="flex flex-col gap-4">
                       <DialogTitle className="md:text-2xl">
                         {formData.title || (
-                          <span className="text-gray-400">タイトルがありません</span>
+                          <span className="text-gray-400">
+                            タイトルがありません
+                          </span>
                         )}
                       </DialogTitle>
                       <DialogDescription className="md:text-base">
                         {formData.content || (
-                          <span className="text-gray-400">内容がありません</span>
+                          <span className="text-gray-400">
+                            内容がありません
+                          </span>
                         )}
                       </DialogDescription>
                     </div>
@@ -444,7 +458,11 @@ export default function AdminMessagesPage() {
                   <TableRow key={message.id}>
                     <TableCell className="w-10">
                       {message.image ? (
-                        <ImageIcon size={18} strokeWidth={1.5} color="#aaaaaa" />
+                        <ImageIcon
+                          size={18}
+                          strokeWidth={1.5}
+                          color="#aaaaaa"
+                        />
                       ) : null}
                     </TableCell>
                     <TableCell
@@ -536,10 +554,14 @@ export default function AdminMessagesPage() {
                 <AlertCircleIcon />
                 メッセージが見つかりませんでした。
               </CardTitle>
-              <CardDescription>表示するメッセージはありません。</CardDescription>
+              <CardDescription>
+                表示するメッセージはありません。
+              </CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-slate-500">新しいメッセージを作成しましょう。</p>
+              <p className="text-sm text-slate-500">
+                新しいメッセージを作成しましょう。
+              </p>
             </CardContent>
           </Card>
         </div>

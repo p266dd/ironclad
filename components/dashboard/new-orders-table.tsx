@@ -103,7 +103,7 @@ export default function AdminNewOrdersTable() {
       <TableHeader>
         <TableRow>
           <TableHead className="w-[90px]">日付</TableHead>
-          <TableHead className="w-[150px]">コード</TableHead>
+          <TableHead className="w-[150px]">注文番号</TableHead>
           <TableHead>顧客</TableHead>
           <TableHead className="text-right">操作</TableHead>
         </TableRow>
@@ -136,7 +136,8 @@ export default function AdminNewOrdersTable() {
                   router.push("/dashboard/orders/" + order.id);
                 }}
               >
-                {loadingNavigation === order.id || loadingAction === order.id ? (
+                {loadingNavigation === order.id ||
+                loadingAction === order.id ? (
                   <LoaderCircleIcon className="animate-spin" />
                 ) : null}{" "}
                 {format(order.createdAt, "MM/dd")}

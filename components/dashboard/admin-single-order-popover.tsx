@@ -1,11 +1,16 @@
 "use client";
 
 import { useState } from "react";
+import { Prisma } from "@/lib/generated/prisma";
 
 // Shadcn
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { CheckCheckIcon, PencilIcon } from "lucide-react";
 
 type TSize = {
@@ -19,11 +24,11 @@ type TSize = {
 };
 
 type TOrderProduct = {
-  productId: string | undefined;
-  details?: string | undefined;
-  brand?: string | undefined;
-  handle?: string | undefined;
-  request?: string | undefined;
+  productId: string | undefined | null;
+  details?: string | Prisma.JsonValue | undefined;
+  brand?: string | undefined | null;
+  handle?: string | undefined | null;
+  request?: string | undefined | null;
 };
 
 export default function AdminSingleOrderPopover({
@@ -36,8 +41,9 @@ export default function AdminSingleOrderPopover({
   saveSize: (e: React.FormEvent<HTMLFormElement>) => void;
   orderProduct: TOrderProduct | undefined;
   orderProductDetails: {
-    sizeId: number;
+    id: number;
     quantity: number;
+    priceAtOrder: number;
   }[];
 }) {
   const [sizePopover, setSizePopover] = useState(false);
@@ -46,7 +52,7 @@ export default function AdminSingleOrderPopover({
     <Popover open={sizePopover} onOpenChange={setSizePopover}>
       <PopoverTrigger>
         <h4 className="text-lg font-semibold flex items-center gap-2">
-          {orderProductDetails?.find((detail) => Number(detail.sizeId) === size?.id)
+          {orderProductDetails?.find((detail) => Number(detail.id) === size?.id)
             ?.quantity || 0}{" "}
           <PencilIcon size={14} />
         </h4>
@@ -60,7 +66,7 @@ export default function AdminSingleOrderPopover({
                 <Input
                   type="hidden"
                   name="cartProductId"
-                  value={orderProduct?.productId}
+                  value={orderProduct?.productId ?? ""}
                   readOnly
                 />
                 <Input type="hidden" name="sizeId" value={size?.id} readOnly />
@@ -69,7 +75,7 @@ export default function AdminSingleOrderPopover({
                   type="number"
                   defaultValue={
                     orderProductDetails?.find(
-                      (detail) => Number(detail.sizeId) === size?.id
+                      (detail) => Number(detail.id) === size?.id
                     )?.quantity || 0
                   }
                 />

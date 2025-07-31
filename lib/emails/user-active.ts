@@ -1,5 +1,3 @@
-import { User } from "../generated/prisma";
-
 export function userActivationEmail({
   user,
 }: {
@@ -8,8 +6,6 @@ export function userActivationEmail({
     businessName: string;
   };
 }) {
-  const date = new Date().toLocaleDateString();
-
   let textBody = `Hello ${user.name ?? "User"},\n\n`;
   textBody += `We have reviewed your account application for ${
     user.businessName ?? "Business Name"

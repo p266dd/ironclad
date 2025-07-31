@@ -27,7 +27,12 @@ export default async function HomePage({
     <div className="pb-44 sm:pb-0 bg-linear-180 from-slate-100 to-slate-50/10">
       <div className="md:hidden">
         <div className="px-6 pt-8 mb-8 sm:mb-12">
-          <Image priority src={Logo} alt="Ironclad Logo" className="w-52 sm:w-64" />
+          <Image
+            priority
+            src={Logo}
+            alt="Ironclad Logo"
+            className="w-52 sm:w-64"
+          />
         </div>
 
         <div className="px-6 mb-6 flex flex-row items-center justify-between">
@@ -56,7 +61,7 @@ export default async function HomePage({
               <FilterTags
                 key={filter.id}
                 filter={filter.name}
-                active={(tag !== undefined && tag[0]) || ""}
+                active={(tag !== undefined && (tag as string)) || ""}
               />
             ))}
           </div>
@@ -66,7 +71,10 @@ export default async function HomePage({
       )}
 
       <ProductGrid
-        activeFilters={{ tag: (tag !== undefined && tag[0]) || "", search: null }}
+        activeFilters={{
+          tag: (tag !== undefined && (tag as string)) || "",
+          search: null,
+        }}
       />
     </div>
   );
