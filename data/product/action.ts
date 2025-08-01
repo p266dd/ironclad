@@ -112,10 +112,7 @@ export async function getProductsInfineScroll(keys: {
 
   // * Add material to search clause.
   if (searchFilters && searchFilters.material) {
-    if (
-      Array.isArray(searchFilters.material) &&
-      searchFilters.material.length > 0
-    ) {
+    if (Array.isArray(searchFilters.material) && searchFilters.material.length > 0) {
       // If material is an array of strings, use the 'in' operator.
       materialFilter = { in: searchFilters.material };
     } else if (
@@ -129,10 +126,7 @@ export async function getProductsInfineScroll(keys: {
 
   // * Add styles to search clause.
   if (searchFilters && searchFilters.style) {
-    if (
-      typeof searchFilters.style === "string" &&
-      searchFilters.style.trim() !== ""
-    ) {
+    if (typeof searchFilters.style === "string" && searchFilters.style.trim() !== "") {
       // If style is a string, use 'equals'.
       styleFilter = { equals: searchFilters.style, mode: "insensitive" };
     }
@@ -140,14 +134,13 @@ export async function getProductsInfineScroll(keys: {
 
   // * Add styles to search clause.
   if (searchFilters && searchFilters.type) {
-    if (
-      typeof searchFilters.type === "string" &&
-      searchFilters.type.trim() !== ""
-    ) {
+    if (typeof searchFilters.type === "string" && searchFilters.type.trim() !== "") {
       // If style is a string, use 'equals'.
       typeFilter = { contains: searchFilters.type, mode: "insensitive" };
     }
   }
+
+  console.log(JSON.stringify(sizesFilter));
 
   try {
     const products = await prisma.product.findMany({
@@ -155,17 +148,26 @@ export async function getProductsInfineScroll(keys: {
       skip: PAGE_INDEX * PER_PAGE,
       where: filterTag
         ? {
-            active: {
-              equals: true,
-            },
-            filters: {
-              some: {
-                name: {
-                  equals: filterTag,
-                  mode: "insensitive",
+            AND: [
+              {
+                active: {
+                  equals: true,
+                },
+                filters: {
+                  some: {
+                    name: {
+                      equals: filterTag,
+                      mode: "insensitive",
+                    },
+                  },
+                },
+                sizes: {
+                  some: {
+                    stock: { gt: 0 },
+                  },
                 },
               },
-            },
+            ],
           }
         : searchFilters
         ? {
@@ -180,10 +182,7 @@ export async function getProductsInfineScroll(keys: {
                 style: searchFilters?.style === "all" ? undefined : styleFilter,
               },
               {
-                material:
-                  searchFilters?.material === "all"
-                    ? undefined
-                    : materialFilter,
+                material: searchFilters?.material === "all" ? undefined : materialFilter,
               },
               {
                 brand: searchFilters?.brand === "all" ? undefined : brandFilter,
@@ -238,9 +237,18 @@ export async function getProductsInfineScroll(keys: {
             ],
           }
         : {
-            active: {
-              equals: true,
-            },
+            AND: [
+              {
+                active: {
+                  equals: true,
+                },
+                sizes: {
+                  some: {
+                    stock: { gt: 0 },
+                  },
+                },
+              },
+            ],
           },
       include: {
         filters: true,
@@ -254,11 +262,7 @@ export async function getProductsInfineScroll(keys: {
 
     return products;
   } catch (error) {
-    const errorMessage = await generatePrismaErrorMessage(
-      error,
-      "product",
-      "findMany"
-    );
+    const errorMessage = await generatePrismaErrorMessage(error, "product", "findMany");
     console.error(errorMessage);
     return [];
   }
@@ -281,11 +285,7 @@ export async function getProduct(productId: string) {
 
     return product;
   } catch (error) {
-    const errorMessage = await generatePrismaErrorMessage(
-      error,
-      "product",
-      "findUnique"
-    );
+    const errorMessage = await generatePrismaErrorMessage(error, "product", "findUnique");
     console.error(errorMessage);
     return null;
   }
@@ -308,11 +308,7 @@ export async function deleteProduct(productId: string) {
 
     return product;
   } catch (error) {
-    const errorMessage = await generatePrismaErrorMessage(
-      error,
-      "product",
-      "delete"
-    );
+    const errorMessage = await generatePrismaErrorMessage(error, "product", "delete");
     console.error(errorMessage);
     return null;
   }
@@ -358,11 +354,7 @@ export async function getProductsPreview(searchTerm: string) {
 
     return products;
   } catch (error) {
-    const errorMessage = await generatePrismaErrorMessage(
-      error,
-      "product",
-      "findMany"
-    );
+    const errorMessage = await generatePrismaErrorMessage(error, "product", "findMany");
     console.error(errorMessage);
     return null;
   }
@@ -386,11 +378,7 @@ export async function getProducts() {
     }
     return products;
   } catch (error) {
-    const errorMessage = await generatePrismaErrorMessage(
-      error,
-      "product",
-      "findMany"
-    );
+    const errorMessage = await generatePrismaErrorMessage(error, "product", "findMany");
     console.error(errorMessage);
     return null;
   }
