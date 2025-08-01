@@ -275,6 +275,11 @@ export async function getProduct(productId: string) {
     const product = await prisma.product.findUnique({
       where: {
         id: productId,
+        sizes: {
+          some: {
+            stock: { gt: 0 },
+          },
+        },
       },
       include: {
         media: true,
