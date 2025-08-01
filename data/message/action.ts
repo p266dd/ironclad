@@ -49,6 +49,8 @@ export async function addMessage({
       },
     });
 
+    revalidatePath("/dashboard/message");
+
     return newMessage;
   } catch (error) {
     console.error(error);

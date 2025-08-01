@@ -81,7 +81,6 @@ export default function AdminMessagesPage() {
     linkTitle: string | null;
     linkUrl: string | null;
   }>({
-    id: 0,
     title: "",
     content: "",
     image: "",
@@ -89,13 +88,11 @@ export default function AdminMessagesPage() {
     linkUrl: "",
   });
 
-  const { data, isLoading: loadingMessages } = useSWR("getMessages", () =>
-    getMessages()
-  );
+  const { data, isLoading: loadingMessages } = useSWR("getMessages", () => getMessages());
   const messages = data?.data;
 
   const handleSaveMessage = async () => {
-    if (formData?.id === undefined) return;
+    // if (formData?.id === undefined) return;
     setActionLoading(true);
     try {
       const result = await addMessage({
@@ -317,9 +314,7 @@ export default function AdminMessagesPage() {
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={() =>
-                      setFormData((prev) => ({ ...prev, image: null }))
-                    }
+                    onClick={() => setFormData((prev) => ({ ...prev, image: null }))}
                     className="absolute top-2 right-2"
                   >
                     <TrashIcon color="red" /> 削除
@@ -346,11 +341,9 @@ export default function AdminMessagesPage() {
                 className="flex-grow"
                 type="button"
                 variant="default"
-                onClick={() =>
-                  isEditing ? handleUpdateMessage() : handleSaveMessage()
-                }
+                onClick={() => (isEditing ? handleUpdateMessage() : handleSaveMessage())}
               >
-                {isEditing ? "メッセージを更新" : "メッセージを保存"}
+                {isEditing ? "メッセージを更新" : "メッセージを作成します"}
               </Button>
               <Button
                 type="button"
@@ -394,16 +387,12 @@ export default function AdminMessagesPage() {
                     <div className="flex flex-col gap-4">
                       <DialogTitle className="md:text-2xl">
                         {formData.title || (
-                          <span className="text-gray-400">
-                            タイトルがありません
-                          </span>
+                          <span className="text-gray-400">タイトルがありません</span>
                         )}
                       </DialogTitle>
                       <DialogDescription className="md:text-base">
                         {formData.content || (
-                          <span className="text-gray-400">
-                            内容がありません
-                          </span>
+                          <span className="text-gray-400">内容がありません</span>
                         )}
                       </DialogDescription>
                     </div>
@@ -458,11 +447,7 @@ export default function AdminMessagesPage() {
                   <TableRow key={message.id}>
                     <TableCell className="w-10">
                       {message.image ? (
-                        <ImageIcon
-                          size={18}
-                          strokeWidth={1.5}
-                          color="#aaaaaa"
-                        />
+                        <ImageIcon size={18} strokeWidth={1.5} color="#aaaaaa" />
                       ) : null}
                     </TableCell>
                     <TableCell
@@ -554,14 +539,10 @@ export default function AdminMessagesPage() {
                 <AlertCircleIcon />
                 メッセージが見つかりませんでした。
               </CardTitle>
-              <CardDescription>
-                表示するメッセージはありません。
-              </CardDescription>
+              <CardDescription>表示するメッセージはありません。</CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-slate-500">
-                新しいメッセージを作成しましょう。
-              </p>
+              <p className="text-sm text-slate-500">新しいメッセージを作成しましょう。</p>
             </CardContent>
           </Card>
         </div>
