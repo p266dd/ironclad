@@ -344,22 +344,6 @@ const tours: TourInterface[] = [
     ],
   },
   {
-    // Product Modal Tour
-    tour: "product-modal-tour",
-    steps: [
-      {
-        icon: null,
-        title: "Favorites",
-        content: <p>Add product to your favorites.</p>,
-        selector: "#favorite-button",
-        side: "bottom-left",
-        showControls: false,
-        pointerPadding: 20,
-        pointerRadius: 20,
-      },
-    ],
-  },
-  {
     // Home Tour
     tour: "account-tour",
     steps: [
