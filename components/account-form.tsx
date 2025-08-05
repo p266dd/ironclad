@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import NewConnectionForm from "./new-connection-form";
 import LoadingIndicator from "./loading-indicator";
@@ -17,6 +17,7 @@ import {
   deleteConnection,
   updateOwnUserConnection,
 } from "@/data/user/connections";
+import { useTour } from "@/lib/tour/tour-context";
 
 import { generateRandomString } from "@/lib/generate-random-string";
 
@@ -26,11 +27,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   ArrowLeftCircleIcon,
   ArrowRightCircleIcon,
@@ -40,6 +37,7 @@ import {
   EyeOff,
   ListOrderedIcon,
   LoaderCircleIcon,
+  MessageCircleQuestionIcon,
   PlusCircleIcon,
   ReceiptJapaneseYenIcon,
   SaveIcon,
@@ -50,15 +48,27 @@ import {
 // Types
 import { TAccountChange } from "@/lib/types";
 
-export default function AccountForm({
-  currentInfo,
-}: {
-  currentInfo: TAccountChange;
-}) {
+export default function AccountForm({ currentInfo }: { currentInfo: TAccountChange }) {
   const [save, setSave] = useState(false);
   const [savePreference, setSavePreference] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const { startTour } = useTour();
+  useEffect(() => {
+    if (typeof window === undefined) {
+      return;
+    }
+
+    if (window.localStorage.getItem("account-tour") !== null) {
+      return;
+    }
+
+    setTimeout(() => startTour("account-tour"), 1000);
+
+    window.localStorage.setItem("account-tour", "true");
+    // return () => clearTimeout(start);
+  }, [startTour]);
 
   // Code validation state.
   const [code, setCode] = useState<string | null>(null);
@@ -134,11 +144,7 @@ export default function AccountForm({
 
   const validateBusinessCode = async (code: string) => {
     const validUsers = await verifyBusinessCode(code);
-    if (
-      validUsers === null ||
-      validUsers === undefined ||
-      validUsers?.length === 0
-    ) {
+    if (validUsers === null || validUsers === undefined || validUsers?.length === 0) {
       return false;
     }
     return true;
@@ -231,13 +237,17 @@ export default function AccountForm({
 
   return (
     <div className="flex flex-col gap-8">
-      <div>
-        <Button asChild variant="default" size="lg">
+      <div className="flex items-center gap-5">
+        <Button asChild variant="default" size="lg" id="account-history">
           <Link href="/account/orders">
             <LoadingIndicator />
             <ReceiptJapaneseYenIcon /> See All Orders
           </Link>
         </Button>
+
+        <button type="button" onClick={() => startTour("account-tour")}>
+          <MessageCircleQuestionIcon id="account-help" className="text-gray-400 size-4" />
+        </button>
       </div>
       <form onSubmit={handleInformationSave}>
         <div className="flex flex-col gap-8 md:flex-row">
@@ -281,7 +291,7 @@ export default function AccountForm({
               />
             </div>
 
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-3" id="pass-update">
               <Label htmlFor="password">Change Password</Label>
               <div className="relative">
                 <Input
@@ -290,9 +300,7 @@ export default function AccountForm({
                   name="password"
                   id="password"
                   placeholder=""
-                  value={
-                    unsavedChanges?.password ?? currentInfo?.password ?? ""
-                  }
+                  value={unsavedChanges?.password ?? currentInfo?.password ?? ""}
                   onChange={(e) => {
                     setSave(true);
                     setUnsavedChanges((prev) => ({
@@ -321,11 +329,7 @@ export default function AccountForm({
                 name="businessName"
                 id="businessName"
                 placeholder=""
-                value={
-                  unsavedChanges?.businessName ??
-                  currentInfo?.businessName ??
-                  ""
-                }
+                value={unsavedChanges?.businessName ?? currentInfo?.businessName ?? ""}
                 onChange={(e) => {
                   setSave(true);
                   setUnsavedChanges((prev) => ({
@@ -336,7 +340,7 @@ export default function AccountForm({
               />
             </div>
 
-            <div className="relative flex flex-col gap-3">
+            <div className="relative flex flex-col gap-3" id="business-code">
               <Label htmlFor="businessCode">Business Code</Label>
               <Input
                 autoComplete="off"
@@ -347,9 +351,7 @@ export default function AccountForm({
                 value={
                   code
                     ? code
-                    : unsavedChanges?.businessCode ??
-                      currentInfo?.businessCode ??
-                      ""
+                    : unsavedChanges?.businessCode ?? currentInfo?.businessCode ?? ""
                 }
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                   setSave(true);
@@ -366,6 +368,7 @@ export default function AccountForm({
                     variant="default"
                     className="cursor-pointer"
                     onClick={() => generateBusinessCode()}
+                    id="generate-code"
                   >
                     Generate
                   </Badge>
@@ -384,12 +387,7 @@ export default function AccountForm({
         </div>
         {save && (
           <div className="flex items-center gap-6 my-5">
-            <Button
-              type="submit"
-              disabled={loading}
-              variant="success"
-              size="lg"
-            >
+            <Button type="submit" disabled={loading} variant="success" size="lg">
               <SaveIcon />
               {loading ? "Saving..." : "Save Changes"}
             </Button>
@@ -413,7 +411,7 @@ export default function AccountForm({
       <div>
         <h3 className="text-2xl text-primary">Engraving Preferences</h3>
 
-        <form onSubmit={handlePreferenceSave}>
+        <form onSubmit={handlePreferenceSave} id="preferences">
           <div className="py-4 flex flex-col items-center gap-4 md:flex-row">
             <Input
               autoComplete="off"
@@ -440,11 +438,7 @@ export default function AccountForm({
                   disabled={loading}
                   className="flex-1 w-full"
                 >
-                  {loading ? (
-                    <LoaderCircleIcon className="animate-spin" />
-                  ) : (
-                    <SaveIcon />
-                  )}
+                  {loading ? <LoaderCircleIcon className="animate-spin" /> : <SaveIcon />}
                   {loading ? "Saving..." : "Save"}
                 </Button>
                 <Button
@@ -510,13 +504,13 @@ export default function AccountForm({
       </div>
 
       <div className="relative flex flex-col gap-6">
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-2" id="connecting-accounts">
           <Switch
-            id="airplane-mode"
+            id="connet"
             defaultChecked={currentInfo?.canConnect || false}
             onCheckedChange={handleUpdateBusinessConnection}
           />
-          <Label htmlFor="airplane-mode">Allow Connection</Label>
+          <Label htmlFor="connect">Allow Connection</Label>
         </div>
 
         {currentInfo?.canConnect === true ? (
@@ -555,20 +549,17 @@ export default function AccountForm({
                   >
                     {pendingConnections !== null &&
                       pendingConnections.map((cn, i) => (
-                        <div
-                          key={i}
-                          className="bg-gray-100 rounded-lg p-3 mb-3"
-                        >
+                        <div key={i} className="bg-gray-100 rounded-lg p-3 mb-3">
                           <span className="flex items-center gap-2 text-xs font-bold p-2 mb-1 bg-white rounded-md">
                             {cn.code === 1 ? (
                               <>
-                                <ArrowLeftCircleIcon className="size-4" />{" "}
-                                Receiving Connection
+                                <ArrowLeftCircleIcon className="size-4" /> Receiving
+                                Connection
                               </>
                             ) : (
                               <>
-                                <ArrowRightCircleIcon className="size-4" />{" "}
-                                Requesting Connection
+                                <ArrowRightCircleIcon className="size-4" /> Requesting
+                                Connection
                               </>
                             )}
                           </span>
@@ -579,12 +570,8 @@ export default function AccountForm({
                                 <span className="text-sm text-slate-500">
                                   {cn.businessCode}
                                 </span>
-                                <span className="text-sm text-slate-500">
-                                  {cn.name}
-                                </span>
-                                <span className="text-sm text-slate-500">
-                                  {cn.email}
-                                </span>
+                                <span className="text-sm text-slate-500">{cn.name}</span>
+                                <span className="text-sm text-slate-500">{cn.email}</span>
                               </div>
                               <div className="flex items-center gap-2">
                                 {cn.code === 1 && (
@@ -631,9 +618,7 @@ export default function AccountForm({
                           <div className="flex flex-col gap-3">
                             <div className="flex items-center justify-between gap-3">
                               <div className="flex flex-col mb-2">
-                                <span>
-                                  {cn.name ? cn.name : cn.businessName}
-                                </span>
+                                <span>{cn.name ? cn.name : cn.businessName}</span>
                                 <span className="text-sm text-slate-500">
                                   {cn.name ? cn.email : cn.businessCode}
                                 </span>

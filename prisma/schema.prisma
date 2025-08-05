@@ -16,7 +16,7 @@ model User {
   name               String
   email              String    @unique
   password           String
-  businessCode       String?
+  businessCode       String?   @unique
   businessName       String
   role               String    @default("user")
   engraving          Json?

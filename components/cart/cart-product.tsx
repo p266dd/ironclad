@@ -45,9 +45,11 @@ import {
 import { CartProductWithRelations, TEngravingPreference } from "@/lib/types";
 
 export default function SingleCartProduct({
+  id,
   product,
   preferences,
 }: {
+  id?: string;
   product: CartProductWithRelations;
   preferences: TEngravingPreference[] | null | undefined;
 }) {
@@ -170,7 +172,7 @@ export default function SingleCartProduct({
   };
 
   return (
-    <Accordion type="single" collapsible>
+    <Accordion id={id} type="single" collapsible>
       <AccordionItem
         value={product?.cartId}
         className="data-[state=open]:bg-slate-100 rounded-lg px-4"

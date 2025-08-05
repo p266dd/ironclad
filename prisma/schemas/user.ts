@@ -28,7 +28,6 @@ const businessCodeValidation = yup
   .string()
   .min(3, "Business code must be at least 3 characters")
   .max(20, "Business code cannot exceed 20 characters")
-  .matches(/^[A-Z]{2}[0-9]{4}$/, "Code must match this format AA1111.")
   .optional()
   .nullable();
 

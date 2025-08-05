@@ -140,8 +140,6 @@ export async function getProductsInfineScroll(keys: {
     }
   }
 
-  console.log(JSON.stringify(sizesFilter));
-
   try {
     const products = await prisma.product.findMany({
       take: PER_PAGE,
@@ -325,24 +323,36 @@ export async function getProductsPreview(searchTerm: string) {
   try {
     const products = await prisma.product.findMany({
       where: {
-        OR: [
+        AND: [
           {
-            name: {
-              contains: searchTerm,
-              mode: "insensitive",
+            active: {
+              equals: true,
             },
-          },
-          {
-            handle: {
-              contains: searchTerm,
-              mode: "insensitive",
+            sizes: {
+              some: {
+                stock: { gt: 0 },
+              },
             },
-          },
-          {
-            material: {
-              contains: searchTerm,
-              mode: "insensitive",
-            },
+            OR: [
+              {
+                name: {
+                  contains: searchTerm,
+                  mode: "insensitive",
+                },
+              },
+              {
+                handle: {
+                  contains: searchTerm,
+                  mode: "insensitive",
+                },
+              },
+              {
+                material: {
+                  contains: searchTerm,
+                  mode: "insensitive",
+                },
+              },
+            ],
           },
         ],
       },

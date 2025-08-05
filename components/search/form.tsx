@@ -1,9 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import SearchPreview from "./preview";
 import RangeSlider from "./range-slider";
+
+import { useTour } from "@/lib/tour/tour-context";
 
 // Shadcn
 import {
@@ -15,7 +17,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Loader2, Search } from "lucide-react";
+import { Loader2, MessageCircleQuestionIcon, Search } from "lucide-react";
 
 // Types
 import { Brand, Material } from "@/lib/generated/prisma";
@@ -34,6 +36,22 @@ export default function SearchForm({
   const [loading, setLoading] = useState(false);
 
   const router = useRouter();
+
+  const { startTour } = useTour();
+  useEffect(() => {
+    if (typeof window === undefined) {
+      return;
+    }
+
+    if (window.localStorage.getItem("search-tour") !== null) {
+      return;
+    }
+
+    setTimeout(() => startTour("search-tour"), 1000);
+
+    window.localStorage.setItem("search-tour", "true");
+    // return () => clearTimeout(start);
+  }, [startTour]);
 
   const getRange = (_for: string) => {
     const range = searchParams.get(String(_for));
@@ -110,7 +128,6 @@ export default function SearchForm({
       }
     }
 
-    setLoading(false);
     if (remoteClose !== undefined) remoteClose();
     router.push(`/search/results?${searchParams.toString()}`);
   };
@@ -129,7 +146,7 @@ export default function SearchForm({
       <div>
         <p className="text-lg text-slate-500 mb-2">Product Type</p>
       </div>
-      <div className="flex items-center flex-wrap gap-3 max-w-6xl mb-6">
+      <div className="flex items-center flex-wrap gap-3 max-w-6xl mb-6" id="type-search">
         <Label
           htmlFor="knife"
           className="flex-1 flex items-center justify-center px-4 py-3 bg-slate-50 rounded-lg"
@@ -198,7 +215,7 @@ export default function SearchForm({
       <div>
         <p className="text-lg text-slate-500 mb-2">Knife Style</p>
       </div>
-      <div className="flex items-center flex-wrap gap-3 max-w-6xl mb-6">
+      <div className="flex items-center flex-wrap gap-3 max-w-6xl mb-6" id="style-search">
         <Label
           htmlFor="japaneseHandle"
           className="flex-1 flex items-center justify-center px-4 py-3 bg-slate-50 rounded-lg"
@@ -268,7 +285,10 @@ export default function SearchForm({
       <div>
         <p className="text-lg text-slate-500 mb-2">Stock Availability</p>
       </div>
-      <div className="flex flex-col sm:flex-row items-center flex-wrap gap-3 max-w-6xl mb-6">
+      <div
+        className="flex flex-col sm:flex-row items-center flex-wrap gap-3 max-w-6xl mb-6"
+        id="stock-search"
+      >
         <Label
           htmlFor="largeStock"
           className="w-full flex-1 flex items-center justify-center px-4 py-3 bg-slate-50 rounded-lg"
@@ -316,7 +336,7 @@ export default function SearchForm({
       </div>
 
       <div className="mb-10 flex flex-col md:flex-row items-start gap-4 md:gap-12 max-w-6xl">
-        <div className="flex-1 w-full">
+        <div className="flex-1 w-full" id="price-search">
           <div>
             <p className="text-lg text-slate-500 mb-2">Product Prices</p>
           </div>
@@ -332,7 +352,7 @@ export default function SearchForm({
           />
         </div>
 
-        <div className="flex-1 w-full">
+        <div className="flex-1 w-full" id="size-search">
           <div>
             <p className="text-lg text-slate-500 mb-2">Product Sizes</p>
           </div>
@@ -353,7 +373,10 @@ export default function SearchForm({
           <div className="flex flex-col md:flex-row items-start gap-4 md:gap-12">
             <div className="w-full">
               <AccordionItem value="brand">
-                <AccordionTrigger className="bg-slate-500 text-primary-foreground px-4">
+                <AccordionTrigger
+                  id="brand-search"
+                  className="bg-slate-500 text-primary-foreground px-4"
+                >
                   Search by Brands
                 </AccordionTrigger>
                 <AccordionContent className="px-4 py-5">
@@ -422,7 +445,10 @@ export default function SearchForm({
 
             <div className="w-full">
               <AccordionItem value="material">
-                <AccordionTrigger className="bg-slate-500 text-primary-foreground px-4">
+                <AccordionTrigger
+                  id="material-search"
+                  className="bg-slate-500 text-primary-foreground px-4"
+                >
                   Search by Material
                 </AccordionTrigger>
                 <AccordionContent className="px-4 py-5">
@@ -514,6 +540,12 @@ export default function SearchForm({
             </span>
           )}
         </Button>
+      </div>
+
+      <div className="flex items-center justify-center mt-2">
+        <button type="button" onClick={() => startTour("search-tour")}>
+          <MessageCircleQuestionIcon id="search-help" className="text-gray-400" />
+        </button>
       </div>
     </form>
   );

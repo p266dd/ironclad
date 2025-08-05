@@ -1,16 +1,18 @@
 "use client";
 
 import { toast } from "sonner";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import SingleCartProduct from "@/components/cart/cart-product";
 
 import { createOrder } from "@/data/order/action";
 import { clearCart } from "@/data/cart/actions";
 
+import { useTour } from "@/lib/tour/tour-context";
+
 // Shadcn
 import { Button } from "@/components/ui/button";
-import { ShoppingBagIcon, XCircleIcon } from "lucide-react";
+import { MessageCircleQuestionIcon, ShoppingBagIcon, XCircleIcon } from "lucide-react";
 
 // Types
 import { CartProductWithRelations, TEngravingPreference } from "@/lib/types";
@@ -27,11 +29,28 @@ export default function CartProduct({
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
+  const { startTour } = useTour();
+  useEffect(() => {
+    if (typeof window === undefined || cartProducts.length === 0) {
+      return;
+    }
+
+    if (window.localStorage.getItem("cart-tour") !== null) {
+      return;
+    }
+
+    setTimeout(() => startTour("cart-tour"), 1000);
+
+    window.localStorage.setItem("cart-tour", "true");
+    // return () => clearTimeout(start);
+  }, [startTour, cartProducts.length]);
+
   return (
     <div className="flex flex-col gap-y-8 gap-x-20 lg:flex-row">
       <div className="flex flex-col gap-3">
-        {cartProducts.map((product) => (
+        {cartProducts.map((product, i) => (
           <SingleCartProduct
+            id={i === 0 ? "cart-item" : "undefined"}
             key={product.id}
             product={product}
             preferences={preferences}
@@ -61,7 +80,13 @@ export default function CartProduct({
         >
           <input type="hidden" name="shoppingCartId" value={shoppingCartId} readOnly />
 
-          <Button type="submit" variant="default" disabled={loading} size="lg">
+          <Button
+            id="cart-order"
+            type="submit"
+            variant="default"
+            disabled={loading}
+            size="lg"
+          >
             <ShoppingBagIcon />
             {loading ? "Sending Order" : "Order Now!"}
           </Button>
@@ -81,6 +106,10 @@ export default function CartProduct({
             <XCircleIcon />
             Clear cart
           </Button>
+
+          <button type="button" onClick={() => startTour("cart-tour")}>
+            <MessageCircleQuestionIcon id="cart-help" className="text-gray-400" />
+          </button>
         </form>
       </div>
     </div>

@@ -3,17 +3,37 @@
 import { useRef, useEffect, useCallback, useMemo } from "react";
 import useSWRInfinite, { SWRInfiniteKeyLoader } from "swr/infinite";
 import { getProductsInfineScroll } from "@/data/product/action";
+
 import ProductModal from "@/components/product-grid/product-modal";
 import ProductGridError from "@/components/product-grid/product-grid-error";
 import EmptyResults from "@/components/empty-results";
+
 import { LoaderCircleIcon } from "lucide-react";
 
 // Types
 import { TProductItemResult } from "@/lib/types";
 import { TActiveFilters } from "@/lib/types";
 
+import { useTour } from "@/lib/tour/tour-context";
+
 export default function ProductGrid(props: { activeFilters: TActiveFilters }) {
   const observerRef = useRef(null);
+
+  const { startTour } = useTour();
+  useEffect(() => {
+    if (typeof window === undefined) {
+      return;
+    }
+
+    if (window.localStorage.getItem("home-tour") !== null) {
+      return;
+    }
+
+    setTimeout(() => startTour("home-tour"), 1500);
+
+    window.localStorage.setItem("home-tour", "true");
+    // return () => clearTimeout(start);
+  }, [startTour]);
 
   // Get the pageIndex and filter.
   const getKey: SWRInfiniteKeyLoader = (pageIndex, previousPageData) => {
@@ -78,19 +98,23 @@ export default function ProductGrid(props: { activeFilters: TActiveFilters }) {
   }, [handleObserver]);
 
   if (error) return <ProductGridError />;
+
   if (isLoading)
     return (
       <div className="flex items-center gap-4 px-8 text-slate-500">
         <LoaderCircleIcon className="animate-spin" /> Loading...
       </div>
     );
+
   if (!isLoading && allProducts.length === 0) return <EmptyResults />;
 
   return (
     <>
       <div className="grid grid-cols-3 lg:grid-cols-5 2xl:grid-cols-6 gap-1 mx-1 md:gap-2 md:mx-2 xl:gap-3 xl:mx-3">
-        {allProducts.map((product) => (
-          <ProductModal key={product.id} product={product} />
+        {allProducts.map((product, i) => (
+          <div key={product.id} id={i === 1 ? "preview-item" : undefined}>
+            <ProductModal product={product} />
+          </div>
         ))}
       </div>
 

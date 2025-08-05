@@ -4,6 +4,8 @@ import { useRouter } from "next/navigation";
 import { useActionState, useState, useEffect } from "react";
 import { addToCart, updateProductFromCart } from "@/data/cart/actions";
 
+import { useTour } from "@/lib/tour/tour-context";
+
 // Shadcn
 import {
   Table,
@@ -32,6 +34,7 @@ import {
   CheckCircle2Icon,
   InfoIcon,
   Loader2Icon,
+  MessageCircleQuestionIcon,
   SaveIcon,
   ShoppingCartIcon,
 } from "lucide-react";
@@ -67,6 +70,8 @@ export default function ProductPageForm({
     (cart?.details as Prisma.JsonArray) || []
   );
 
+  const { startTour } = useTour();
+
   const [state, actionForm, isLoading] = useActionState(
     cart ? updateProductFromCart : addToCart,
     {
@@ -81,6 +86,21 @@ export default function ProductPageForm({
       router.push("/cart");
     }
   }, [state, router]);
+
+  useEffect(() => {
+    if (typeof window === undefined || !product) {
+      return;
+    }
+
+    if (window.localStorage.getItem("product-tour") !== null) {
+      return;
+    }
+
+    setTimeout(() => startTour("product-tour"), 2000);
+
+    window.localStorage.setItem("product-tour", "true");
+    // return () => clearTimeout(start);
+  }, [startTour, product]);
 
   if (!product) {
     return <h4 className="text-lg text-slate-500">Product not found!</h4>;
@@ -103,7 +123,7 @@ export default function ProductPageForm({
         value={JSON.stringify(details) || ""}
       />
       <div className="flex flex-col gap-4">
-        <Table className="w-full">
+        <Table className="w-full" id="product-sizes">
           <TableCaption>Available sizes.</TableCaption>
           <TableHeader>
             <TableRow>
@@ -134,9 +154,7 @@ export default function ProductPageForm({
                         <span className="text-lg">{size?.name}</span>
                         <br />
                         <span className="text-sm">
-                          {product?.type === "knife"
-                            ? size?.size
-                            : size?.dimension}
+                          {product?.type === "knife" ? size?.size : size?.dimension}
                         </span>
                       </p>
                     </TableCell>
@@ -152,7 +170,7 @@ export default function ProductPageForm({
                     <TableCell>
                       <p className="text-lg font-semibold">{size?.stock}</p>
                     </TableCell>
-                    <TableCell>
+                    <TableCell id="order-quantity">
                       <Input
                         type="number"
                         max={size?.stock}
@@ -161,9 +179,7 @@ export default function ProductPageForm({
                         placeholder="0"
                         autoComplete="off"
                         className="px-1 text-center"
-                        defaultValue={
-                          (sizeQuantity && sizeQuantity) || undefined
-                        }
+                        defaultValue={(sizeQuantity && sizeQuantity) || undefined}
                         onChange={(e) => {
                           const value = parseInt(e.target.value);
                           if (isNaN(value)) return;
@@ -212,16 +228,14 @@ export default function ProductPageForm({
           </TableBody>
         </Table>
 
-        <div className="mt-4 flex flex-col gap-2">
+        <div className="mt-4 flex flex-col gap-2" id="product-engraving">
           <p className="text-sm text-slate-500">Engraving</p>
           <Select
             disabled={false}
             name="brand"
             defaultValue={cart?.brand || product?.brand}
             onValueChange={(value) =>
-              value === "other"
-                ? setOtherEngraving(true)
-                : setOtherEngraving(false)
+              value === "other" ? setOtherEngraving(true) : setOtherEngraving(false)
             }
           >
             <SelectTrigger className="w-full py-6">
@@ -269,7 +283,7 @@ export default function ProductPageForm({
           )}
         </div>
 
-        <div className="mt-4 flex flex-col gap-2">
+        <div className="mt-4 flex flex-col gap-2" id="product-handle">
           <p className="text-sm text-slate-500">Handle</p>
           <Select
             disabled={false}
@@ -321,7 +335,7 @@ export default function ProductPageForm({
           )}
         </div>
 
-        <div className="mt-4 flex flex-col gap-2">
+        <div className="mt-4 flex flex-col gap-2" id="product-request">
           <p className="text-sm text-slate-500">Specific Request</p>
           <Textarea
             name="request"
@@ -347,34 +361,19 @@ export default function ProductPageForm({
           )}
 
           {isLoading ? (
-            <Button
-              className="w-full py-6"
-              variant="outline"
-              size="lg"
-              disabled
-            >
+            <Button className="w-full py-6" variant="outline" size="lg" disabled>
               <Loader2Icon className="animate-spin" />
               Loading...
             </Button>
           ) : cart ? (
             <div className="flex flex-col gap-2">
-              <Button
-                className="w-full py-6"
-                type="submit"
-                variant="default"
-                size="lg"
-              >
+              <Button className="w-full py-6" type="submit" variant="default" size="lg">
                 <span className="flex gap-2">
                   <SaveIcon />
                   Save Changes
                 </span>
               </Button>
-              <Button
-                asChild
-                className="w-full py-5"
-                variant="outline"
-                size="sm"
-              >
+              <Button asChild className="w-full py-5" variant="outline" size="sm">
                 <Link href="/cart" className="flex gap-2">
                   <ArrowRightIcon />
                   See Cart
@@ -382,12 +381,7 @@ export default function ProductPageForm({
               </Button>
             </div>
           ) : (
-            <Button
-              className="w-full py-6"
-              type="submit"
-              variant="default"
-              size="lg"
-            >
+            <Button className="w-full py-6" type="submit" variant="default" size="lg">
               <span className="flex gap-2">
                 <ShoppingCartIcon />
                 Add to Cart
@@ -398,10 +392,15 @@ export default function ProductPageForm({
 
         <div>
           <p className="text-sm text-center text-slate-500">
-            ** Please note <strong>if you don&#39;t</strong> change engraving,
-            handle or add any specific request, we will proceed with the
-            standard configuration.
+            ** Please note <strong>if you don&#39;t</strong> change engraving, handle or
+            add any specific request, we will proceed with the standard configuration.
           </p>
+        </div>
+
+        <div className="flex items-center justify-center mt-2">
+          <button type="button" onClick={() => startTour("product-tour")}>
+            <MessageCircleQuestionIcon id="product-help" className="text-gray-400" />
+          </button>
         </div>
       </div>
     </form>

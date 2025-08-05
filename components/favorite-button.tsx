@@ -55,6 +55,7 @@ export default function FavoriteButton({ productId }: { productId: string | unde
 
   return (
     <button
+      id="favorite-button"
       onClick={() => handleFavorite(productId)}
       className="absolute top-2 left-2 z-20"
     >

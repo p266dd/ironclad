@@ -18,9 +18,7 @@ const Tour: React.FC<TourProps> = ({
   cardComponent: CardComponent,
 }) => {
   const { currentTour, currentStep, setCurrentStep, isTourVisible } = useTour();
-  const currentTourSteps = tours.find(
-    (tour) => tour.tour === currentTour
-  )?.steps;
+  const currentTourSteps = tours.find((tour) => tour.tour === currentTour)?.steps;
 
   const [elementToScroll, setElementToScroll] = useState<Element | null>(null);
   const [pointerPosition, setPointerPosition] = useState<{
@@ -46,9 +44,7 @@ const Tour: React.FC<TourProps> = ({
     if (isTourVisible && currentTourSteps) {
       // Clean up all elements that might have our styles
       currentTourSteps.forEach((tourStep) => {
-        const element = document.querySelector(
-          tourStep.selector
-        ) as HTMLElement | null;
+        const element = document.querySelector(tourStep.selector) as HTMLElement | null;
         if (element && tourStep !== currentTourSteps[currentStep]) {
           // Reset styles for non-active elements if interaction is enabled
           if (interact) {
@@ -88,9 +84,7 @@ const Tour: React.FC<TourProps> = ({
     return () => {
       if (currentTourSteps) {
         currentTourSteps.forEach((step) => {
-          const element = document.querySelector(
-            step.selector
-          ) as HTMLElement | null;
+          const element = document.querySelector(step.selector) as HTMLElement | null;
           if (element && interact) {
             element.style.position = "";
             element.style.zIndex = "";
@@ -98,14 +92,7 @@ const Tour: React.FC<TourProps> = ({
         });
       }
     };
-  }, [
-    currentStep,
-    currentTourSteps,
-    isInView,
-    offset,
-    isTourVisible,
-    interact,
-  ]);
+  }, [currentStep, currentTourSteps, isInView, offset, isTourVisible, interact]);
 
   // - -
   // Helper function to get element position
@@ -271,8 +258,7 @@ const Tour: React.FC<TourProps> = ({
       ) as Element | null;
       if (element) {
         const { top } = element.getBoundingClientRect();
-        const isInViewport =
-          top >= -offset && top <= window.innerHeight + offset;
+        const isInViewport = top >= -offset && top <= window.innerHeight + offset;
         if (!isInViewport) {
           element.scrollIntoView({ behavior: "smooth", block: "center" });
         }
@@ -453,7 +439,7 @@ const Tour: React.FC<TourProps> = ({
       <svg
         viewBox="0 0 54 54"
         data-name="Tour-arrow"
-        className="absolute w-6 h-6 origin-center"
+        className="absolute w-6 h-6 origin-center text-white"
         style={getArrowStyle(currentTourSteps?.[currentStep]?.side as any)}
       >
         <path id="triangle" d="M27 27L0 0V54L27 27Z" fill="currentColor" />
@@ -526,9 +512,7 @@ const Tour: React.FC<TourProps> = ({
               <div
                 className="absolute flex flex-col max-w-[100%] transition-all min-w-min pointer-events-auto z-[950]"
                 data-name="Tour-card"
-                style={getCardStyle(
-                  currentTourSteps?.[currentStep]?.side as any
-                )}
+                style={getCardStyle(currentTourSteps?.[currentStep]?.side as any)}
               >
                 <CardComponent
                   step={currentTourSteps?.[currentStep]!}

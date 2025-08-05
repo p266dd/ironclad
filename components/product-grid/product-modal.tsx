@@ -7,6 +7,8 @@ import { useState, useEffect, useRef } from "react";
 import FavoriteButton from "../favorite-button";
 import LoadingIndicator from "../loading-indicator";
 
+import { useTour } from "@/lib/tour/tour-context";
+
 // Shadcn
 import {
   Carousel,
@@ -41,6 +43,8 @@ export default function ProductModal({
   const [open, setOpen] = useState(false);
   const triggerRef = useRef<HTMLDivElement | null>(null);
   const router = useRouter();
+
+  const { startTour } = useTour();
 
   // Long press simulation.
   useEffect(() => {
@@ -88,11 +92,16 @@ export default function ProductModal({
         const timerEnded = Date.now();
         const duration = timerEnded - timerStarted;
 
+        const startT = setTimeout(() => startTour("product-modal-tour"), 1000);
+        window.localStorage.setItem("product-modal-tour", "true");
+
         if (duration <= 400 && !hasMoved) {
           // Treat as a click if very short hold.
           router.push("/products/" + product.id);
           setLoadingnavigation(product.id);
+          clearTimeout(startT);
         }
+
         return;
       });
     }
@@ -124,10 +133,18 @@ export default function ProductModal({
       triggerRef.current.addEventListener("dblclick", () => {
         clearTimeout(clickTimer);
         setOpen(true);
+
+        if (window && window.localStorage.getItem("product-modal-tour") !== null) {
+          return;
+        } else if (window && window.localStorage.getItem("product-modal-tour") === null) {
+          setTimeout(() => startTour("product-modal-tour"), 1000);
+          window.localStorage.setItem("product-modal-tour", "true");
+        }
+
         return;
       });
     }
-  }, [product.id, router]);
+  }, [product.id, router, startTour]);
 
   return (
     <>
@@ -160,14 +177,14 @@ export default function ProductModal({
           <div className="relative">
             <FavoriteButton productId={product?.id} />
 
-            <Carousel>
+            <Carousel className="rounded-lg overflow-hidden">
               <CarouselContent>
                 <CarouselItem>
                   <div className="relative min-h-[300px] h-[65vh] rounded-lg overflow-hidden">
                     <Image
                       src={product?.thumbnail?.url || FallbackImage}
                       alt={product?.name || "Product Image"}
-                      className="w-full object-contain"
+                      className="w-full object-cover"
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 40vw, 33vw"
                       fill
                     />
@@ -180,7 +197,7 @@ export default function ProductModal({
                         <Image
                           src={media?.url || FallbackImage}
                           alt={media?.name || "Product Image"}
-                          className="w-full object-contain"
+                          className="w-full object-cover"
                           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 40vw, 33vw"
                           fill
                         />
