@@ -85,9 +85,7 @@ export default function DisplayMessage() {
           </DialogClose>
           {message?.linkTitle && message?.linkUrl && (
             <Button asChild type="button">
-              <Link href={message.linkUrl} target="_blank">
-                {message.linkTitle}
-              </Link>
+              <Link href={message.linkUrl}>{message.linkTitle}</Link>
             </Button>
           )}
         </DialogFooter>
