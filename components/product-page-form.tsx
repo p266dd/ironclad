@@ -154,7 +154,9 @@ export default function ProductPageForm({
                         <span className="text-lg">{size?.name}</span>
                         <br />
                         <span className="text-sm">
-                          {product?.type === "knife" ? size?.size : size?.dimension}
+                          {product?.type === "knife"
+                            ? size?.size + " mm"
+                            : size?.dimension}
                         </span>
                       </p>
                     </TableCell>
