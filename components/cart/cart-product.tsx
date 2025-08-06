@@ -301,14 +301,15 @@ export default function SingleCartProduct({
                       </SelectItem>
                     </SelectGroup>
 
-                    {product?.product?.brand === "OEM" && (
-                      <SelectGroup>
-                        <SelectLabel>Write Your Own</SelectLabel>
-                        <SelectItem value="other" className="capitalize">
-                          Other
-                        </SelectItem>
-                      </SelectGroup>
-                    )}
+                    {product?.product?.brand === "OEM" ||
+                      (product?.brand === "OEM (No Brand)" && (
+                        <SelectGroup>
+                          <SelectLabel>Write Your Own</SelectLabel>
+                          <SelectItem value="other" className="capitalize">
+                            Other
+                          </SelectItem>
+                        </SelectGroup>
+                      ))}
                   </SelectContent>
                 </Select>
 

@@ -261,14 +261,15 @@ export default function ProductPageForm({
                 </SelectItem>
               </SelectGroup>
 
-              {product?.brand === "OEM" && (
-                <SelectGroup>
-                  <SelectLabel>Write Your Own</SelectLabel>
-                  <SelectItem value="other" className="capitalize">
-                    Other
-                  </SelectItem>
-                </SelectGroup>
-              )}
+              {product?.brand === "OEM" ||
+                (product?.brand === "OEM (No Brand)" && (
+                  <SelectGroup>
+                    <SelectLabel>Write Your Own</SelectLabel>
+                    <SelectItem value="other" className="capitalize">
+                      Other
+                    </SelectItem>
+                  </SelectGroup>
+                ))}
             </SelectContent>
           </Select>
 

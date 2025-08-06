@@ -110,9 +110,7 @@ export default function AdminSingleOrder({
                   <TableRow key={i}>
                     <TableCell>
                       <h4 className="text-lg leading-tight">{size?.name}</h4>
-                      {size?.size !== 0 && (
-                        <p className="text-sm">{size?.size} mm</p>
-                      )}
+                      {size?.size !== 0 && <p className="text-sm">{size?.size} mm</p>}
                       {size?.dimension !== "0mm" && (
                         <p className="text-sm">{size?.dimension}</p>
                       )}
@@ -139,12 +137,7 @@ export default function AdminSingleOrder({
               setSave(false);
             }}
           >
-            <input
-              type="hidden"
-              name="productId"
-              value={fullProduct.id}
-              readOnly
-            />
+            <input type="hidden" name="productId" value={fullProduct.id} readOnly />
             <div className="mt-4 md:px-4">
               <div className="flex flex-col gap-2 mb-4">
                 <p className="text-sm text-slate-500">ブランド</p>
@@ -152,9 +145,7 @@ export default function AdminSingleOrder({
                   disabled={false}
                   name="brand"
                   value={
-                    otherEngraving
-                      ? "other"
-                      : orderProduct?.brand || fullProduct?.brand
+                    otherEngraving ? "other" : orderProduct?.brand || fullProduct?.brand
                   }
                   onValueChange={(value) => {
                     if (value === "other") {
@@ -174,32 +165,27 @@ export default function AdminSingleOrder({
                       orderProduct?.brand !== fullProduct?.brand && (
                         <SelectGroup>
                           <SelectLabel>現在の注文内</SelectLabel>
-                          <SelectItem
-                            value={orderProduct.brand}
-                            className="capitalize"
-                          >
+                          <SelectItem value={orderProduct.brand} className="capitalize">
                             {orderProduct?.brand}
                           </SelectItem>
                         </SelectGroup>
                       )}
                     <SelectGroup>
                       <SelectLabel>デフォルト</SelectLabel>
-                      <SelectItem
-                        value={fullProduct?.brand}
-                        className="capitalize"
-                      >
+                      <SelectItem value={fullProduct?.brand} className="capitalize">
                         {fullProduct?.brand}
                       </SelectItem>
                     </SelectGroup>
 
-                    {fullProduct?.brand === "OEM" && (
-                      <SelectGroup>
-                        <SelectLabel>自分で入力</SelectLabel>
-                        <SelectItem value="other" className="capitalize">
-                          その他
-                        </SelectItem>
-                      </SelectGroup>
-                    )}
+                    {fullProduct?.brand === "OEM" ||
+                      (fullProduct?.brand === "OEM (No Brand)" && (
+                        <SelectGroup>
+                          <SelectLabel>自分で入力</SelectLabel>
+                          <SelectItem value="other" className="capitalize">
+                            その他
+                          </SelectItem>
+                        </SelectGroup>
+                      ))}
                   </SelectContent>
                 </Select>
 
@@ -228,9 +214,7 @@ export default function AdminSingleOrder({
                   disabled={false}
                   name="handle"
                   value={
-                    otherHandle
-                      ? "other"
-                      : orderProduct?.handle || fullProduct?.handle
+                    otherHandle ? "other" : orderProduct?.handle || fullProduct?.handle
                   }
                   onValueChange={(value) => {
                     if (value === "other") {
@@ -247,10 +231,7 @@ export default function AdminSingleOrder({
                       orderProduct?.handle !== fullProduct?.handle && (
                         <SelectGroup>
                           <SelectLabel>現在の注文内</SelectLabel>
-                          <SelectItem
-                            value={orderProduct?.handle}
-                            className="capitalize"
-                          >
+                          <SelectItem value={orderProduct?.handle} className="capitalize">
                             {orderProduct?.handle}
                           </SelectItem>
                         </SelectGroup>
@@ -258,10 +239,7 @@ export default function AdminSingleOrder({
 
                     <SelectGroup>
                       <SelectLabel>デフォルト</SelectLabel>
-                      <SelectItem
-                        value={fullProduct?.handle}
-                        className="capitalize"
-                      >
+                      <SelectItem value={fullProduct?.handle} className="capitalize">
                         {fullProduct?.handle}
                       </SelectItem>
                     </SelectGroup>
