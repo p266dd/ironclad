@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useState } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -180,13 +179,13 @@ export default function SingleCartProduct({
         <AccordionTrigger className="flex items-center">
           <div className="flex items-center gap-2">
             <div className="relative max-h-[200px] h-[200px] min-w-[120px] lg:w-[120px] lg:mr-4">
-              <Image
-                src={productThumbnail || FallbackImage}
+              <img
+                src={productThumbnail || FallbackImage.src}
                 alt={product.product?.name || "Product Thumbnail"}
-                className="rounded-md overflow-hidden object-cover"
-                sizes="(max-width: 768px) 50vw, (max-width: 1200px) 20vw, 15vw"
-                priority
-                fill
+                className="rounded-md overflow-hidden object-cover w-full h-full"
+                // sizes="(max-width: 768px) 50vw, (max-width: 1200px) 20vw, 15vw"
+                // priority
+                // fill
               />
             </div>
             <div className="w-3/4 flex flex-col">

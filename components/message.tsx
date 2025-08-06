@@ -1,7 +1,6 @@
 "use client";
 
 import useSWR from "swr";
-import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 
@@ -62,12 +61,12 @@ export default function DisplayMessage() {
         <DialogHeader className="flex flex-col sm:flex-row sm:items-center gap-6 lg:mb-4">
           {message?.image && (
             <div className="relative flex justify-center md:max-w-[350px]">
-              <Image
+              <img
                 className="w-full rounded-lg overflow-hidden"
                 src={message.image}
                 alt="Dialog Image"
-                width={600}
-                height={600}
+                width={"600px"}
+                height={"600px"}
               />
             </div>
           )}

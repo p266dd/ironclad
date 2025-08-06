@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useState, useEffect } from "react";
 import {
   Dialog,
@@ -71,7 +70,7 @@ export default function InstallPrompt() {
       >
         <DialogHeader className="flex-row items-center gap-4">
           <div className="w-14">
-            <Image src={LogoIcon} alt="Ironclad Logo" className="w-full" />
+            <img src={LogoIcon.src} alt="Ironclad Logo" className="w-full" />
           </div>
           <div className="flex flex-col items-start">
             <DialogTitle className="text-left mb-2">Install App?</DialogTitle>

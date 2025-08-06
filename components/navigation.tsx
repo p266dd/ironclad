@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
 import { logout } from "@/lib/logout";
@@ -69,7 +68,7 @@ export default function Navigation({
         )}
       >
         <div className="hidden md:flex flex-col justify-center gap-5 px-4 mb-12">
-          <Image src={Logo} alt="Ironclad Logo" className="max-w-[40px] invert" />
+          <img src={Logo.src} alt="Ironclad Logo" className="max-w-[40px] invert" />
           <h2 className="text-2xl">
             <span className="block text-base mb-2">Welcome,</span>
             {(session && session.name) || "User"}

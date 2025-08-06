@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import useSWR, { mutate } from "swr";
 import { useState, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -368,10 +367,10 @@ export default function AdminProductTable() {
                     }}
                   >
                     <div className="relative h-[120px] rounded-lg overflow-hidden">
-                      <Image
+                      <img
                         src={product?.thumbnail?.url || "/product-fallback.webp"}
                         alt={product?.thumbnail?.name || "Product Image"}
-                        fill
+                        // fill
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                         className="object-cover"
                       />

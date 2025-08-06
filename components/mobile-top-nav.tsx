@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { logout } from "@/lib/logout";
@@ -32,7 +31,7 @@ export default function MobileTopNav() {
         </div>
         <div className="flex-1 flex justify-center">
           <Link href="/">
-            <Image src={Logo} alt="Ironclad Logo" className="w-32" />
+            <img src={Logo.src} alt="Ironclad Logo" className="w-32" />
           </Link>
         </div>
         <div className="flex-1 flex justify-end">

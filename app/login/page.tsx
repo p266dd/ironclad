@@ -1,5 +1,3 @@
-import Image from "next/image";
-
 import { LoginForm } from "./form";
 
 // Assets
@@ -11,7 +9,7 @@ export default async function LoginPage() {
     <div className="grid min-h-svh lg:grid-cols-2">
       <div className="flex flex-col h-full items-center justify-center sm:h-auto gap-4 p-6 md:p-10">
         <div className="flex justify-center gap-2">
-          <Image src={Logo} alt="Ironclad Logo" className="max-w-[200px]" />
+          <img src={Logo.src} alt="Ironclad Logo" className="max-w-[200px]" />
         </div>
         <div className="flex sm:flex-1 items-center justify-center">
           <div className="w-full max-w-xs">
@@ -20,8 +18,8 @@ export default async function LoginPage() {
         </div>
       </div>
       <div className="bg-muted relative hidden lg:block">
-        <Image
-          src={Background}
+        <img
+          src={Background.src}
           alt="Image"
           className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
         />

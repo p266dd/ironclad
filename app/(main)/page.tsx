@@ -1,4 +1,3 @@
-import Image from "next/image";
 import FilterTags from "@/components/filter-tags";
 import ProductGrid from "@/components/product-grid/product-grid";
 import { LockIcon } from "lucide-react";
@@ -27,9 +26,9 @@ export default async function HomePage({
     <div className="pb-44 sm:pb-0 bg-linear-180 from-slate-100 to-slate-50/10">
       <div className="md:hidden">
         <div className="px-6 pt-8 mb-8 sm:mb-12">
-          <Image
-            priority
-            src={Logo}
+          <img
+            // priority
+            src={Logo.src}
             alt="Ironclad Logo"
             className="w-52 sm:w-64"
           />

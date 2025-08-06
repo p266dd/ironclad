@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -12,7 +11,7 @@ export default function NotFoundPage() {
   return (
     <div className="h-screen flex items-center justify-center">
       <div className="flex flex-col items-center gap-4">
-        <Image priority src={Logo} alt="Ironclad" className="w-52" />
+        <img src={Logo.src} alt="Ironclad" className="w-52" />
 
         <div className="my-8 text-center">
           <h1 className="text-2xl font-light mb-3">

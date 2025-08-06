@@ -1,7 +1,6 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import Image from "next/image";
 import Logo from "@/assets/logo.png";
 
 import {
@@ -63,7 +62,7 @@ export function DashboardSidebar() {
     <Sidebar className="print:hidden">
       <SidebarHeader className="py-10 px-6">
         <div className="w-[200px]">
-          <Image src={Logo} alt="Irenclad Logo" className="invert" />
+          <img src={Logo.src} alt="Irenclad Logo" className="invert" />
         </div>
       </SidebarHeader>
       <SidebarContent>

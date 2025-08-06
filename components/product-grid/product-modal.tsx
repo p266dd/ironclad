@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
@@ -136,12 +135,12 @@ export default function ProductModal({
         ref={triggerRef}
         className="relative h-[240px] sm:h-[320px] md:h-[320px] lg:h-[420px] xl:h-[500px]"
       >
-        <Image
-          src={product?.thumbnail?.url || FallbackImage}
+        <img
+          src={product?.thumbnail?.url || FallbackImage.src}
           alt={product?.name}
-          className="object-cover rounded-md overflow-hidden border"
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          fill
+          className="object-cover rounded-md overflow-hidden border w-full h-full"
+          // sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          // fill
         />
         {loadingNavigation === product.id && (
           <span className="absolute top-2 right-2 p-1 bg-white/30 rounded-full">
@@ -165,12 +164,12 @@ export default function ProductModal({
               <CarouselContent>
                 <CarouselItem>
                   <div className="relative min-h-[300px] h-[65vh] rounded-lg overflow-hidden">
-                    <Image
-                      src={product?.thumbnail?.url || FallbackImage}
+                    <img
+                      src={product?.thumbnail?.url || FallbackImage.src}
                       alt={product?.name || "Product Image"}
-                      className="w-full object-cover"
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 40vw, 33vw"
-                      fill
+                      className="w-full object-cover h-full"
+                      // sizes="(max-width: 768px) 100vw, (max-width: 1200px) 40vw, 33vw"
+                      // fill
                     />
                   </div>
                 </CarouselItem>
@@ -178,24 +177,24 @@ export default function ProductModal({
                   product.media.map((media) => (
                     <CarouselItem key={media.id}>
                       <div className="relative min-h-[300px] h-[65vh] rounded-lg overflow-hidden">
-                        <Image
-                          src={media?.url || FallbackImage}
+                        <img
+                          src={media?.url || FallbackImage.src}
                           alt={media?.name || "Product Image"}
                           className="w-full object-cover"
-                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 40vw, 33vw"
-                          fill
+                          // sizes="(max-width: 768px) 100vw, (max-width: 1200px) 40vw, 33vw"
+                          // fill
                         />
                       </div>
                     </CarouselItem>
                   ))
                 ) : (
                   <div className="relative min-h-[300px] h-[65vh] rounded-lg overflow-hidden">
-                    <Image
-                      src={FallbackImage}
+                    <img
+                      src={FallbackImage.src}
                       alt="Image Placeholder"
                       className="w-full"
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 40vw, 33vw"
-                      fill
+                      // sizes="(max-width: 768px) 100vw, (max-width: 1200px) 40vw, 33vw"
+                      // fill
                     />
                   </div>
                 )}
