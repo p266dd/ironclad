@@ -17,13 +17,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import {
-  AnnoyedIcon,
-  LoaderCircleIcon,
-  CheckCircleIcon,
-  PrinterIcon,
-  RefreshCcwIcon,
-} from "lucide-react";
+import { AnnoyedIcon, LoaderCircleIcon, PrinterIcon, RefreshCcwIcon } from "lucide-react";
 
 import Logo from "@/assets/logo-icon.png";
 
@@ -98,17 +92,18 @@ export default function PrintOrderPage() {
       <div className={styles.printButtonContainer}>
         <BackButton />
 
-        <Button variant="default" onClick={() => window.print()}>
+        <Button
+          variant="default"
+          onClick={() => {
+            if (product.isCompleted !== true) {
+              handleComplete();
+            }
+            window.print();
+          }}
+        >
           <PrinterIcon />
-          印刷する
+          印刷する {product.isCompleted !== true ? "/ 注文を完了" : null}
         </Button>
-
-        {!product.isCompleted && (
-          <Button variant="default" onClick={handleComplete}>
-            <CheckCircleIcon />
-            注文を完了
-          </Button>
-        )}
       </div>
       <div className={styles.a4Page}>
         <header className={styles.invoiceHeader}>
