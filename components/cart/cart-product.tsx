@@ -193,7 +193,8 @@ export default function SingleCartProduct({
                 {product?.product?.name}
               </h4>
               <p className="lg:text-base capitalize">
-                <strong>Brand:</strong> {product?.brand}
+                <strong>Brand:</strong>{" "}
+                {product?.brand === "" ? product?.product?.brand : product?.brand}
               </p>
               <p className="lg:text-base capitalize">
                 <strong>Handle:</strong> {product?.handle}
@@ -247,85 +248,90 @@ export default function SingleCartProduct({
             </Table>
 
             <div className="mt-4 md:px-4">
-              <div className="flex flex-col gap-2 mb-4">
-                <p className="text-sm text-slate-500">Engraving</p>
-                <Select
-                  disabled={false}
-                  name="brand"
-                  value={
-                    unsavedChanges?.brand || product?.brand || product?.product.brand
-                  }
-                  onValueChange={(value) => {
-                    setSave(true);
-                    if (value === "other") setOtherEngraving(true);
-                    setUnsavedChanges((prev) => ({ ...prev, brand: value }));
-                  }}
-                >
-                  <SelectTrigger className="w-full py-6">
-                    <SelectValue
-                      className="capitalize"
-                      placeholder="Choose engraving brand."
-                    />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {product?.brand !== product.product?.brand && (
-                      <SelectGroup>
-                        <SelectLabel>Current In Cart</SelectLabel>
-                        <SelectItem value={product?.brand} className="capitalize">
-                          {product?.brand}
-                        </SelectItem>
-                      </SelectGroup>
-                    )}
-                    {preferences && preferences?.length > 0 && (
-                      <SelectGroup>
-                        <SelectLabel>Saved Preferences</SelectLabel>
-                        {preferences.map(
-                          (value, i) =>
-                            value.slug !== product?.brand && (
-                              <SelectItem
-                                className="capitalize"
-                                key={i}
-                                value={value?.slug}
-                              >
-                                {value?.name}
-                              </SelectItem>
-                            )
-                        )}
-                      </SelectGroup>
-                    )}
-                    <SelectGroup>
-                      <SelectLabel>Default</SelectLabel>
-                      <SelectItem value={product?.product?.brand} className="capitalize">
-                        {product?.product?.brand}
-                      </SelectItem>
-                    </SelectGroup>
-
-                    {product?.product?.brand === "OEM" ||
-                      (product?.brand === "OEM (No Brand)" && (
+              {product?.product?.brand === "OEM (No Logo)" && (
+                <div className="flex flex-col gap-2 mb-4">
+                  <p className="text-sm text-slate-500">Engraving</p>
+                  <Select
+                    disabled={false}
+                    name="brand"
+                    value={
+                      unsavedChanges?.brand || product?.brand || product?.product.brand
+                    }
+                    onValueChange={(value) => {
+                      setSave(true);
+                      if (value === "other") setOtherEngraving(true);
+                      setUnsavedChanges((prev) => ({ ...prev, brand: value }));
+                    }}
+                  >
+                    <SelectTrigger className="w-full py-6">
+                      <SelectValue
+                        className="capitalize"
+                        placeholder="Choose engraving brand."
+                      />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {product?.brand !== product.product?.brand && (
                         <SelectGroup>
-                          <SelectLabel>Write Your Own</SelectLabel>
-                          <SelectItem value="other" className="capitalize">
-                            Other
+                          <SelectLabel>Current In Cart</SelectLabel>
+                          <SelectItem value={product?.brand} className="capitalize">
+                            {product?.brand}
                           </SelectItem>
                         </SelectGroup>
-                      ))}
-                  </SelectContent>
-                </Select>
+                      )}
+                      {preferences && preferences?.length > 0 && (
+                        <SelectGroup>
+                          <SelectLabel>Saved Preferences</SelectLabel>
+                          {preferences.map(
+                            (value, i) =>
+                              value.slug !== product?.brand && (
+                                <SelectItem
+                                  className="capitalize"
+                                  key={i}
+                                  value={value?.slug}
+                                >
+                                  {value?.name}
+                                </SelectItem>
+                              )
+                          )}
+                        </SelectGroup>
+                      )}
+                      <SelectGroup>
+                        <SelectLabel>Default</SelectLabel>
+                        <SelectItem
+                          value={product?.product?.brand}
+                          className="capitalize"
+                        >
+                          {product?.product?.brand}
+                        </SelectItem>
+                        <SelectItem value="Tsunehisa" className="capitalize">
+                          Tsunehisa
+                        </SelectItem>
+                      </SelectGroup>
 
-                {otherEngraving && (
-                  <Input
-                    type="text"
-                    name="brandOther"
-                    autoComplete="off"
-                    placeholder="What do you want engraved?"
-                    className="py-6"
-                    onChange={(e) => {
-                      setSave(true);
-                      setUnsavedChanges((prev) => ({ ...prev, brand: e.target.value }));
-                    }}
-                  />
-                )}
-              </div>
+                      <SelectGroup>
+                        <SelectLabel>Write Your Own</SelectLabel>
+                        <SelectItem value="other" className="capitalize">
+                          Other
+                        </SelectItem>
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+
+                  {otherEngraving && (
+                    <Input
+                      type="text"
+                      name="brandOther"
+                      autoComplete="off"
+                      placeholder="What do you want engraved?"
+                      className="py-6"
+                      onChange={(e) => {
+                        setSave(true);
+                        setUnsavedChanges((prev) => ({ ...prev, brand: e.target.value }));
+                      }}
+                    />
+                  )}
+                </div>
+              )}
 
               <div className="flex flex-col gap-2 mb-4">
                 <p className="text-sm text-slate-500">Handle</p>
@@ -381,7 +387,10 @@ export default function SingleCartProduct({
                     className="py-6"
                     onChange={(e) => {
                       setSave(true);
-                      setUnsavedChanges((prev) => ({ ...prev, handle: e.target.value }));
+                      setUnsavedChanges((prev) => ({
+                        ...prev,
+                        handle: e.target.value,
+                      }));
                     }}
                   />
                 )}

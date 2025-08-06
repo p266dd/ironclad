@@ -228,61 +228,61 @@ export default function ProductPageForm({
           </TableBody>
         </Table>
 
-        <div className="mt-4 flex flex-col gap-2" id="product-engraving">
-          <p className="text-sm text-slate-500">Engraving</p>
-          <Select
-            disabled={false}
-            name="brand"
-            defaultValue={cart?.brand || product?.brand}
-            onValueChange={(value) =>
-              value === "other" ? setOtherEngraving(true) : setOtherEngraving(false)
-            }
-          >
-            <SelectTrigger className="w-full py-6">
-              <SelectValue placeholder="Choose engraving brand." />
-            </SelectTrigger>
-            <SelectContent>
-              {preferences && preferences?.length > 0 && (
-                <SelectGroup>
-                  <SelectLabel>Saved Preferences</SelectLabel>
-                  {preferences.map((value, i) => {
-                    return (
-                      <SelectItem key={`engraving-${i}`} value={value?.slug}>
-                        {value?.name}
-                      </SelectItem>
-                    );
-                  })}
-                </SelectGroup>
-              )}
-              <SelectGroup>
-                <SelectLabel>Default</SelectLabel>
-                <SelectItem value={product?.brand} className="capitalize">
-                  {product?.brand}
-                </SelectItem>
-              </SelectGroup>
-
-              {product?.brand === "OEM" ||
-                (product?.brand === "OEM (No Brand)" && (
+        {product?.brand === "OEM (No Logo)" && (
+          <div className="mt-4 flex flex-col gap-2" id="product-engraving">
+            <p className="text-sm text-slate-500">Engraving</p>
+            <Select
+              disabled={false}
+              name="brand"
+              defaultValue={cart?.brand || product?.brand}
+              onValueChange={(value) =>
+                value === "other" ? setOtherEngraving(true) : setOtherEngraving(false)
+              }
+            >
+              <SelectTrigger className="w-full py-6">
+                <SelectValue placeholder="Choose engraving brand." />
+              </SelectTrigger>
+              <SelectContent>
+                {preferences && preferences?.length > 0 && (
                   <SelectGroup>
-                    <SelectLabel>Write Your Own</SelectLabel>
-                    <SelectItem value="other" className="capitalize">
-                      Other
-                    </SelectItem>
+                    <SelectLabel>Saved Preferences</SelectLabel>
+                    {preferences.map((value, i) => {
+                      return (
+                        <SelectItem key={`engraving-${i}`} value={value?.slug}>
+                          {value?.name}
+                        </SelectItem>
+                      );
+                    })}
                   </SelectGroup>
-                ))}
-            </SelectContent>
-          </Select>
+                )}
+                <SelectGroup>
+                  <SelectLabel>Default</SelectLabel>
+                  <SelectItem value={product?.brand} className="capitalize">
+                    {product?.brand}
+                  </SelectItem>
+                  <SelectItem value="Tsunehisa">Tsunehisa</SelectItem>
+                </SelectGroup>
 
-          {otherEngraving && (
-            <Input
-              type="text"
-              name="brandOther"
-              autoComplete="off"
-              placeholder="What do you want engraved?"
-              className="py-6"
-            />
-          )}
-        </div>
+                <SelectGroup>
+                  <SelectLabel>Write Your Own</SelectLabel>
+                  <SelectItem value="other" className="capitalize">
+                    Other
+                  </SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+
+            {otherEngraving && (
+              <Input
+                type="text"
+                name="brandOther"
+                autoComplete="off"
+                placeholder="What do you want engraved?"
+                className="py-6"
+              />
+            )}
+          </div>
+        )}
 
         <div className="mt-4 flex flex-col gap-2" id="product-handle">
           <p className="text-sm text-slate-500">Handle</p>
