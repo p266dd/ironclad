@@ -8,20 +8,13 @@ import { revalidatePath } from "next/cache";
 
 import { sendEmail } from "@/lib/nodemailer";
 import { verifyUserSession, verifyAdminSession } from "@/lib/session";
-import {
-  NewOrderEmailClient,
-  NewOrderEmailStaff,
-} from "@/lib/emails/new-order";
+import { NewOrderEmailClient, NewOrderEmailStaff } from "@/lib/emails/new-order";
 
 import { getCart } from "@/data/cart/actions";
 
 // Types
 import { Prisma } from "@/lib/generated/prisma";
-import {
-  TCreateOrderProduct,
-  TProductDetails,
-  TProductStockUpdate,
-} from "@/lib/types";
+import { TCreateOrderProduct, TProductDetails, TProductStockUpdate } from "@/lib/types";
 
 // Error Utility
 // import { generatePrismaErrorMessage } from "@/prisma/error-handling";
@@ -65,9 +58,7 @@ export const getOwnOrders = cache(
           }
         : { clientId: userId };
 
-    const whereANDConditions: Prisma.OrderWhereInput[] = [
-      whereAccountConditions,
-    ];
+    const whereANDConditions: Prisma.OrderWhereInput[] = [whereAccountConditions];
 
     if (searchQuery) {
       // Add conditions for searchQuery.input if it exists.
@@ -240,10 +231,7 @@ export async function createOrder() {
   const stockUpdateOperations: TProductStockUpdate[] = [];
 
   for (const cartProduct of cart.products) {
-    if (
-      cartProduct.product === undefined ||
-      cartProduct.product.sizes === undefined
-    ) {
+    if (cartProduct.product === undefined || cartProduct.product.sizes === undefined) {
       return { error: "Invalid product in your cart." };
     }
 
@@ -260,9 +248,7 @@ export async function createOrder() {
         continue; // Skip items with no valid quantity.
       }
 
-      const sizeInfo = cartProduct.product?.sizes.find(
-        (s) => s.id === Number(sizeId)
-      );
+      const sizeInfo = cartProduct.product?.sizes.find((s) => s.id === Number(sizeId));
 
       if (!sizeInfo) {
         return { error: "Product size is missing." };
@@ -386,10 +372,8 @@ export async function createOrder() {
     await sendEmail({
       to: "staff@ironcladknives.com",
       subject: "New Order From " + session.name,
-      html: NewOrderEmailStaff({ client: session.name, orderId: newOrder.id })
-        .html,
-      text: NewOrderEmailStaff({ client: session.name, orderId: newOrder.id })
-        .text,
+      html: NewOrderEmailStaff({ client: session.name, orderId: newOrder.id }).html,
+      text: NewOrderEmailStaff({ client: session.name, orderId: newOrder.id }).text,
       attachments: [
         {
           filename: "logo.png",
@@ -471,9 +455,7 @@ export async function createAdminOrder({
       });
 
       const sizeInfo =
-        productSizes &&
-        "sizes" in productSizes &&
-        Array.isArray(productSizes.sizes)
+        productSizes && "sizes" in productSizes && Array.isArray(productSizes.sizes)
           ? productSizes.sizes.find((s) => s.id === Number(sizeId))
           : undefined;
 
@@ -634,6 +616,172 @@ export async function createAdminOrder({
   }
 }
 
+export async function updateAdminOrder({
+  originalOrder,
+  updatedOrder,
+}: {
+  originalOrder:
+    | Prisma.OrderGetPayload<{
+        include: { orderProduct: true };
+      }>
+    | undefined;
+  updatedOrder: {
+    id: string;
+    clientId: string | undefined | null;
+    orderProduct: TOrderProduct[];
+  };
+}) {
+  await verifyAdminSession();
+
+  if (!originalOrder || updatedOrder.orderProduct.length === 0) {
+    return { error: "Invalid product data." };
+  }
+
+  for (const product of updatedOrder.orderProduct) {
+    if (!product.productId) {
+      return { error: "Product data is missing." };
+    }
+
+    const originalProductDetails = originalOrder.orderProduct.find(
+      (p) => p.productId === product.productId
+    )?.details;
+
+    const updatedProductDetails =
+      typeof product?.details === "string"
+        ? (JSON.parse(product?.details) as TProductDetails[])
+        : (product?.details as TProductDetails[]);
+
+    if (
+      !updatedProductDetails ||
+      !originalProductDetails ||
+      typeof updatedProductDetails !== "object" ||
+      typeof originalProductDetails !== "object" ||
+      updatedProductDetails.length === 0
+    ) {
+      return { error: "No products in this order." };
+    }
+
+    for (const updatedOrderDetails of updatedProductDetails) {
+      if (!updatedOrderDetails) {
+        return { error: "Invalid data." };
+      }
+
+      const originalOrderDetails =
+        typeof originalProductDetails === "string"
+          ? (JSON.parse(originalProductDetails) as TProductDetails[])
+          : (originalProductDetails as TProductDetails[]);
+    }
+  }
+
+  //
+  //       // Find current related detail from original order.
+  //       const originalOrderProduct = originalOrder.orderProduct.find(
+  //         (op) => op.productId === cartProduct.productId
+  //       );
+
+  //       if (originalOrderProduct) {
+  //         const originalDetails =
+  //           typeof originalOrderProduct?.details === "string"
+  //             ? (JSON.parse(originalOrderProduct?.details) as TProductDetails[])
+  //             : (originalOrderProduct?.details as TProductDetails[]);
+
+  //         for (const originalItemDetail of originalDetails) {
+  //           const originalSizeId = originalItemDetail?.id;
+  //           const originalQuantity = originalItemDetail?.quantity;
+
+  //           const matchSizeDetail = parsedNewDetails.find(
+  //             (item) => item.id === originalSizeId
+  //           );
+
+  //           console.log("Matched", matchSizeDetail);
+  //           console.log("Original", originalItemDetail);
+
+  //           if (matchSizeDetail) {
+  //             // Product exists in both, calculate difference and update stock.
+  //             const quantityDifference = originalQuantity - matchSizeDetail.quantity;
+  //             console.log("Original QT", originalQuantity);
+  //             console.log("New QT", matchSizeDetail.quantity);
+  //             console.log("quantityDifference", quantityDifference);
+
+  //             if (quantityDifference !== 0) {
+  //               await prisma.size.update({
+  //                 where: { id: Number(originalSizeId) },
+  //                 data: { stock: { increment: quantityDifference } },
+  //               });
+  //             }
+  //           } else {
+  //             // Product was in original but not in new, return stock.
+  //             await prisma.size.update({
+  //               where: { id: Number(originalSizeId) },
+  //               data: { stock: { increment: originalQuantity } },
+  //             });
+  //           }
+  //         }
+  //       } else {
+  //         // Product was not in the original order.
+  //         // Decrement the related size quantity from the itemDetail.
+  //         await prisma.size.update({
+  //           where: { id: Number(sizeId) },
+  //           data: { stock: { decrement: requestedQuantity } },
+  //         });
+  //       }
+  //     }
+  //   }
+
+  //   // Update related order model.
+  //   const updatedOrderIn = await prisma.order.update({
+  //     where: { id: order.id },
+  //     data: {
+  //       updatedAt: new Date(),
+  //       clientId: order.clientId || undefined,
+  //       orderProduct: {
+  //         deleteMany: {}, // Delete existing order products
+  //         create: order.orderProduct.map((op) => ({
+  //           productId: op.productId || "",
+  //           details:
+  //             typeof op.details === "string"
+  //               ? (JSON.parse(op.details) as Prisma.JsonArray)
+  //               : (op.details as Prisma.JsonArray),
+  //           brand: op.brand || "",
+  //           handle: op.handle || "",
+  //           request: op.request || "",
+  //         })),
+  //       },
+  //     },
+  //     select: {
+  //       id: true,
+  //       code: true,
+  //       client: {
+  //         select: {
+  //           name: true,
+  //           email: true,
+  //           businessName: true,
+  //         },
+  //       },
+  //       createdAt: true,
+  //       orderProduct: {
+  //         select: {
+  //           details: true,
+  //           brand: true,
+  //           handle: true,
+  //           request: true,
+  //           product: {
+  //             include: {
+  //               sizes: true,
+  //             },
+  //           },
+  //         },
+  //       },
+  //     },
+  //   });
+
+  //   return { error: null, data: updatedOrderIn.id };
+  // } catch (error) {
+  //   console.error(error);
+  //   return { error: "Failed to update order." };
+  // }
+}
+
 export async function fetchOrders({
   searchQuery,
   page,
@@ -660,7 +808,7 @@ export async function fetchOrders({
     const [totalCount, orders] = await prisma.$transaction([
       prisma.order.count({
         where: {
-          isCompleted: newOnly,
+          isCompleted: newOnly === true ? false : undefined,
           AND: searchQuery
             ? {
                 OR: [
