@@ -9,7 +9,7 @@ import AdminSingleOrder from "./admin-single-order";
 
 import { getUserList } from "@/data/user/actions";
 import { getProducts } from "@/data/product/action";
-import { createAdminOrder } from "@/data/order/action";
+import { createAdminOrder, updateAdminOrder } from "@/data/order/action";
 
 // Shadcn
 import { Accordion } from "@/components/ui/accordion";
@@ -22,11 +22,7 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { Button } from "@/components/ui/button";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   AlertCircleIcon,
   Check,
@@ -60,25 +56,25 @@ export default function AdminOrderForm({
     include: { orderProduct: true };
   }> | null;
 }) {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
 
-  const [order, setOrder] = useState<TOrder>({
-    clientId:
-      originalOrder?.clientId !== undefined
-        ? originalOrder.clientId
-        : undefined,
+  const originalOrderCopy = originalOrder
+    ? (JSON.parse(JSON.stringify(originalOrder)) as Prisma.OrderGetPayload<{
+        include: { orderProduct: true };
+      }>)
+    : null;
+
+  const [updatedOrder, setUpdatedOrder] = useState<TOrder>({
+    clientId: originalOrderCopy?.clientId ? originalOrderCopy.clientId : undefined,
     orderProduct:
-      originalOrder?.orderProduct !== undefined &&
-      originalOrder?.orderProduct.length > 0
-        ? originalOrder.orderProduct
+      originalOrderCopy?.orderProduct && originalOrderCopy?.orderProduct.length > 0
+        ? originalOrderCopy.orderProduct
         : [],
   });
 
   const [clientOpen, setClientOpen] = useState(false);
-  const { data: clients, isLoading: loadingClients } = useSWR(
-    "getUsers",
-    getUserList
-  );
+  const { data: clients, isLoading: loadingClients } = useSWR("getUsers", getUserList);
 
   const [productOpen, setProductOpen] = useState(false);
   const [currentSelectedProduct, setCurrentSelectedProduct] = useState("");
@@ -87,19 +83,22 @@ export default function AdminOrderForm({
     getProducts
   );
 
-  const router = useRouter();
+  if (edit === true && !originalOrder) {
+    toast.error("Original order not found.");
+    return;
+  }
 
   const handleCreateOrder = async () => {
     setLoading(true);
 
-    if (!order.clientId || order.orderProduct.length === 0) {
+    if (!updatedOrder.clientId || updatedOrder.orderProduct.length === 0) {
       toast.error("顧客と少なくとも1つの商品を選択してください。");
       return;
     }
 
     const createdOrder = await createAdminOrder({
-      clientId: order.clientId,
-      orderProduct: order.orderProduct,
+      clientId: updatedOrder.clientId,
+      orderProduct: updatedOrder.orderProduct,
     });
 
     if (createdOrder.error !== null && typeof createdOrder.error === "string") {
@@ -107,20 +106,34 @@ export default function AdminOrderForm({
       return;
     }
 
-    setOrder({
-      clientId: undefined,
-      orderProduct: [],
-    });
-
     toast.success("注文が正常に作成されました。");
-    setCurrentSelectedProduct("");
     setLoading(false);
 
-    router.push("/dashboard/orders/" + createdOrder.data);
+    router.push("/dashboard/orders/" + createdOrder.data.id);
   };
 
   const handleUpdateOrder = async () => {
     setLoading(true);
+
+    if (!updatedOrder.clientId || updatedOrder.orderProduct.length === 0) {
+      toast.error("顧客と少なくとも1つの商品を選択してください。");
+      return;
+    }
+
+    const updateResult = await updateAdminOrder({
+      originalOrder: originalOrderCopy,
+      updatedOrder: updatedOrder,
+    });
+
+    if (updateResult.error !== null && typeof updateResult.error === "string") {
+      toast.error(updateResult.error);
+      return;
+    }
+
+    toast.success("注文が正常に更新されました。");
+    setLoading(false);
+
+    router.push("/dashboard/orders/" + updateResult.data.id);
   };
 
   const addSelectedToOrder = () => {
@@ -137,7 +150,7 @@ export default function AdminOrderForm({
     }
 
     // Prevent adding duplicates
-    if (order.orderProduct.find((p) => p.productId === productToAdd.id)) {
+    if (updatedOrder.orderProduct.find((p) => p.productId === productToAdd.id)) {
       setCurrentSelectedProduct("");
       return;
     }
@@ -150,7 +163,7 @@ export default function AdminOrderForm({
       request: "",
     };
 
-    setOrder((prev) => ({
+    setUpdatedOrder((prev) => ({
       ...prev,
       orderProduct: [...prev.orderProduct, newProduct],
     }));
@@ -168,7 +181,7 @@ export default function AdminOrderForm({
     const cartProductId = formObject.cartProductId;
     const sizeId = Number(formObject.sizeId);
 
-    if (!cartProductId || !sizeId || !newQuantity) {
+    if (!cartProductId || !sizeId || newQuantity === undefined) {
       toast.error("フォームの入力内容が正しくありません。");
       return;
     }
@@ -178,7 +191,7 @@ export default function AdminOrderForm({
       quantity: newQuantity,
     };
 
-    const updatedOrderProduct = order.orderProduct.map((product) => {
+    const updatedOrderProduct = updatedOrder.orderProduct.map((product) => {
       if (product.productId === cartProductId) {
         const details =
           product.details !== undefined
@@ -203,7 +216,7 @@ export default function AdminOrderForm({
       }
     });
 
-    setOrder((prev) => ({
+    setUpdatedOrder((prev) => ({
       ...prev,
       orderProduct: updatedOrderProduct,
     }));
@@ -230,7 +243,7 @@ export default function AdminOrderForm({
         ? String(formObject.handleOther)
         : String(formObject.handle);
 
-    const updatedOrderProduct = order.orderProduct.map((product) => {
+    const updatedOrderProduct = updatedOrder.orderProduct.map((product) => {
       if (product.productId === formObject.productId) {
         return {
           ...product,
@@ -243,7 +256,7 @@ export default function AdminOrderForm({
       }
     });
 
-    setOrder((prev) => ({
+    setUpdatedOrder((prev) => ({
       ...prev,
       orderProduct: updatedOrderProduct,
     }));
@@ -257,7 +270,7 @@ export default function AdminOrderForm({
         <h4 className="text-2xl font-medium mb-2">顧客を選択してください。</h4>
         <div>
           <Popover open={clientOpen} onOpenChange={setClientOpen}>
-            <PopoverTrigger asChild>
+            <PopoverTrigger asChild disabled={edit}>
               <Button
                 variant="outline"
                 role="combobox"
@@ -265,8 +278,8 @@ export default function AdminOrderForm({
                 className="w-full max-w-[600px] justify-between"
               >
                 {clients
-                  ? order.clientId
-                    ? clients.find((client) => client.id === order.clientId)
+                  ? updatedOrder.clientId
+                    ? clients.find((client) => client.id === updatedOrder.clientId)
                         ?.businessName
                     : "顧客を選択してください。"
                   : loadingClients
@@ -288,10 +301,10 @@ export default function AdminOrderForm({
                           key={client.id}
                           value={client.id}
                           onSelect={(selected) => {
-                            setOrder((prev) => ({
+                            setUpdatedOrder((prev) => ({
                               ...prev,
                               clientId:
-                                selected === order.clientId ? "" : selected,
+                                selected === updatedOrder.clientId ? "" : selected,
                             }));
                             setClientOpen(false);
                           }}
@@ -300,7 +313,7 @@ export default function AdminOrderForm({
                           <Check
                             className={cn(
                               "ml-auto",
-                              order.clientId === client.id
+                              updatedOrder.clientId === client.id
                                 ? "opacity-100"
                                 : "opacity-0"
                             )}
@@ -328,9 +341,8 @@ export default function AdminOrderForm({
               >
                 {products
                   ? currentSelectedProduct
-                    ? products.find(
-                        (product) => product.id === currentSelectedProduct
-                      )?.name
+                    ? products.find((product) => product.id === currentSelectedProduct)
+                        ?.name
                     : "商品を選択してください。"
                   : loadingProducts
                   ? "商品を読み込み中..."
@@ -380,11 +392,9 @@ export default function AdminOrderForm({
       <div>
         <h4 className="text-2xl font-medium mb-5">この注文の商品</h4>
         <div>
-          {order && order.orderProduct.length > 0 ? (
-            order.orderProduct.map((product) => {
-              const fullProduct = products?.find(
-                (p) => p.id === product.productId
-              );
+          {updatedOrder && updatedOrder.orderProduct.length > 0 ? (
+            updatedOrder.orderProduct.map((product) => {
+              const fullProduct = products?.find((p) => p.id === product.productId);
               if (!fullProduct) return null;
               // const orderProductDetails = product?.details
               //   ? (JSON.parse(product.details) as { sizeId: number; quantity: number }[])
@@ -393,7 +403,7 @@ export default function AdminOrderForm({
                 <Accordion key={product.productId} type="multiple">
                   <AdminSingleOrder
                     fullProduct={fullProduct}
-                    order={order}
+                    order={updatedOrder}
                     saveSize={saveSize}
                     saveDetails={saveDetails}
                   />
@@ -407,7 +417,7 @@ export default function AdminOrderForm({
           )}
         </div>
       </div>
-      {order && order.orderProduct.length > 0 ? (
+      {updatedOrder && updatedOrder.orderProduct.length > 0 ? (
         <div className="flex items-center gap-3 justify-center md:justify-start">
           <Button
             type="button"
@@ -424,20 +434,26 @@ export default function AdminOrderForm({
             )}
             {edit === true
               ? loading
-                ? "Saving..."
-                : "Save Order"
+                ? "節約..."
+                : "変更を保存"
               : loading
               ? "注文を作成中..."
               : "注文を作成"}
           </Button>
-          <Button
-            type="button"
-            onClick={() => setOrder({ clientId: "", orderProduct: [] })}
-            variant="outline"
-            disabled={loading}
-          >
-            <TrashIcon /> 注文をクリア
-          </Button>
+          {edit ? (
+            <Button variant={"ghost"} onClick={() => router.back()}>
+              キャンセル
+            </Button>
+          ) : (
+            <Button
+              type="button"
+              onClick={() => setUpdatedOrder({ clientId: "", orderProduct: [] })}
+              variant="outline"
+              disabled={loading}
+            >
+              <TrashIcon /> 注文をクリア
+            </Button>
+          )}
         </div>
       ) : null}
     </div>

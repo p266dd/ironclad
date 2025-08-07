@@ -420,108 +420,58 @@ export async function createAdminOrder({
 }) {
   const session = await verifyAdminSession();
 
-  // Verify quantities are available.
-  const orderProductCreateInputs: TCreateOrderProduct[] = [];
-  const stockUpdateOperations: TProductStockUpdate[] = [];
-
-  for (const cartProduct of orderProduct) {
-    if (
-      cartProduct.productId === undefined ||
-      cartProduct.productId === null ||
-      cartProduct.details === undefined
-    ) {
-      return { error: "Invalid product data." };
-    }
-
-    const parsedDetails =
-      typeof cartProduct?.details === "string"
-        ? (JSON.parse(cartProduct?.details) as TProductDetails[])
-        : (cartProduct?.details as TProductDetails[]);
-
-    const validItemsForThisOrder = [];
-
-    // Perform a stock check.
-    for (const itemDetail of parsedDetails) {
-      const sizeId = itemDetail?.sizeId;
-      const requestedQuantity = itemDetail?.quantity;
-
-      if (requestedQuantity === 0) {
-        continue; // Skip items with no valid quantity.
-      }
-
-      const productSizes = await prisma.product.findUnique({
-        where: { id: cartProduct.productId },
-        select: { sizes: true },
-      });
-
-      const sizeInfo =
-        productSizes && "sizes" in productSizes && Array.isArray(productSizes.sizes)
-          ? productSizes.sizes.find((s) => s.id === Number(sizeId))
-          : undefined;
-
-      if (!sizeInfo) {
-        return { error: "Product size is missing." };
-      }
-
-      if (requestedQuantity > sizeInfo.stock) {
-        return { error: `No stock available for size ${sizeInfo.name}.` };
-      }
-
-      // Prepare for stock update.
-      stockUpdateOperations.push({
-        sizeId: sizeInfo.id,
-        decrementAmount: requestedQuantity,
-        productId: cartProduct.productId, // For revalidation.
-      });
-
-      // Add to items for this specific OrderProduct, just in case storing price at time of order.
-      validItemsForThisOrder.push({
-        id: sizeId,
-        quantity: requestedQuantity,
-        priceAtOrder: sizeInfo.price, // Store price at the time of order.
-      });
-    }
-
-    if (validItemsForThisOrder.length > 0) {
-      orderProductCreateInputs.push({
-        product: { connect: { id: cartProduct.productId } },
-        brand: cartProduct?.brand || "No Brand",
-        handle: cartProduct?.handle || "No Handle",
-        request: cartProduct?.request || "No requests",
-        details: validItemsForThisOrder as Prisma.JsonArray,
-      });
-    } else {
-      return { error: "No valid item quantity for this order." };
-    }
+  if (!orderProduct) {
+    return { error: "Invalid order data." };
   }
 
-  if (orderProductCreateInputs.length === 0) {
-    return { error: "No valid items for this order." };
+  if (orderProduct?.length === 0) {
+    return { error: "Invalid order product data." };
   }
-
-  // Generate a simple order code.
-  const orderCode = `ORD-${Date.now().toString(36).toUpperCase()}-${session.id
-    .substring(0, 6)
-    .toUpperCase()}`;
 
   try {
-    // Create order using Prisma transaction for atomicity.
-    const newOrder = await prisma.$transaction(async (tx) => {
-      // Reduce quantities acordingly.
-      for (const op of stockUpdateOperations) {
-        await tx.size.update({
-          where: { id: op.sizeId },
-          data: { stock: { decrement: op.decrementAmount } },
-        });
+    const updatedResult = await prisma.$transaction(async (tx) => {
+      for (const productInUpdatedOrder of orderProduct) {
+        // Updated values as array.
+        const productDetails =
+          typeof productInUpdatedOrder.details === "string"
+            ? (JSON.parse(productInUpdatedOrder.details as string) as TProductDetails[])
+            : (productInUpdatedOrder.details as TProductDetails[]);
+
+        for (const productSizeDetail of productDetails) {
+          await tx.size.update({
+            where: { id: Number(productSizeDetail.id) },
+            data: {
+              stock: {
+                decrement: productSizeDetail.quantity,
+              },
+            },
+          });
+          // console.log("Size Id", productSizeDetail.id);
+          // console.log("-", productSizeDetail.quantity);
+        }
       }
 
-      // Create new order.
-      const createdOrder = await tx.order.create({
+      // // Generate a simple order code.
+      const orderCode = `ORD-${Date.now().toString(36).toUpperCase()}-${session.id
+        .substring(0, 6)
+        .toUpperCase()}`;
+
+      // Create related order model.
+      const createdOrderResult = await tx.order.create({
         data: {
-          client: { connect: { id: session.id } },
           code: orderCode,
+          client: { connect: { id: clientId } },
           orderProduct: {
-            create: orderProductCreateInputs,
+            create: orderProduct.map((op) => ({
+              productId: op.productId || "",
+              details:
+                typeof op.details === "string"
+                  ? (JSON.parse(op.details) as Prisma.JsonArray)
+                  : (op.details as Prisma.JsonArray),
+              brand: op.brand || "",
+              handle: op.handle || "",
+              request: op.request || "",
+            })),
           },
         },
         select: {
@@ -551,20 +501,20 @@ export async function createAdminOrder({
         },
       });
 
-      return createdOrder;
+      return createdOrderResult;
     });
 
     // Client emails.
     await sendEmail({
-      to: newOrder.client.email,
+      to: updatedResult.client.email,
       subject: "Order Confirmation",
       html: NewOrderEmailClient({
-        name: newOrder.client.businessName,
-        order: newOrder,
+        name: updatedResult.client.businessName,
+        order: updatedResult,
       }).html,
       text: NewOrderEmailClient({
-        name: newOrder.client.businessName,
-        order: newOrder,
+        name: updatedResult.client.businessName,
+        order: updatedResult,
       }).text,
       attachments: [
         {
@@ -578,14 +528,14 @@ export async function createAdminOrder({
     // Staff email.
     await sendEmail({
       to: "staff@ironcladknives.com",
-      subject: "New Order From " + newOrder.client.businessName,
+      subject: "New Order From " + updatedResult.client.businessName,
       html: NewOrderEmailStaff({
-        client: newOrder.client.businessName,
-        orderId: newOrder.id,
+        client: updatedResult.client.businessName,
+        orderId: updatedResult.id,
       }).html,
       text: NewOrderEmailStaff({
-        client: newOrder.client.businessName,
-        orderId: newOrder.id,
+        client: updatedResult.client.businessName,
+        orderId: updatedResult.id,
       }).text,
       attachments: [
         {
@@ -596,23 +546,17 @@ export async function createAdminOrder({
       ],
     });
 
-    // Revalidate paths for updated data.
-    revalidatePath("/cart");
-    revalidatePath("/account/orders");
+    revalidatePath("/orders");
+    revalidatePath("/orders/" + updatedResult.id);
     revalidatePath("/dashboard");
+    revalidatePath("/dashboard/orders/" + updatedResult.id);
+    revalidatePath("/dashboard/orders/" + updatedResult.id + "/print");
+    revalidatePath("/dashboard/orders/" + updatedResult.id + "/edit");
 
-    // Revalidate each product pages from order.
-    const uniqueProductIds = [
-      ...new Set(stockUpdateOperations.map((op) => op.productId)),
-    ];
-    for (const productId of uniqueProductIds) {
-      revalidatePath(`/products/${productId}`, "page");
-    }
-
-    return { error: null, data: newOrder.id };
+    return { error: null, data: updatedResult };
   } catch (error) {
     console.error(error);
-    return { error: "Failed to create order." };
+    return { error: "Failed to update order." };
   }
 }
 
@@ -620,166 +564,148 @@ export async function updateAdminOrder({
   originalOrder,
   updatedOrder,
 }: {
-  originalOrder:
-    | Prisma.OrderGetPayload<{
-        include: { orderProduct: true };
-      }>
-    | undefined;
+  originalOrder: Prisma.OrderGetPayload<{
+    include: { orderProduct: true };
+  }> | null;
   updatedOrder: {
-    id: string;
     clientId: string | undefined | null;
     orderProduct: TOrderProduct[];
   };
 }) {
   await verifyAdminSession();
 
-  if (!originalOrder || updatedOrder.orderProduct.length === 0) {
-    return { error: "Invalid product data." };
+  const originalOrderCopy = JSON.parse(
+    JSON.stringify(originalOrder)
+  ) as Prisma.OrderGetPayload<{
+    include: { orderProduct: true };
+  }> | null;
+
+  const updatedOrderCopy = JSON.parse(JSON.stringify(updatedOrder)) as {
+    clientId: string | undefined | null;
+    orderProduct: TOrderProduct[];
+  };
+
+  if (!originalOrderCopy || !updatedOrderCopy) {
+    return { error: "Invalid order data." };
   }
 
-  for (const product of updatedOrder.orderProduct) {
-    if (!product.productId) {
-      return { error: "Product data is missing." };
-    }
+  if (updatedOrderCopy?.orderProduct?.length === 0) {
+    return { error: "Invalid order product data." };
+  }
 
-    const originalProductDetails = originalOrder.orderProduct.find(
-      (p) => p.productId === product.productId
-    )?.details;
+  try {
+    const updatedResult = await prisma.$transaction(async (tx) => {
+      for (const productInUpdatedOrder of updatedOrderCopy.orderProduct) {
+        // Updated values as array.
+        const productDetails =
+          typeof productInUpdatedOrder.details === "string"
+            ? (JSON.parse(productInUpdatedOrder.details as string) as TProductDetails[])
+            : (productInUpdatedOrder.details as TProductDetails[]);
 
-    const updatedProductDetails =
-      typeof product?.details === "string"
-        ? (JSON.parse(product?.details) as TProductDetails[])
-        : (product?.details as TProductDetails[]);
+        const originalDetails = originalOrderCopy.orderProduct.find(
+          (op) => op.productId === productInUpdatedOrder.productId
+        )?.details as TProductDetails[];
 
-    if (
-      !updatedProductDetails ||
-      !originalProductDetails ||
-      typeof updatedProductDetails !== "object" ||
-      typeof originalProductDetails !== "object" ||
-      updatedProductDetails.length === 0
-    ) {
-      return { error: "No products in this order." };
-    }
+        // Update all the sizes inside each product detail.
+        if (originalDetails) {
+          // If updating an existing product.
+          for (const productSizeDetail of productDetails) {
+            // productSizeDetail [match] matchingSizeDetail
+            const matchingSizeDetail = originalDetails.find(
+              (od) => od.id === productSizeDetail.id
+            );
 
-    for (const updatedOrderDetails of updatedProductDetails) {
-      if (!updatedOrderDetails) {
-        return { error: "Invalid data." };
+            if (matchingSizeDetail) {
+              // Update size model.
+              await tx.size.update({
+                where: { id: Number(productSizeDetail.id) },
+                data: {
+                  stock: {
+                    increment: matchingSizeDetail.quantity - productSizeDetail.quantity,
+                  },
+                },
+              });
+              // console.log("Size Id", productSizeDetail.id);
+              // console.log(matchingSizeDetail.quantity - productSizeDetail.quantity);
+            }
+          }
+        } else {
+          // Add new product
+          for (const productSizeDetail of productDetails) {
+            await tx.size.update({
+              where: { id: Number(productSizeDetail.id) },
+              data: {
+                stock: {
+                  decrement: productSizeDetail.quantity,
+                },
+              },
+            });
+            // console.log("Size Id", productSizeDetail.id);
+            // console.log("-", productSizeDetail.quantity);
+          }
+        }
       }
 
-      const originalOrderDetails =
-        typeof originalProductDetails === "string"
-          ? (JSON.parse(originalProductDetails) as TProductDetails[])
-          : (originalProductDetails as TProductDetails[]);
-    }
+      // Update related order model.
+      const updatedOrderResult = await tx.order.update({
+        where: { id: originalOrderCopy.id },
+        data: {
+          orderProduct: {
+            deleteMany: {}, // Delete existing order products.
+            create: updatedOrderCopy.orderProduct.map((op) => ({
+              productId: op.productId || "",
+              details:
+                typeof op.details === "string"
+                  ? (JSON.parse(op.details) as Prisma.JsonArray)
+                  : (op.details as Prisma.JsonArray),
+              brand: op.brand || "",
+              handle: op.handle || "",
+              request: op.request || "",
+            })),
+          },
+        },
+        select: {
+          id: true,
+          code: true,
+          client: {
+            select: {
+              name: true,
+              email: true,
+              businessName: true,
+            },
+          },
+          createdAt: true,
+          orderProduct: {
+            select: {
+              details: true,
+              brand: true,
+              handle: true,
+              request: true,
+              product: {
+                include: {
+                  sizes: true,
+                },
+              },
+            },
+          },
+        },
+      });
+
+      return updatedOrderResult;
+    });
+
+    revalidatePath("/orders");
+    revalidatePath("/orders/" + originalOrderCopy.id);
+    revalidatePath("/dashboard");
+    revalidatePath("/dashboard/orders/" + originalOrderCopy.id);
+    revalidatePath("/dashboard/orders/" + originalOrderCopy.id + "/print");
+    revalidatePath("/dashboard/orders/" + originalOrderCopy.id + "/edit");
+
+    return { error: null, data: updatedResult };
+  } catch (error) {
+    console.error(error);
+    return { error: "Failed to update order." };
   }
-
-  //
-  //       // Find current related detail from original order.
-  //       const originalOrderProduct = originalOrder.orderProduct.find(
-  //         (op) => op.productId === cartProduct.productId
-  //       );
-
-  //       if (originalOrderProduct) {
-  //         const originalDetails =
-  //           typeof originalOrderProduct?.details === "string"
-  //             ? (JSON.parse(originalOrderProduct?.details) as TProductDetails[])
-  //             : (originalOrderProduct?.details as TProductDetails[]);
-
-  //         for (const originalItemDetail of originalDetails) {
-  //           const originalSizeId = originalItemDetail?.id;
-  //           const originalQuantity = originalItemDetail?.quantity;
-
-  //           const matchSizeDetail = parsedNewDetails.find(
-  //             (item) => item.id === originalSizeId
-  //           );
-
-  //           console.log("Matched", matchSizeDetail);
-  //           console.log("Original", originalItemDetail);
-
-  //           if (matchSizeDetail) {
-  //             // Product exists in both, calculate difference and update stock.
-  //             const quantityDifference = originalQuantity - matchSizeDetail.quantity;
-  //             console.log("Original QT", originalQuantity);
-  //             console.log("New QT", matchSizeDetail.quantity);
-  //             console.log("quantityDifference", quantityDifference);
-
-  //             if (quantityDifference !== 0) {
-  //               await prisma.size.update({
-  //                 where: { id: Number(originalSizeId) },
-  //                 data: { stock: { increment: quantityDifference } },
-  //               });
-  //             }
-  //           } else {
-  //             // Product was in original but not in new, return stock.
-  //             await prisma.size.update({
-  //               where: { id: Number(originalSizeId) },
-  //               data: { stock: { increment: originalQuantity } },
-  //             });
-  //           }
-  //         }
-  //       } else {
-  //         // Product was not in the original order.
-  //         // Decrement the related size quantity from the itemDetail.
-  //         await prisma.size.update({
-  //           where: { id: Number(sizeId) },
-  //           data: { stock: { decrement: requestedQuantity } },
-  //         });
-  //       }
-  //     }
-  //   }
-
-  //   // Update related order model.
-  //   const updatedOrderIn = await prisma.order.update({
-  //     where: { id: order.id },
-  //     data: {
-  //       updatedAt: new Date(),
-  //       clientId: order.clientId || undefined,
-  //       orderProduct: {
-  //         deleteMany: {}, // Delete existing order products
-  //         create: order.orderProduct.map((op) => ({
-  //           productId: op.productId || "",
-  //           details:
-  //             typeof op.details === "string"
-  //               ? (JSON.parse(op.details) as Prisma.JsonArray)
-  //               : (op.details as Prisma.JsonArray),
-  //           brand: op.brand || "",
-  //           handle: op.handle || "",
-  //           request: op.request || "",
-  //         })),
-  //       },
-  //     },
-  //     select: {
-  //       id: true,
-  //       code: true,
-  //       client: {
-  //         select: {
-  //           name: true,
-  //           email: true,
-  //           businessName: true,
-  //         },
-  //       },
-  //       createdAt: true,
-  //       orderProduct: {
-  //         select: {
-  //           details: true,
-  //           brand: true,
-  //           handle: true,
-  //           request: true,
-  //           product: {
-  //             include: {
-  //               sizes: true,
-  //             },
-  //           },
-  //         },
-  //       },
-  //     },
-  //   });
-
-  //   return { error: null, data: updatedOrderIn.id };
-  // } catch (error) {
-  //   console.error(error);
-  //   return { error: "Failed to update order." };
-  // }
 }
 
 export async function fetchOrders({
