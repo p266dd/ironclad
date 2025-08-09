@@ -232,7 +232,12 @@ export default function ProductPageForm({
 
         {product?.brand === "OEM (No Logo)" && (
           <div className="mt-4 flex flex-col gap-2" id="product-engraving">
-            <p className="text-sm text-slate-500">Engraving</p>
+            <p className="text-sm text-slate-500">
+              Engraving{" "}
+              <strong className="font-bold text-red-600">
+                &#91; Please, choose your preferable engraving. &#93;
+              </strong>
+            </p>
             <Select
               disabled={false}
               name="brand"

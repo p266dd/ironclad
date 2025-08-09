@@ -45,80 +45,103 @@ export default function AdminProductTable() {
   const [loadingNavigation, setLoadingNavigation] = useState("");
 
   // * Search input content.
-  const [searchQuery, setSearchQuery] = useState<
-    | {
-        input: string | undefined;
-        filter: string | undefined;
-      }
-    | undefined
-  >(undefined);
+  // const [searchQuery, setSearchQuery] = useState<
+  //   | {
+  //       input: string | undefined;
+  //       filter: string | undefined;
+  //     }
+  //   | undefined
+  // >(undefined);
 
   const getSearchParams = useSearchParams();
-  const page = getSearchParams.get("page");
+  const router = useRouter();
+  const inputRef = useRef<HTMLInputElement>(null);
 
   // Fetch data
   const { data: filtersData } = useSWR("fetchFilters", getFilters);
 
   // * Pagination settings.
-  const [perPage, setPerPage] = useState<number>(10);
+  const perPage = 10;
+  // Extract params from URL
+  const page = Number(getSearchParams.get("page") || "1");
+  const search = getSearchParams.get("search") || undefined;
+  const filter = getSearchParams.get("filter") || undefined;
 
-  const router = useRouter();
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  const { data, error, isLoading } = useSWR("getProducts", () =>
-    fetchProducts({
-      searchQuery,
-      page: page ? Number(page) : 1,
-      perPage,
-    })
+  // Fetch products — SWR key changes when search/filter/page/perPage changes
+  const { data, error, isLoading } = useSWR(
+    ["getProducts", search, filter, page, perPage],
+    () =>
+      fetchProducts({
+        searchQuery: { input: search, filter },
+        page,
+        perPage,
+      })
   );
 
-  // * Set the searchQuery.
-  const handleSearch = async (searchTerm: string | undefined) => {
-    setLoadingSearch(true);
-    setSearchQuery((prev) => ({
-      input: searchTerm !== "" ? searchTerm : undefined,
-      filter: prev?.filter,
-    }));
-    await mutate("getProducts");
-    await mutate("getProducts");
-    setLoadingSearch(false);
-    router.replace("/dashboard/products?page=1");
+  // // * Set the searchQuery.
+  // const handleSearch = async (searchTerm: string | undefined) => {
+  //   setLoadingSearch(true);
+  //   setSearchQuery((prev) => ({
+  //     input: searchTerm !== "" ? searchTerm : undefined,
+  //     filter: prev?.filter,
+  //   }));
+  //   await mutate("getProducts");
+  //   await mutate("getProducts");
+  //   setLoadingSearch(false);
+  //   router.replace("/dashboard/products?page=1");
+  // };
+
+  // Update search params helper
+  const updateParams = (params: Record<string, string | undefined>) => {
+    const sp = new URLSearchParams(getSearchParams.toString());
+    Object.entries(params).forEach(([key, value]) => {
+      if (value === undefined || value === "") {
+        sp.delete(key);
+      } else {
+        sp.set(key, value);
+      }
+    });
+    router.replace(`/dashboard/products?${sp.toString()}`);
   };
 
-  // * Set the new filter.
-  const handleFilterChange = async (filter?: string) => {
+  // Change search params
+  const handleSearch = async (searchTerm?: string) => {
+    setLoadingSearch(true);
+    updateParams({ search: searchTerm || undefined, page: "1" });
+    await mutate("getProducts");
+    setLoadingSearch(false);
+  };
+
+  // Change filter.
+  const handleFilterChange = async (newFilter?: string) => {
     setLoadingFilter(true);
-    setSearchQuery((prev) => ({
-      input: prev?.input,
-      filter: filter ? filter : undefined,
-    }));
+    updateParams({ filter: newFilter || undefined, page: "1" });
     await mutate("getProducts");
-    await mutate("getProducts");
-    router.replace("/dashboard/products?page=1");
     setLoadingFilter(false);
   };
 
-  // * Set the number of items per page.
-  const handlePerPageChange = async (perPage: number) => {
-    setPerPage(perPage);
+  // Change # of items per page.
+  const handlePerPageChange = async (newPerPage: number) => {
+    updateParams({ perPage: String(newPerPage), page: "1" });
     await mutate("getProducts");
-    await mutate("getProducts");
-    router.replace("/dashboard/products?page=1");
   };
 
+  // Clear search params
   const handleClearSearch = async () => {
-    setSearchQuery(undefined);
-    if (inputRef.current !== null) inputRef.current.value = "";
-    await mutate("getProducts");
+    updateParams({ search: undefined, page: "1" });
+    if (inputRef.current) inputRef.current.value = "";
     await mutate("getProducts");
   };
 
-  // * Set the new page number.
-  const handlePageChange = async (page: number) => {
-    if (page >= 1 && page <= (data?.totalPages || 1)) {
-      router.replace(`/dashboard/products?page=${page}`);
-      await mutate("getProducts");
+  // * Change page number.
+  const handlePageChange = async (newPage: number) => {
+    if (newPage >= 1 && newPage <= (data?.totalPages || 1)) {
+      updateParams({
+        page: String(newPage),
+        search,
+        filter,
+        perPage: perPage.toString(),
+      });
       await mutate("getProducts");
     }
   };
@@ -133,7 +156,11 @@ export default function AdminProductTable() {
         links.push(
           <PaginationItem key={i}>
             <PaginationLink
-              href={`/dashboard/products?page=${i}`}
+              href={`/dashboard/products?${new URLSearchParams({
+                ...(search ? { search } : {}),
+                ...(filter ? { filter } : {}),
+                page: i.toString(),
+              })}`}
               isActive={i === data?.currentPage}
             >
               {i}
@@ -146,7 +173,11 @@ export default function AdminProductTable() {
       links.push(
         <PaginationItem key={1}>
           <PaginationLink
-            href={`/dashboard/products?page=${1}`}
+            href={`/dashboard/products?${new URLSearchParams({
+              ...(search ? { search } : {}),
+              ...(filter ? { filter } : {}),
+              page: "1",
+            })}`}
             isActive={1 === data?.currentPage}
           >
             1
@@ -181,7 +212,11 @@ export default function AdminProductTable() {
         links.push(
           <PaginationItem key={i}>
             <PaginationLink
-              href={`/dashboard/products?page=${i}`}
+              href={`/dashboard/products?${new URLSearchParams({
+                ...(search ? { search } : {}),
+                ...(filter ? { filter } : {}),
+                page: i.toString(),
+              })}`}
               isActive={i === (data?.currentPage || 1)}
             >
               {i}
@@ -205,7 +240,11 @@ export default function AdminProductTable() {
         links.push(
           <PaginationItem key={data?.totalPages || 1}>
             <PaginationLink
-              href={`/dashboard/products?page=${data?.totalPages || 1}`}
+              href={`/dashboard/products?${new URLSearchParams({
+                ...(search ? { search } : {}),
+                ...(filter ? { filter } : {}),
+                page: (data?.totalPages || 1).toString(),
+              })}`}
               isActive={(data?.totalPages || 1) === (data?.currentPage || 1)}
             >
               {data?.totalPages || 1}
@@ -248,11 +287,7 @@ export default function AdminProductTable() {
         <div>
           <DropdownMenu>
             <DropdownMenuTrigger className="focus-visible:outline-0">
-              <Button
-                asChild
-                type="button"
-                variant={searchQuery?.filter ? "default" : "outline"}
-              >
+              <Button asChild type="button" variant={filter ? "default" : "outline"}>
                 <span>
                   {loadingFilter ? (
                     <LoaderCircleIcon className="animate-spin" />
@@ -266,7 +301,7 @@ export default function AdminProductTable() {
               <DropdownMenuLabel>フィルター</DropdownMenuLabel>
               <DropdownMenuSeparator />
 
-              {searchQuery?.filter ? (
+              {filter ? (
                 <DropdownMenuItem onClick={() => handleFilterChange()}>
                   <span className="flex items-center gap-2 bg-gray-50 rounded-md">
                     Clear <XCircleIcon />
@@ -309,13 +344,13 @@ export default function AdminProductTable() {
               placeholder="検索"
             />
             <Button
-              variant={searchQuery?.input ? "default" : "outline"}
+              variant={search ? "default" : "outline"}
               type="button"
               onClick={() => handleSearch(inputRef.current?.value)}
             >
               {loadingSearch ? (
                 <LoaderCircleIcon className="animate-spin" />
-              ) : searchQuery?.input ? (
+              ) : search ? (
                 <SearchX />
               ) : (
                 <SearchIcon />
@@ -415,29 +450,30 @@ export default function AdminProductTable() {
           <PaginationContent>
             <PaginationItem>
               <PaginationPrevious
-                href={`/dashboard/products?page=${
-                  data?.currentPage ? data?.currentPage - 1 : 1
-                }`}
-                onClick={() => handlePageChange((data?.currentPage || 1) - 1)}
-                aria-disabled={data?.currentPage === 1}
-                tabIndex={data?.currentPage === 1 ? -1 : undefined}
-                className={
-                  data?.currentPage === 1 ? "pointer-events-none opacity-50" : undefined
-                }
+                href={`/dashboard/products?${new URLSearchParams({
+                  ...(search ? { search } : {}),
+                  ...(filter ? { filter } : {}),
+                  page: String(page - 1),
+                })}`}
+                onClick={() => handlePageChange(page - 1)}
+                aria-disabled={page === 1}
+                tabIndex={page === 1 ? -1 : undefined}
+                className={page === 1 ? "pointer-events-none opacity-50" : undefined}
               />
             </PaginationItem>
             {renderPaginationLinks()}
             <PaginationItem>
               <PaginationNext
-                href={`/dashboard/products?page=${
-                  data?.currentPage ? data?.currentPage + 1 : 2
-                }`}
-                aria-disabled={data?.currentPage === data?.totalPages}
-                tabIndex={data?.currentPage === data?.totalPages ? -1 : undefined}
+                href={`/dashboard/products?${new URLSearchParams({
+                  ...(search ? { search } : {}),
+                  ...(filter ? { filter } : {}),
+                  page: String(page + 1),
+                })}`}
+                onClick={() => handlePageChange(page + 1)}
+                aria-disabled={page === data?.totalPages}
+                tabIndex={page === data?.totalPages ? -1 : undefined}
                 className={
-                  data?.currentPage === data?.totalPages
-                    ? "pointer-events-none opacity-50"
-                    : undefined
+                  page === data?.totalPages ? "pointer-events-none opacity-50" : undefined
                 }
               />
             </PaginationItem>

@@ -46,11 +46,6 @@ export default async function SingleProductPage({
         <div className="relative flex-1 mx-3 max-w-[400px] lg:w-1/2">
           <FavoriteButton productId={product?.id} />
           <ProductCarousel media={media} />
-          {product?.description && (
-            <div className="mt-6 px-6">
-              <p className="text-slate-600 whitespace-pre-line">{product?.description}</p>
-            </div>
-          )}
         </div>
 
         <div className="w-full px-6 lg:w-1/2">
@@ -59,6 +54,13 @@ export default async function SingleProductPage({
             subtitle={`Brand: ${product?.brand}`}
             className="hidden lg:block"
           />
+          {product?.description && (
+            <div className="my-3 p-3 rounded-md border-2 border-red-200">
+              <p className="text-slate-800 font-semibold whitespace-pre-line">
+                {product?.description}
+              </p>
+            </div>
+          )}
           <ProductPageForm
             product={product}
             preferences={getPreferences}

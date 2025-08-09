@@ -488,7 +488,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <meta name="application-name" content="Ironclad" />
         <meta name="theme-color" content="#1d293d" />
       </head>
-      <body className={`${openSans.variable} antialiased`}>
+      <body className={`${openSans.className} antialiased`}>
         {!doNotDisplayPrompt && <InstallPrompt />}
         <TourProvider>
           <Tour
