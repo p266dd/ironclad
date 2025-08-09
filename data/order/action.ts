@@ -594,104 +594,103 @@ export async function updateAdminOrder({
   }
 
   try {
-    const updatedResult = await prisma.$transaction(async (tx) => {
-      for (const productInUpdatedOrder of updatedOrderCopy.orderProduct) {
-        // Updated values as array.
-        const productDetails =
-          typeof productInUpdatedOrder.details === "string"
-            ? (JSON.parse(productInUpdatedOrder.details as string) as TProductDetails[])
-            : (productInUpdatedOrder.details as TProductDetails[]);
+    for (const productInUpdatedOrder of updatedOrderCopy.orderProduct) {
+      console.log("Current Product", productInUpdatedOrder);
+      // Updated values as array.
+      const productDetails =
+        typeof productInUpdatedOrder.details === "string"
+          ? (JSON.parse(productInUpdatedOrder.details as string) as TProductDetails[])
+          : (productInUpdatedOrder.details as TProductDetails[]);
 
-        const originalDetails = originalOrderCopy.orderProduct.find(
-          (op) => op.productId === productInUpdatedOrder.productId
-        )?.details as TProductDetails[];
+      const originalDetails = originalOrderCopy.orderProduct.find(
+        (op) => op.productId === productInUpdatedOrder.productId
+      )?.details as TProductDetails[];
 
-        // Update all the sizes inside each product detail.
-        if (originalDetails) {
-          // If updating an existing product.
-          for (const productSizeDetail of productDetails) {
-            // productSizeDetail [match] matchingSizeDetail
-            const matchingSizeDetail = originalDetails.find(
-              (od) => od.id === productSizeDetail.id
-            );
+      // Update all the sizes inside each product detail.
+      if (originalDetails) {
+        // If updating an existing product.
+        for (const productSizeDetail of productDetails) {
+          // productSizeDetail [match] matchingSizeDetail
+          const matchingSizeDetail = originalDetails.find(
+            (od) => od.id === productSizeDetail.id
+          );
 
-            if (matchingSizeDetail) {
-              // Update size model.
-              await tx.size.update({
-                where: { id: Number(productSizeDetail.id) },
-                data: {
-                  stock: {
-                    increment: matchingSizeDetail.quantity - productSizeDetail.quantity,
-                  },
-                },
-              });
-              // console.log("Size Id", productSizeDetail.id);
-              // console.log(matchingSizeDetail.quantity - productSizeDetail.quantity);
-            }
-          }
-        } else {
-          // Add new product
-          for (const productSizeDetail of productDetails) {
-            await tx.size.update({
+          if (matchingSizeDetail) {
+            // Update size model.
+            await prisma.size.update({
               where: { id: Number(productSizeDetail.id) },
               data: {
                 stock: {
-                  decrement: productSizeDetail.quantity,
+                  increment: matchingSizeDetail.quantity - productSizeDetail.quantity,
                 },
               },
             });
             // console.log("Size Id", productSizeDetail.id);
-            // console.log("-", productSizeDetail.quantity);
+            // console.log(matchingSizeDetail.quantity - productSizeDetail.quantity);
           }
         }
+      } else {
+        // Add new product
+        for (const productSizeDetail of productDetails) {
+          await prisma.size.update({
+            where: { id: Number(productSizeDetail.id) },
+            data: {
+              stock: {
+                decrement: productSizeDetail.quantity,
+              },
+            },
+          });
+          // console.log("Size Id", productSizeDetail.id);
+          // console.log("-", productSizeDetail.quantity);
+        }
       }
+    }
 
-      // Update related order model.
-      const updatedOrderResult = await tx.order.update({
-        where: { id: originalOrderCopy.id },
-        data: {
-          orderProduct: {
-            deleteMany: {}, // Delete existing order products.
-            create: updatedOrderCopy.orderProduct.map((op) => ({
-              productId: op.productId || "",
-              details:
-                typeof op.details === "string"
-                  ? (JSON.parse(op.details) as Prisma.JsonArray)
-                  : (op.details as Prisma.JsonArray),
-              brand: op.brand || "",
-              handle: op.handle || "",
-              request: op.request || "",
-            })),
+    // Update related order model.
+    const updatedOrderResult = await prisma.order.update({
+      where: { id: originalOrderCopy.id },
+      data: {
+        orderProduct: {
+          deleteMany: {
+            orderId: originalOrderCopy.id,
+          },
+          create: updatedOrderCopy.orderProduct.map((op) => ({
+            productId: op.productId || "",
+            details:
+              typeof op.details === "string"
+                ? (JSON.parse(op.details) as Prisma.JsonArray)
+                : (op.details as Prisma.JsonArray),
+            brand: op.brand || "",
+            handle: op.handle || "",
+            request: op.request || "",
+          })),
+        },
+      },
+      select: {
+        id: true,
+        code: true,
+        client: {
+          select: {
+            name: true,
+            email: true,
+            businessName: true,
           },
         },
-        select: {
-          id: true,
-          code: true,
-          client: {
-            select: {
-              name: true,
-              email: true,
-              businessName: true,
-            },
-          },
-          createdAt: true,
-          orderProduct: {
-            select: {
-              details: true,
-              brand: true,
-              handle: true,
-              request: true,
-              product: {
-                include: {
-                  sizes: true,
-                },
+        createdAt: true,
+        orderProduct: {
+          select: {
+            details: true,
+            brand: true,
+            handle: true,
+            request: true,
+            product: {
+              include: {
+                sizes: true,
               },
             },
           },
         },
-      });
-
-      return updatedOrderResult;
+      },
     });
 
     revalidatePath("/orders");
@@ -701,7 +700,7 @@ export async function updateAdminOrder({
     revalidatePath("/dashboard/orders/" + originalOrderCopy.id + "/print");
     revalidatePath("/dashboard/orders/" + originalOrderCopy.id + "/edit");
 
-    return { error: null, data: updatedResult };
+    return { error: null, data: updatedOrderResult };
   } catch (error) {
     console.error(error);
     return { error: "Failed to update order." };
