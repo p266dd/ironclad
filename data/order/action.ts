@@ -595,7 +595,7 @@ export async function updateAdminOrder({
 
   try {
     for (const productInUpdatedOrder of updatedOrderCopy.orderProduct) {
-      console.log("Current Product", productInUpdatedOrder);
+      // console.log("Current Product", productInUpdatedOrder);
       // Updated values as array.
       const productDetails =
         typeof productInUpdatedOrder.details === "string"
