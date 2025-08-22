@@ -14,7 +14,7 @@ export default function PageTitle({
   className?: string;
 }) {
   return (
-    <div className={`mt-9 mb-7 ${className}`}>
+    <div className={`mt-9 mb-7 sm:mt-4 ${className}`}>
       <h1 className="text-4xl font-semibold mb-2 capitalize">{title}</h1>
       {subtitle && <h4 className=" text-slate-600">{subtitle}</h4>}
 
