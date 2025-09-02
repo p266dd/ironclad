@@ -19,7 +19,7 @@ export async function getProductsInfineScroll(keys: {
   await verifyUserSession();
 
   const PAGE_INDEX: number = keys.pageIndex || 0;
-  const PER_PAGE: number = 12;
+  const PER_PAGE: number = 18;
 
   const filterTag = keys.activeFilters.tag;
   const searchFilters = keys.activeFilters.search;

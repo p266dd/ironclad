@@ -76,7 +76,7 @@ export default function ProductGrid(props: { activeFilters: TActiveFilters }) {
       const target = entries[0];
       if (target.isIntersecting && hasMoreData && !isLoading) {
         setSize((prevSize) => {
-          return prevSize + 1;
+          return prevSize + 2;
         }); // Load the next page of results.
       }
     },
@@ -86,7 +86,7 @@ export default function ProductGrid(props: { activeFilters: TActiveFilters }) {
   useEffect(() => {
     const observer = new IntersectionObserver(handleObserver, {
       root: null,
-      rootMargin: "100px",
+      rootMargin: "800px",
       threshold: 0.1,
     });
 
