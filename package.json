@@ -1,7 +1,7 @@
 {
   "name": "ironclad",
   "description": "Ironclad wholesaler application.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",

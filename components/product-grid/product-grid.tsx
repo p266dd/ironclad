@@ -86,7 +86,7 @@ export default function ProductGrid(props: { activeFilters: TActiveFilters }) {
   useEffect(() => {
     const observer = new IntersectionObserver(handleObserver, {
       root: null,
-      rootMargin: "800px",
+      rootMargin: "1000px",
       threshold: 0.1,
     });
 
