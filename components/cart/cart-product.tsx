@@ -40,6 +40,9 @@ import {
   updateOrderProductDetails,
 } from "@/data/cart/actions";
 
+import useSWR from "swr";
+import { getHandles } from "@/data/handles/action";
+
 // Types
 import { CartProductWithRelations, TEngravingPreference } from "@/lib/types";
 
@@ -65,6 +68,8 @@ export default function SingleCartProduct({
   const productThumbnail = product.product?.thumbnail?.url;
   const productDetail = product?.details as { sizeId: number; quantity: number }[];
 
+  const { data: handles, isLoading: loadingHandles } = useSWR("fetchHandles", getHandles);
+
   const handleUpdateDetails = async () => {
     setLoading(true);
     const updatedDetails = await updateOrderProductDetails({
@@ -83,6 +88,7 @@ export default function SingleCartProduct({
     setUnsavedChanges(null);
     setSave(false);
     setLoading(false);
+    setOtherHandle(false);
   };
 
   const handleDeleteQuantity = async ({
@@ -339,7 +345,10 @@ export default function SingleCartProduct({
                   disabled={false}
                   name="handle"
                   value={
-                    unsavedChanges?.handle || product?.handle || product?.product?.handle
+                    (product?.product?.handle === unsavedChanges?.handle &&
+                      product?.product?.handle) ||
+                    product?.handle ||
+                    product?.product?.handle
                   }
                   onValueChange={(value) => {
                     setSave(true);
@@ -378,21 +387,39 @@ export default function SingleCartProduct({
                   </SelectContent>
                 </Select>
 
-                {otherHandle && (
-                  <Input
-                    type="text"
+                {otherHandle && !loadingHandles && handles && (
+                  <Select
+                    disabled={false}
                     name="handleOther"
-                    autoComplete="off"
-                    placeholder="What handle would you like?"
-                    className="py-6"
-                    onChange={(e) => {
+                    defaultValue={"not-selected"}
+                    onValueChange={(value) => {
                       setSave(true);
-                      setUnsavedChanges((prev) => ({
-                        ...prev,
-                        handle: e.target.value,
-                      }));
+                      setUnsavedChanges((prev) => ({ ...prev, handle: value }));
                     }}
-                  />
+                  >
+                    <SelectTrigger className="w-full py-6">
+                      <SelectValue placeholder="Choose a custom handle." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectLabel>Custom</SelectLabel>
+                        <SelectItem value="not-selected" className="capitalize">
+                          Select Custom
+                        </SelectItem>
+                        {handles?.length > 0
+                          ? handles.map((handle, i) => (
+                              <SelectItem
+                                key={i}
+                                value={handle.name}
+                                className="capitalize"
+                              >
+                                {handle.name}
+                              </SelectItem>
+                            ))
+                          : null}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
                 )}
               </div>
 

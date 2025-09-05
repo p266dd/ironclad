@@ -43,6 +43,8 @@ import {
 import { Prisma } from "@/lib/generated/prisma";
 import { TEngravingPreference } from "@/lib/types";
 import Link from "next/link";
+import useSWR from "swr";
+import { getHandles } from "@/data/handles/action";
 
 export default function ProductPageForm({
   product,
@@ -71,6 +73,8 @@ export default function ProductPageForm({
   );
 
   const { startTour } = useTour();
+
+  const { data: handles, isLoading: loadingHandles } = useSWR("fetchHandles", getHandles);
 
   const [state, actionForm, isLoading] = useActionState(
     cart ? updateProductFromCart : addToCart,
@@ -332,14 +336,27 @@ export default function ProductPageForm({
             </SelectContent>
           </Select>
 
-          {otherHandle && (
-            <Input
-              type="text"
-              name="handleOther"
-              autoComplete="off"
-              placeholder="What handle would you like?"
-              className="py-6"
-            />
+          {otherHandle && !loadingHandles && handles && (
+            <Select disabled={false} name="handleOther" defaultValue={"not-selected"}>
+              <SelectTrigger className="w-full py-6">
+                <SelectValue placeholder="Choose a custom handle." />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel>Custom</SelectLabel>
+                  <SelectItem value="not-selected" className="capitalize">
+                    Custom Handle
+                  </SelectItem>
+                  {handles?.length > 0
+                    ? handles.map((handle, i) => (
+                        <SelectItem key={i} value={handle.name} className="capitalize">
+                          {handle.name}
+                        </SelectItem>
+                      ))
+                    : null}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
           )}
         </div>
 
