@@ -344,8 +344,8 @@ export default function ProductPageForm({
               <SelectContent>
                 <SelectGroup>
                   <SelectLabel>Custom</SelectLabel>
-                  <SelectItem value="not-selected" className="capitalize">
-                    Custom Handle
+                  <SelectItem value="not-selected" disabled={true} className="capitalize">
+                    -- Please ONLY choose a Handle With *** Mark --
                   </SelectItem>
                   {handles?.length > 0
                     ? handles.map((handle, i) => (
