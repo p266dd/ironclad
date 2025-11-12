@@ -9,6 +9,7 @@ export interface SessionPayload extends JWTPayload {
   id: string;
   name: string;
   email: string;
+  isActive: boolean;
   role: "user" | "admin";
 }
 
@@ -45,6 +46,10 @@ export async function deleteSession(): Promise<void> {
   cookieStore.delete(SESSION_COOKIE_NAME);
   // Optionally, redirect after deleting the session
   redirect("/login");
+}
+export async function deleteSessionNoRedirect(): Promise<void> {
+  const cookieStore = await cookies();
+  cookieStore.delete(SESSION_COOKIE_NAME);
 }
 
 /**
@@ -83,7 +88,7 @@ export async function getSession(): Promise<SessionPayload | null> {
 export async function verifyUserSession(): Promise<SessionPayload> {
   const session = await getSession();
 
-  if (!session) {
+  if (!session || session.isActive === false) {
     redirect("/login");
   }
 
@@ -99,7 +104,7 @@ export async function verifyUserSession(): Promise<SessionPayload> {
 export async function verifyAdminSession(): Promise<SessionPayload> {
   const session = await getSession();
 
-  if (!session) {
+  if (!session || session.isActive === false) {
     redirect("/login");
   }
 

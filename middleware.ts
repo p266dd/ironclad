@@ -1,10 +1,13 @@
 import { NextResponse } from "next/server";
 
-import { getSession, refreshSessionExpiration, deleteSession } from "@/lib/session";
+import {
+  getSession,
+  refreshSessionExpiration,
+  deleteSessionNoRedirect,
+} from "@/lib/session";
 
 import type { NextRequest } from "next/server";
 import { SessionPayload } from "@/lib/session";
-import prisma from "./lib/prisma";
 
 const publicRoutes = ["/login", "/register", "/recover", "/reset", "/export"];
 
@@ -30,6 +33,25 @@ export default async function middleware(req: NextRequest) {
       // console.log(`Middleware: No session, allowing access to public route ${path}`);
       return NextResponse.next();
     }
+  }
+
+  // 🔹 Call internal API to check user activity
+  try {
+    const res = await fetch(`${req.nextUrl.origin}/api/validate-user`, {
+      method: "POST",
+      body: JSON.stringify({ userId: session.id }),
+      headers: { "Content-Type": "application/json" },
+    });
+
+    const data = await res.json();
+
+    if (!data.isActive) {
+      await deleteSessionNoRedirect?.();
+      return NextResponse.redirect(new URL("/login", req.nextUrl));
+    }
+  } catch (err) {
+    console.error("Middleware: Failed to validate user activity", err);
+    return NextResponse.redirect(new URL("/login", req.nextUrl));
   }
 
   // Check if the session needs to be refreshed.
@@ -59,26 +81,6 @@ export default async function middleware(req: NextRequest) {
       // IMPORTANT: refreshSessionExpiration needs the *current* session payload.
       await refreshSessionExpiration(session);
     }
-  }
-
-  const isUserActive = await prisma.user.findFirst({
-    where: {
-      id: session.id,
-    },
-    select: {
-      isActive: true,
-      id: true,
-    },
-  });
-
-  // Check if user has active status.
-  if (isUserActive?.isActive === false) {
-    // If user is not active, destroy session and redirect to login.
-    console.log(
-      `Middleware: User ${session.id} is not active, destroying session and redirecting to /login`
-    );
-    await deleteSession();
-    return NextResponse.redirect(new URL("/login", req.nextUrl));
   }
 
   // If a valid session exists and it's not a public route allow the request to proceed.

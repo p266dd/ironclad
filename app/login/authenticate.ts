@@ -50,6 +50,7 @@ export async function authenticateUser(
       email: string;
       password: string;
       role: string;
+      isActive: boolean;
     };
 
     // Verify password.
@@ -64,6 +65,7 @@ export async function authenticateUser(
       id: user.id,
       name: user.name,
       email: user.email,
+      isActive: user.isActive,
       role: user.role as "user" | "admin",
     };
 

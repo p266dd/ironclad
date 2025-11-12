@@ -13,12 +13,7 @@ import {
 } from "@/data/user/actions";
 
 // Shadcn
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -44,12 +39,8 @@ export default function AdminUserForm({
   isNew?: boolean;
 }) {
   const [loading, setLoading] = useState(false);
-  const [generatedPassword, setGeneratedPassword] = useState<string | null>(
-    null
-  );
-  const [generatedBusinessCode, setGeneratedBusinessCode] = useState<
-    string | null
-  >(null);
+  const [generatedPassword, setGeneratedPassword] = useState<string | null>(null);
+  const [generatedBusinessCode, setGeneratedBusinessCode] = useState<string | null>(null);
 
   const router = useRouter();
 
@@ -248,9 +239,7 @@ export default function AdminUserForm({
               max={6}
               min={6}
               defaultValue={
-                generatedBusinessCode
-                  ? generatedBusinessCode
-                  : user?.businessCode ?? ""
+                generatedBusinessCode ? generatedBusinessCode : user?.businessCode ?? ""
               }
               className="capitalize"
               placeholder=""
@@ -288,9 +277,7 @@ export default function AdminUserForm({
                       <CardTitle className="flex items-center gap-2">
                         <User2Icon /> ユーザー
                       </CardTitle>
-                      <CardDescription className="sr-only">
-                        ユーザー権限
-                      </CardDescription>
+                      <CardDescription className="sr-only">ユーザー権限</CardDescription>
                     </div>
                   </div>
                 </CardHeader>
@@ -312,9 +299,7 @@ export default function AdminUserForm({
                       <CardTitle className="flex items-center gap-2">
                         <UserCheck2Icon /> 管理者
                       </CardTitle>
-                      <CardDescription className="sr-only">
-                        管理者権限
-                      </CardDescription>
+                      <CardDescription className="sr-only">管理者権限</CardDescription>
                     </div>
                   </div>
                 </CardHeader>
@@ -337,11 +322,7 @@ export default function AdminUserForm({
           </div>
 
           <Button type="submit" variant="default" disabled={loading}>
-            {loading ? (
-              <LoaderCircleIcon className="animate-spin" />
-            ) : (
-              <SaveIcon />
-            )}
+            {loading ? <LoaderCircleIcon className="animate-spin" /> : <SaveIcon />}
             {loading ? "保存中..." : isNew ? "追加" : "変更を保存"}
           </Button>
         </div>

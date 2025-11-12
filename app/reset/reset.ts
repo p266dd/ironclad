@@ -74,6 +74,7 @@ export async function resetPassword(
       id: string;
       name: string;
       email: string;
+      isActive: boolean;
       role: string;
     };
 
@@ -82,6 +83,7 @@ export async function resetPassword(
       id: user.id,
       name: user.name,
       email: user.email,
+      isActive: user.isActive,
       role: user.role as "user" | "admin",
     };
 
