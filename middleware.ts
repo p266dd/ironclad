@@ -4,8 +4,9 @@ import { getSession, refreshSessionExpiration, deleteSession } from "@/lib/sessi
 
 import type { NextRequest } from "next/server";
 import { SessionPayload } from "@/lib/session";
+import prisma from "./lib/prisma";
 
-const publicRoutes = ["/login", "/register", "/recover", "/reset"];
+const publicRoutes = ["/login", "/register", "/recover", "/reset", "/export"];
 
 // If the session has less than this many days remaining, we'll refresh it.
 const SESSION_REFRESH_THRESHOLD_DAYS = 7;
@@ -58,6 +59,26 @@ export default async function middleware(req: NextRequest) {
       // IMPORTANT: refreshSessionExpiration needs the *current* session payload.
       await refreshSessionExpiration(session);
     }
+  }
+
+  const isUserActive = await prisma.user.findFirst({
+    where: {
+      id: session.id,
+    },
+    select: {
+      isActive: true,
+      id: true,
+    },
+  });
+
+  // Check if user has active status.
+  if (isUserActive?.isActive === false) {
+    // If user is not active, destroy session and redirect to login.
+    console.log(
+      `Middleware: User ${session.id} is not active, destroying session and redirecting to /login`
+    );
+    await deleteSession();
+    return NextResponse.redirect(new URL("/login", req.nextUrl));
   }
 
   // If a valid session exists and it's not a public route allow the request to proceed.
